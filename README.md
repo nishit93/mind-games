@@ -9,4 +9,4 @@ Calm, single-player puzzle and mind games from around the world. A static, insta
 
 To add a game: create `games/<id>/` like the others and add an entry to `games.js`.
 
-Run locally: `python -m http.server -d .` then open http://localhost:8000.
+Run locally: `node .claude/serve.mjs` then open http://localhost:8766.
