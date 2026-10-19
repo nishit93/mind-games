@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Futoshiki · Mind Games</title>
+  <meta name="theme-color" content="#F0EEE9">
+  <link rel="manifest" href="../../manifest.webmanifest">
+  <link rel="icon" href="../../icon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap">
+  <link rel="stylesheet" href="../../styles.css">
+  <link rel="stylesheet" href="../../shared/latin.css">
+  <style>
+    .frame { background: var(--board); border-radius: calc(var(--radius) + 4px); padding: 10px; }
+    .sign { display: grid; place-items: center; color: var(--muted); font-weight: 700; font-size: clamp(.8rem, 3.6vw, 1.1rem); }
+    .sign.bad { color: #C0564B; }
+  </style>
+</head>
+<body data-game="futoshiki">
+  <main class="wrap">
+    <div class="stats">
+      <span>Time <b id="time">0:00</b></span>
+      <span>Best <b id="best">–</b></span>
+    </div>
+
+    <div class="stage"><div class="frame"><div class="lgrid" id="grid"></div></div></div>
+    <div class="pad" id="pad"></div>
+
+    <div class="controls">
+      <div class="seg" id="size" role="group" aria-label="Grid size">
+        <button data-value="4">4×4</button>
+        <button data-value="5">5×5</button>
+        <button data-value="6">6×6</button>
+      </div>
+      <button class="btn" id="new">New puzzle</button>
+    </div>
+
+    <details class="howto">
+      <summary>How to play</summary>
+      <h3>Goal</h3>
+      <p>Fill the grid so each row and each column contains every number once (1 to 4 on a 4×4 grid, 1 to 6 on 6×6), and every inequality sign is true.</p>
+      <h3>How it works</h3>
+      <ul>
+        <li>The signs between squares say which is bigger. <b>&lt;</b> and <b>&gt;</b> work across; <b>∧</b> means the square below is bigger and <b>∨</b> means the square above is bigger. The sign always points at the smaller number.</li>
+        <li>Darker numbers are given. Tap an empty square, then tap a number. ⌫ clears it.</li>
+        <li>Repeated numbers turn red, and so does a sign that is broken.</li>
+        <li>Every puzzle has exactly one solution.</li>
+      </ul>
+      <h3>Tips</h3>
+      <ul>
+        <li>A square that is smaller than its neighbour can never hold the largest number; a square that is bigger can never hold 1.</li>
+        <li>Follow chains: if a &lt; b &lt; c across three squares on a 4×4 grid, then a can only be 1 or 2.</li>
+        <li>When a row has just one gap, it's the number that's missing.</li>
+      </ul>
+      <h3>A little history</h3>
+      <p><i>Futoshiki</i> means “inequality” in Japanese. The puzzle was created in Japan in 2001 by Tamaki Seto and became a newspaper favourite worldwide after Sudoku.</p>
+    </details>
+  </main>
+  <script src="../../games.js"></script>
+  <script src="../../shell.js"></script>
+  <script src="../../shared/latin.js"></script>
+  <script src="game.js"></script>
+</body>
+</html>

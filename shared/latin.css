@@ -1,0 +1,32 @@
+.lgrid { display: grid; user-select: none; }
+.lc {
+  aspect-ratio: 1;
+  border: 0;
+  padding: 0;
+  border-radius: 10px;
+  background: var(--surface);
+  color: var(--accent);
+  font: inherit;
+  font-weight: 700;
+  font-size: clamp(1.1rem, 6vw, 1.7rem);
+  cursor: pointer;
+  box-shadow: 0 1px 3px rgb(74 59 51 / .08);
+}
+.lc.given { color: var(--text); cursor: default; }
+.lc.sel { background: color-mix(in srgb, var(--tile-home) 60%, var(--surface)); }
+.lc.peer { background: color-mix(in srgb, var(--tile-home) 15%, var(--surface)); }
+.lc.clash { color: #C0564B; }
+.solved .lc { background: color-mix(in srgb, var(--tile-home) 35%, var(--surface)); }
+.pad { display: grid; gap: 8px; margin-top: 14px; }
+.key {
+  border: 0;
+  border-radius: 12px;
+  padding: 12px 0;
+  background: var(--surface);
+  color: var(--text);
+  font: inherit;
+  font-size: 1.2rem;
+  font-weight: 600;
+  box-shadow: var(--shadow);
+  cursor: pointer;
+}

@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Pipes · Mind Games</title>
+  <meta name="theme-color" content="#F0EEE9">
+  <link rel="manifest" href="../../manifest.webmanifest">
+  <link rel="icon" href="../../icon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap">
+  <link rel="stylesheet" href="../../styles.css">
+  <style>
+    .pg {
+      display: grid;
+      gap: 2px;
+      background: var(--board);
+      border-radius: calc(var(--radius) + 4px);
+      padding: 8px;
+      aspect-ratio: 1;
+      user-select: none;
+    }
+    .p {
+      border: 0;
+      padding: 0;
+      border-radius: 6px;
+      background: var(--surface);
+      cursor: pointer;
+      color: color-mix(in srgb, var(--tile) 55%, var(--surface));
+    }
+    .p svg { width: 100%; height: 100%; display: block; transition: transform .2s cubic-bezier(.3, .7, .3, 1); }
+    .p.lit { color: var(--accent); }
+    .p.source { background: color-mix(in srgb, var(--tile-home) 45%, var(--surface)); }
+    .solved .p { color: #D9905F; }
+    .p:focus-visible { outline: 3px solid var(--accent); outline-offset: -2px; }
+  </style>
+</head>
+<body data-game="pipes">
+  <main class="wrap">
+    <div class="stats">
+      <span>Moves <b id="moves">0</b></span>
+      <span>Connected <b id="lit">0</b></span>
+      <span>Best <b id="best">–</b></span>
+    </div>
+
+    <div class="stage"><div class="pg" id="grid"></div></div>
+
+    <div class="controls">
+      <div class="seg" id="size" role="group" aria-label="Grid size">
+        <button data-value="4">4×4</button>
+        <button data-value="6">6×6</button>
+        <button data-value="8">8×8</button>
+      </div>
+      <button class="btn" id="new">New network</button>
+    </div>
+
+    <details class="howto">
+      <summary>How to play</summary>
+      <h3>Goal</h3>
+      <p>Turn the tiles so every pipe joins up into one network, with no loose ends.</p>
+      <h3>How it works</h3>
+      <ul>
+        <li>Tap a tile to turn it a quarter turn clockwise. Tiles can't be moved, only turned.</li>
+        <li>Water flows from the peach source tile. Pipes connected to it light up blue.</li>
+        <li>You've solved it when every tile is lit and no pipe end points at a wall or at a pipe that doesn't meet it.</li>
+        <li>Each turn counts as a move. Every network has a solution.</li>
+      </ul>
+      <h3>Tips</h3>
+      <ul>
+        <li>Start at the edges and corners. A pipe end can never point off the board, which often leaves only one way a tile can face.</li>
+        <li>A straight pipe on an edge must run along the edge.</li>
+        <li>The network never makes a loop, so if two pipes would close a circle, one of them must turn.</li>
+      </ul>
+      <h3>A little history</h3>
+      <p>Pipe-connecting puzzles became popular on computers and phones in the 1990s and 2000s. This rotating-tile version, sometimes called Net, is a classic of free puzzle collections.</p>
+    </details>
+  </main>
+  <script src="../../games.js"></script>
+  <script src="../../shell.js"></script>
+  <script src="game.js"></script>
+</body>
+</html>

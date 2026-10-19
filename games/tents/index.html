@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Tents · Mind Games</title>
+  <meta name="theme-color" content="#F0EEE9">
+  <link rel="manifest" href="../../manifest.webmanifest">
+  <link rel="icon" href="../../icon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap">
+  <link rel="stylesheet" href="../../styles.css">
+  <style>
+    .frame { background: var(--board); border-radius: calc(var(--radius) + 4px); padding: 8px; }
+    .tg { display: grid; gap: 3px; user-select: none; }
+    .t {
+      aspect-ratio: 1;
+      border: 0;
+      padding: 0;
+      border-radius: 7px;
+      background: var(--surface);
+      cursor: pointer;
+      display: grid;
+      place-items: center;
+      font: inherit;
+    }
+    .t svg { width: 70%; height: 70%; }
+    .t.tree { background: color-mix(in srgb, #88B04B 22%, var(--surface)); cursor: default; }
+    .t.grass::after { content: ''; width: 18%; aspect-ratio: 1; border-radius: 50%; background: color-mix(in srgb, #88B04B 70%, var(--surface)); }
+    .t.bad { box-shadow: inset 0 0 0 2px #C0564B; }
+    .clue { display: grid; place-items: center; font-weight: 700; font-size: clamp(.8rem, 3.6vw, 1rem); color: var(--text); }
+    .clue.met { color: var(--muted); opacity: .5; }
+    .clue.over { color: #C0564B; }
+    .solved .t:not(.tree) { background: color-mix(in srgb, var(--tile-home) 25%, var(--surface)); }
+  </style>
+</head>
+<body data-game="tents">
+  <main class="wrap">
+    <div class="stats">
+      <span>Tents <b id="placed">0</b> of <b id="need">0</b></span>
+      <span>Best <b id="best">–</b></span>
+    </div>
+
+    <div class="stage"><div class="frame"><div class="tg" id="grid"></div></div></div>
+
+    <div class="controls">
+      <div class="seg" id="size" role="group" aria-label="Grid size">
+        <button data-value="6">6×6</button>
+        <button data-value="8">8×8</button>
+      </div>
+      <button class="btn" id="new">New puzzle</button>
+    </div>
+
+    <details class="howto">
+      <summary>How to play</summary>
+      <h3>Goal</h3>
+      <p>Pitch exactly one tent next to every tree.</p>
+      <h3>The rules</h3>
+      <ol>
+        <li>Each tree has its own tent, directly above, below, left or right of it (not diagonally).</li>
+        <li>Tents never touch each other, not even at the corners.</li>
+        <li>The numbers along the top and left say how many tents are in that column or row.</li>
+      </ol>
+      <h3>How it works</h3>
+      <ul>
+        <li>Tap an empty square to put a tent there. Tap again to mark it as grass (a small dot), meaning “no tent here”. Tap once more to clear it.</li>
+        <li>Tents that touch get a red outline. A number fades when its row or column has the right count, and turns red if there are too many.</li>
+        <li>Every puzzle has exactly one solution.</li>
+      </ul>
+      <h3>Tips</h3>
+      <ul>
+        <li>Start with the zeros: mark every square in those rows and columns as grass.</li>
+        <li>Squares not next to any tree can never hold a tent. Mark them as grass too.</li>
+        <li>Once you place a tent, all eight squares around it become grass.</li>
+        <li>A tree with only one open neighbour has its tent decided.</li>
+      </ul>
+      <h3>A little history</h3>
+      <p>Tents puzzles are usually credited to Leon Balmaekers in the Netherlands, around 1989. They became popular in puzzle magazines across Europe and are also known as Tents and Trees.</p>
+    </details>
+  </main>
+  <script src="../../games.js"></script>
+  <script src="../../shell.js"></script>
+  <script src="game.js"></script>
+</body>
+</html>
