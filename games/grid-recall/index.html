@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Grid Recall · Mind Games</title>
+  <meta name="theme-color" content="#F0EEE9">
+  <link rel="manifest" href="../../manifest.webmanifest">
+  <link rel="icon" href="../../icon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap">
+  <link rel="stylesheet" href="../../styles.css">
+  <style>
+    .gr {
+      display: grid;
+      gap: 6px;
+      background: var(--board);
+      border-radius: calc(var(--radius) + 4px);
+      padding: 10px;
+      aspect-ratio: 1;
+      max-width: 400px;
+      margin: 0 auto;
+    }
+    .g {
+      border: 0;
+      border-radius: 10px;
+      background: var(--surface);
+      cursor: pointer;
+      transition: background-color .3s ease, transform .2s ease;
+    }
+    .g.lit { background: var(--accent); }
+    .g.hit { background: var(--tile-home); }
+    .g.miss { background: color-mix(in srgb, #C0564B 45%, var(--surface)); }
+    .g.missed { box-shadow: inset 0 0 0 3px var(--accent); }
+    .g:disabled { cursor: default; }
+    .lives { letter-spacing: .2em; color: #D9905F; }
+  </style>
+</head>
+<body data-game="grid-recall">
+  <main class="wrap">
+    <div class="stats">
+      <span>Level <b id="level">1</b></span>
+      <span>Tries <b class="lives" id="lives">●●●</b></span>
+      <span>Best <b id="best">0</b></span>
+    </div>
+
+    <div class="stage"><div class="gr" id="grid"></div></div>
+    <p class="status" id="status">Press Start, then remember the squares that light up.</p>
+
+    <div class="controls">
+      <button class="btn" id="start">Start</button>
+    </div>
+
+    <details class="howto">
+      <summary>How to play</summary>
+      <h3>Goal</h3>
+      <p>Remember which squares light up, then tap them all.</p>
+      <h3>How it works</h3>
+      <ul>
+        <li>Press Start. Some squares glow for a moment, then go dark.</li>
+        <li>Tap every square that glowed, in any order. Correct taps turn peach.</li>
+        <li>Find them all to move up a level: one more square lights up each level, and the grid grows as you go.</li>
+        <li>A wrong tap ends the round and shows the squares you missed. You have three tries per game.</li>
+      </ul>
+      <h3>Tips</h3>
+      <ul>
+        <li>Don't try to memorise squares one by one. See the whole pattern as a shape, like a letter or a constellation.</li>
+        <li>Split bigger patterns into two or three small clusters.</li>
+        <li>Take a breath before each round. There's no timer while you tap.</li>
+      </ul>
+      <h3>A little history</h3>
+      <p>Tasks like this are used by psychologists to measure visual and spatial working memory: how much a person can hold in mind for a few seconds. Most adults can hold around five to nine items, and practice helps you use clever patterns to remember more.</p>
+    </details>
+  </main>
+  <script src="../../games.js"></script>
+  <script src="../../shell.js"></script>
+  <script src="game.js"></script>
+</body>
+</html>

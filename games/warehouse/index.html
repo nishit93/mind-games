@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Warehouse · Mind Games</title>
+  <meta name="theme-color" content="#F0EEE9">
+  <link rel="manifest" href="../../manifest.webmanifest">
+  <link rel="icon" href="../../icon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap">
+  <link rel="stylesheet" href="../../styles.css">
+  <style>
+    .floor {
+      display: grid;
+      gap: 0;
+      background: var(--board);
+      border-radius: calc(var(--radius) + 4px);
+      padding: 10px;
+      max-width: 420px;
+      margin: 0 auto;
+      touch-action: none;
+      user-select: none;
+    }
+    .w { aspect-ratio: 1; display: grid; place-items: center; position: relative; }
+    .w.wall { background: color-mix(in srgb, var(--tile) 75%, var(--board)); border-radius: 4px; }
+    .w.goal::before { content: ''; position: absolute; width: 34%; aspect-ratio: 1; border-radius: 50%; box-shadow: inset 0 0 0 3px #D9905F; }
+    .w .crate { width: 82%; height: 82%; border-radius: 8px; background: var(--tile); box-shadow: inset 0 0 0 3px rgb(0 0 0 / .08), 0 2px 4px rgb(74 59 51 / .2); }
+    .w .crate.home { background: var(--tile-home); }
+    .w .me { width: 64%; aspect-ratio: 1; border-radius: 50%; background: var(--accent); box-shadow: 0 2px 4px rgb(74 59 51 / .25); }
+    .dpad { display: grid; grid-template-columns: repeat(3, 56px); gap: 6px; justify-content: center; margin-top: 14px; }
+    .dpad button {
+      height: 50px;
+      border: 0;
+      border-radius: 12px;
+      background: var(--surface);
+      box-shadow: var(--shadow);
+      font: inherit;
+      font-size: 1.2rem;
+      color: var(--text);
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body data-game="warehouse">
+  <main class="wrap">
+    <div class="stats">
+      <span>Moves <b id="moves">0</b></span>
+      <span>Fewest possible <b id="min">8</b></span>
+      <span>Best <b id="best">–</b></span>
+    </div>
+
+    <div class="stage"><div class="floor" id="floor"></div></div>
+    <div class="dpad" id="dpad">
+      <span></span><button data-d="up" aria-label="Up">↑</button><span></span>
+      <button data-d="left" aria-label="Left">←</button><button data-d="down" aria-label="Down">↓</button><button data-d="right" aria-label="Right">→</button>
+    </div>
+
+    <div class="controls">
+      <div class="seg" id="level" role="group" aria-label="Level">
+        <button data-value="0" aria-label="Level 1">1</button>
+        <button data-value="1" aria-label="Level 2">2</button>
+        <button data-value="2" aria-label="Level 3">3</button>
+        <button data-value="3" aria-label="Level 4">4</button>
+        <button data-value="4" aria-label="Level 5">5</button>
+        <button data-value="5" aria-label="Level 6">6</button>
+      </div>
+      <div class="actions">
+        <button class="btn ghost" id="undo">Undo</button>
+        <button class="btn" id="restart">Restart</button>
+      </div>
+    </div>
+
+    <details class="howto">
+      <summary>How to play</summary>
+      <h3>Goal</h3>
+      <p>Push every crate onto a marked spot on the floor.</p>
+      <h3>How it works</h3>
+      <ul>
+        <li>You are the blue circle. Move one square at a time with the arrow buttons, the arrow keys, or by swiping on the floor. You can also tap an empty square to walk there.</li>
+        <li>Walk into a crate to push it one square, if the square beyond it is free.</li>
+        <li>You can only push, never pull, and only one crate at a time.</li>
+        <li>A crate turns peach when it sits on a spot. The level is solved when every crate is home.</li>
+        <li>Undo takes back moves one at a time. Each step counts as a move.</li>
+      </ul>
+      <h3>Tips</h3>
+      <ul>
+        <li>Never push a crate into a corner unless it's a spot: you'll never get it out.</li>
+        <li>A crate pushed against a wall can only slide along that wall. Make sure there's a spot somewhere along it.</li>
+        <li>Think about which crate should go to which spot before you start pushing.</li>
+        <li>If you're stuck, Undo or Restart. Getting stuck is part of learning the level.</li>
+      </ul>
+      <h3>A little history</h3>
+      <p>Crate-pushing puzzles come from a 1982 Japanese computer game by Hiroyuki Imabayashi, whose name means “warehouse keeper”. Since then thousands of fan-made levels have been created. The levels here were made just for this site.</p>
+    </details>
+  </main>
+  <script src="../../games.js"></script>
+  <script src="../../shell.js"></script>
+  <script src="game.js"></script>
+</body>
+</html>

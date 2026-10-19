@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Digit Span · Mind Games</title>
+  <meta name="theme-color" content="#F0EEE9">
+  <link rel="manifest" href="../../manifest.webmanifest">
+  <link rel="icon" href="../../icon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap">
+  <link rel="stylesheet" href="../../styles.css">
+  <style>
+    .screen {
+      background: var(--board);
+      border-radius: calc(var(--radius) + 4px);
+      min-height: 190px;
+      display: grid;
+      place-items: center;
+      padding: 18px;
+      text-align: center;
+    }
+    .big { font-size: 4.2rem; font-weight: 700; line-height: 1; color: var(--text); min-height: 1em; }
+    .big.show { animation: fade .9s ease; }
+    @keyframes fade { 0% { opacity: 0; transform: scale(.9); } 20%, 80% { opacity: 1; transform: none; } 100% { opacity: 0; } }
+    .typed { font-size: 1.9rem; font-weight: 700; letter-spacing: .25em; color: var(--accent); min-height: 1.3em; word-break: break-all; }
+    .answer { color: var(--muted); font-size: .95rem; margin-top: 8px; }
+    .pad { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin-top: 14px; }
+    .key {
+      border: 0;
+      border-radius: 12px;
+      padding: 13px 0;
+      background: var(--surface);
+      color: var(--text);
+      font: inherit;
+      font-size: 1.2rem;
+      font-weight: 600;
+      box-shadow: var(--shadow);
+      cursor: pointer;
+    }
+    .key:disabled { opacity: .35; box-shadow: none; cursor: default; }
+    .key.wide { grid-column: span 2; font-size: 1rem; }
+    .key.go { grid-column: span 3; background: var(--accent); color: var(--on-accent); font-size: 1rem; }
+  </style>
+</head>
+<body data-game="digit-span">
+  <main class="wrap">
+    <div class="stats">
+      <span>Length <b id="len">3</b></span>
+      <span>Tries <b id="lives">●●</b></span>
+      <span>Best <b id="best">–</b></span>
+    </div>
+
+    <div class="stage">
+      <div class="screen" id="screen"><div><div class="big" id="big"></div><div class="typed" id="typed"></div><div class="answer" id="answer">Press Start and watch the digits.</div></div></div>
+    </div>
+    <div class="pad" id="pad"></div>
+
+    <div class="controls">
+      <div class="seg" id="mode" role="group" aria-label="Mode">
+        <button data-value="forward">Forward</button>
+        <button data-value="backward">Backward</button>
+      </div>
+      <button class="btn" id="start">Start</button>
+    </div>
+
+    <details class="howto">
+      <summary>How to play</summary>
+      <h3>Goal</h3>
+      <p>Remember a growing string of digits and type it back.</p>
+      <h3>How it works</h3>
+      <ul>
+        <li>Press Start. Digits appear one at a time, about one a second.</li>
+        <li>Then type them back with the keypad (or your keyboard) and press Done.</li>
+        <li><b>Forward</b>: type them in the same order. <b>Backward</b>: type them in reverse order, which is much harder.</li>
+        <li>Get it right and the next string is one digit longer. You have two tries at each length before the game ends.</li>
+        <li>Your score is the longest string you got right.</li>
+      </ul>
+      <h3>Tips</h3>
+      <ul>
+        <li>Group the digits in your head, like a phone number: 4 7 2 9 1 becomes “47 – 291”.</li>
+        <li>Say them silently as they appear. Hearing them in your mind helps them stick.</li>
+        <li>For Backward, picture the digits written in a row, then read them from the right.</li>
+      </ul>
+      <h3>A little history</h3>
+      <p>British teacher Joseph Jacobs measured how many digits his pupils could repeat in 1887, creating one of the first tests of memory. Digit span is still part of standard intelligence and memory tests today. Most adults manage about seven digits forwards and five backwards.</p>
+    </details>
+  </main>
+  <script src="../../games.js"></script>
+  <script src="../../shell.js"></script>
+  <script src="game.js"></script>
+</body>
+</html>

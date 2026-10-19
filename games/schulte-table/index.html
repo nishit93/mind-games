@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Schulte Table · Mind Games</title>
+  <meta name="theme-color" content="#F0EEE9">
+  <link rel="manifest" href="../../manifest.webmanifest">
+  <link rel="icon" href="../../icon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap">
+  <link rel="stylesheet" href="../../styles.css">
+  <style>
+    .st {
+      display: grid;
+      gap: 6px;
+      background: var(--board);
+      border-radius: calc(var(--radius) + 4px);
+      padding: 8px;
+      aspect-ratio: 1;
+      user-select: none;
+    }
+    .sn {
+      border: 0;
+      border-radius: 10px;
+      background: var(--surface);
+      color: var(--text);
+      font: inherit;
+      font-weight: 700;
+      font-size: clamp(1rem, 5.5vw, 1.7rem);
+      cursor: pointer;
+      transition: background-color .3s ease, color .3s ease;
+    }
+    .sn.found { background: color-mix(in srgb, var(--tile-home) 45%, var(--surface)); color: color-mix(in srgb, var(--text) 40%, transparent); }
+    .next { text-align: center; color: var(--muted); margin: 0 0 12px; }
+    .next b { color: var(--text); font-size: 1.4rem; }
+  </style>
+</head>
+<body data-game="schulte-table">
+  <main class="wrap">
+    <div class="stats">
+      <span>Time <b id="time">0:00</b></span>
+      <span>Best <b id="best">–</b></span>
+    </div>
+
+    <p class="next">Find <b id="next">1</b></p>
+    <div class="stage"><div class="st" id="grid"></div></div>
+
+    <div class="controls">
+      <div class="seg" id="size" role="group" aria-label="Table size">
+        <button data-value="3">3×3</button>
+        <button data-value="4">4×4</button>
+        <button data-value="5">5×5</button>
+      </div>
+      <button class="btn" id="new">New table</button>
+    </div>
+
+    <details class="howto">
+      <summary>How to play</summary>
+      <h3>Goal</h3>
+      <p>Tap the numbers in order, from 1 upwards, as fast as you calmly can.</p>
+      <h3>How it works</h3>
+      <ul>
+        <li>The numbers are scattered across the table. The number to find next is shown above it.</li>
+        <li>Tap it, and it fades. A wrong tap gives a little shake and costs nothing but time.</li>
+        <li>The clock starts at your first tap. Choose 3×3 (1–9) to start, or 5×5 (1–25) for the classic table.</li>
+      </ul>
+      <h3>Tips</h3>
+      <ul>
+        <li>Try to keep your eyes resting on the centre of the table and spot the numbers with your side vision, rather than darting around. That is the skill this table trains.</li>
+        <li>Breathe slowly. Speed comes from a relaxed, wide focus, not from rushing.</li>
+        <li>A few short sessions a day are better than one long one.</li>
+      </ul>
+      <h3>A little history</h3>
+      <p>The tables are named after German psychiatrist Walter Schulte, who used them in the early 1900s to study attention. They are still used by psychologists and in speed-reading training to widen the field of view.</p>
+    </details>
+  </main>
+  <script src="../../games.js"></script>
+  <script src="../../shell.js"></script>
+  <script src="game.js"></script>
+</body>
+</html>

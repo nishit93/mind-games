@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Traffic Jam · Mind Games</title>
+  <meta name="theme-color" content="#F0EEE9">
+  <link rel="manifest" href="../../manifest.webmanifest">
+  <link rel="icon" href="../../icon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap">
+  <link rel="stylesheet" href="../../styles.css">
+  <style>
+    .lot {
+      position: relative;
+      background: var(--board);
+      border-radius: calc(var(--radius) + 4px);
+      padding: 8px;
+      max-width: 420px;
+      margin: 0 auto;
+    }
+    .yard {
+      position: relative;
+      aspect-ratio: 1;
+      touch-action: none;
+      user-select: none;
+      background-image: linear-gradient(color-mix(in srgb, var(--muted) 12%, transparent) 1px, transparent 1px), linear-gradient(90deg, color-mix(in srgb, var(--muted) 12%, transparent) 1px, transparent 1px);
+      background-size: calc(100% / 6) calc(100% / 6);
+      border-radius: 10px;
+    }
+    .exit {
+      position: absolute;
+      right: -2px;
+      top: calc(8px + (100% - 16px) * 2 / 6 + 6px);
+      width: 8px;
+      height: calc((100% - 16px) / 6 - 12px);
+      border-radius: 4px;
+      background: #D9776A;
+      opacity: .6;
+    }
+    .car {
+      position: absolute;
+      border: 0;
+      padding: 0;
+      border-radius: 12px;
+      background: color-mix(in srgb, var(--tile) 70%, var(--surface));
+      box-shadow: 0 2px 6px rgb(74 59 51 / .18), inset 0 -3px 0 rgb(0 0 0 / .08);
+      cursor: grab;
+      transition: left .22s cubic-bezier(.3, .7, .3, 1), top .22s cubic-bezier(.3, .7, .3, 1);
+    }
+    .car.truck { background: var(--tile); }
+    .car.hero { background: #D9776A; }
+    .car:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+  </style>
+</head>
+<body data-game="traffic-jam">
+  <main class="wrap">
+    <div class="stats">
+      <span>Moves <b id="moves">0</b></span>
+      <span>Fewest possible <b id="min">4</b></span>
+      <span>Best <b id="best">–</b></span>
+    </div>
+
+    <div class="stage">
+      <div class="lot"><div class="yard" id="yard"></div><div class="exit" aria-hidden="true"></div></div>
+    </div>
+
+    <div class="controls">
+      <div class="seg" id="level" role="group" aria-label="Level">
+        <button data-value="0" aria-label="Level 1">1</button>
+        <button data-value="1" aria-label="Level 2">2</button>
+        <button data-value="2" aria-label="Level 3">3</button>
+        <button data-value="3" aria-label="Level 4">4</button>
+        <button data-value="4" aria-label="Level 5">5</button>
+        <button data-value="5" aria-label="Level 6">6</button>
+        <button data-value="6" aria-label="Level 7">7</button>
+        <button data-value="7" aria-label="Level 8">8</button>
+      </div>
+      <button class="btn" id="restart">Restart</button>
+    </div>
+
+    <details class="howto">
+      <summary>How to play</summary>
+      <h3>Goal</h3>
+      <p>Slide the cars and trucks out of the way so the coral car can drive out of the gap on the right.</p>
+      <h3>How it works</h3>
+      <ul>
+        <li>Cars only move forwards and backwards in the direction they face: sideways cars slide left and right, upright cars slide up and down. Nothing turns.</li>
+        <li>Swipe a car to slide it. Swipe further to slide it further. Or tap a car: if it can only go one way, it moves one square.</li>
+        <li>Each slide counts as one move. Try to match the fewest possible.</li>
+        <li>Levels 1 to 8 get harder, from 4 moves to 30.</li>
+      </ul>
+      <h3>Tips</h3>
+      <ul>
+        <li>Work backwards: which cars block the coral car's path, and what blocks those?</li>
+        <li>Trucks are long and need lots of space. Plan early where each one can go.</li>
+        <li>Sometimes you have to move the coral car backwards to make room.</li>
+      </ul>
+      <h3>A little history</h3>
+      <p>Sliding-car puzzles were popularised by Japanese puzzle master Nob Yoshigahara in the 1970s, and became a world-famous boxed puzzle in the 1990s. They are a favourite way to teach planning ahead.</p>
+    </details>
+  </main>
+  <script src="../../games.js"></script>
+  <script src="../../shell.js"></script>
+  <script src="game.js"></script>
+</body>
+</html>

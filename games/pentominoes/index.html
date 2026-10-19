@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Pentominoes · Mind Games</title>
+  <meta name="theme-color" content="#F0EEE9">
+  <link rel="manifest" href="../../manifest.webmanifest">
+  <link rel="icon" href="../../icon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap">
+  <link rel="stylesheet" href="../../styles.css">
+  <style>
+    .box {
+      display: grid;
+      gap: 2px;
+      background: var(--board);
+      border-radius: 14px;
+      padding: 8px;
+      max-width: 300px;
+      margin: 0 auto;
+    }
+    .bc { aspect-ratio: 1; border: 0; padding: 0; border-radius: 4px; background: var(--surface); cursor: pointer; }
+    .tray { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin-top: 14px; }
+    .piece-btn {
+      border: 0;
+      padding: 6px;
+      border-radius: 10px;
+      background: var(--surface);
+      box-shadow: var(--shadow);
+      cursor: pointer;
+    }
+    .piece-btn.sel { box-shadow: inset 0 0 0 3px var(--accent); }
+    .piece-btn.placed { opacity: .25; box-shadow: none; }
+    .mini-grid { display: grid; gap: 1px; }
+    .mini-grid i { width: 9px; height: 9px; border-radius: 2px; }
+    .hand { display: flex; align-items: center; justify-content: center; gap: 14px; margin-top: 12px; min-height: 64px; }
+    .hand .mini-grid i { width: 16px; height: 16px; border-radius: 3px; }
+    .turn { width: 48px; height: 44px; border: 0; border-radius: 12px; background: var(--surface); box-shadow: var(--shadow); font: inherit; font-size: 1.2rem; color: var(--text); cursor: pointer; }
+    .turn:disabled { opacity: .35; box-shadow: none; }
+  </style>
+</head>
+<body data-game="pentominoes">
+  <main class="wrap">
+    <div class="stats">
+      <span>Placed <b id="placed">0</b> of <b id="total">3</b></span>
+      <span>Solved <b id="solved">0</b></span>
+    </div>
+
+    <div class="stage"><div class="box" id="box"></div></div>
+    <div class="hand" id="hand">
+      <button class="turn" id="rotate" aria-label="Turn piece">↻</button>
+      <div id="held" aria-live="polite"></div>
+      <button class="turn" id="flip" aria-label="Flip piece">⇋</button>
+    </div>
+    <div class="tray" id="tray"></div>
+    <p class="status" id="status"></p>
+
+    <div class="controls">
+      <div class="seg" id="level" role="group" aria-label="Box size">
+        <button data-value="0">3</button>
+        <button data-value="1">4</button>
+        <button data-value="2">5</button>
+        <button data-value="3">6</button>
+        <button data-value="4">8</button>
+        <button data-value="5">12</button>
+      </div>
+      <button class="btn" id="clear">Clear</button>
+    </div>
+
+    <details class="howto">
+      <summary>How to play</summary>
+      <h3>Goal</h3>
+      <p>Fit all the pieces into the box so it is completely filled, with no gaps and no overlaps.</p>
+      <h3>How it works</h3>
+      <ul>
+        <li>Each piece is a pentomino: five squares joined edge to edge. There are exactly twelve different ones.</li>
+        <li>Tap a piece in the tray to pick it up. Turn it with ↻ and flip it over with ⇋.</li>
+        <li>Then tap a square in the box where you want the piece to go. It drops in covering that square if it fits.</li>
+        <li>Tap a piece already in the box to pick it back up.</li>
+        <li>The buttons below choose how many pieces to fit: 3 for a quick puzzle, up to all 12 in the classic 6×10 box.</li>
+        <li>Every box can be filled. The full 6×10 box has 2,339 different solutions.</li>
+      </ul>
+      <h3>Tips</h3>
+      <ul>
+        <li>Fill corners and edges first. Awkward pieces like the X (the plus shape) are best placed early, away from corners.</li>
+        <li>Watch for small enclosed gaps: if a gap's size isn't a multiple of 5, it can never be filled.</li>
+        <li>The long I piece is easiest along an edge.</li>
+      </ul>
+      <h3>A little history</h3>
+      <p>English puzzle writer Henry Dudeney used pentomino-shaped pieces in 1907. American mathematician Solomon Golomb gave them their name in 1953 and made them famous. They inspired many later games and are still used to teach shape and spatial thinking.</p>
+    </details>
+  </main>
+  <script src="../../games.js"></script>
+  <script src="../../shell.js"></script>
+  <script src="game.js"></script>
+</body>
+</html>
