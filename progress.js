@@ -50,8 +50,12 @@
 
   // ---- The record -----------------------------------------------------------------------------------------
 
-  const empty = () => ({ favourites: {}, bests: {}, stats: {}, settings: {}, days: [] });
-  const fill = s => ({ ...empty(), ...(s && typeof s === 'object' ? s : {}) });
+  const empty = () => ({ favourites: {}, bests: {}, stats: {}, settings: {}, days: [], lists: {} });
+  const fill = s => {
+    const o = { ...empty(), ...(s && typeof s === 'object' ? s : {}) };
+    if (!o.lists || typeof o.lists !== 'object' || Array.isArray(o.lists)) o.lists = {};
+    return o;
+  };
 
   let state, fresh = false;
   let lastRaw = null; // the stored record as this page last wrote or read it
@@ -103,6 +107,47 @@
     emit();
     schedule();
     return on;
+  }
+
+  // ---- Game lists: named groups of games. Favourites is the first list; the player's own lists come after it. ----
+  const MAX_LISTS = 30, MAX_LIST_GAMES = 60;
+  const cleanName = n => String(n == null ? '' : n).replace(/[\u0000-\u001f\u007f<>]/g, '').replace(/\s+/g, ' ').trim().slice(0, 40);
+  const liveLists = () => Object.entries(state.lists).filter(([, l]) => l && l.on !== false && typeof l.name === 'string').sort((a, b) => (a[0] < b[0] ? -1 : 1));
+  const lists = () => liveLists().map(([id, l]) => ({ id, name: l.name, games: Array.isArray(l.games) ? l.games.slice() : [] }));
+  // Favourites plus every list, in the order they are shown.
+  const collections = () => [{ id: 'favs', name: 'Favourites', games: favs(), fav: true }, ...lists()];
+  const touchList = (id, patch) => {
+    const cur = state.lists[id];
+    state.lists[id] = { name: cur.name, games: Array.isArray(cur.games) ? cur.games.slice() : [], on: cur.on !== false, ...patch, t: Date.now() };
+    save(); emit(); schedule();
+  };
+  function createList(name, firstGame) {
+    const n = cleanName(name);
+    if (!n || liveLists().length >= MAX_LISTS) return null;
+    const id = 'l' + Date.now().toString(36) + Math.random().toString(36).slice(2, 5);
+    state.lists[id] = { name: n, games: firstGame ? [String(firstGame)] : [], on: true, t: Date.now() };
+    save(); emit(); schedule();
+    return id;
+  }
+  function renameList(id, name) {
+    const n = cleanName(name);
+    if (!n || !state.lists[id] || state.lists[id].on === false) return false;
+    touchList(id, { name: n });
+    return true;
+  }
+  function deleteList(id) {
+    if (!state.lists[id]) return;
+    touchList(id, { on: false, games: [] }); // kept as a tombstone, so the delete reaches other devices
+  }
+  const inList = (id, game) => id === 'favs' ? isFav(game) : !!(state.lists[id] && state.lists[id].on !== false && (state.lists[id].games || []).includes(game));
+  function setInList(id, game, on) {
+    if (id === 'favs') { if (isFav(game) !== on) toggleFav(game); return true; }
+    const l = state.lists[id];
+    if (!l || l.on === false) return false;
+    const games = (l.games || []).filter(g => g !== game);
+    if (on) { if (games.length >= MAX_LIST_GAMES) return false; games.push(game); }
+    touchList(id, { games });
+    return true;
   }
 
   const dayString = d => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
@@ -186,7 +231,9 @@
   function applyRemote(remote) {
     applying = true;
     try {
+      const keepLists = remote && typeof remote === 'object' && remote.lists && typeof remote.lists === 'object' ? null : state.lists;
       state = fill(remote);
+      if (keepLists) state.lists = keepLists;
       for (const [key, b] of Object.entries(state.bests)) {
         const kind = classify(key);
         if (kind !== 'best' && kind !== 'fifteen') continue;
@@ -242,7 +289,7 @@
     return result;
   }
 
-  const hasProgress = () => state.days.length > 0 || Object.keys({ ...state.favourites, ...state.bests, ...state.stats }).length > 0;
+  const hasProgress = () => state.days.length > 0 || Object.keys({ ...state.favourites, ...state.bests, ...state.stats, ...state.lists }).length > 0;
 
   // Move progress to another device: the code is the guest's id and secret. Whoever has it can see and change the progress.
   const exportCode = () => { const p = getPlayer(); return p ? `${p.id}.${p.token}` : ''; };
@@ -316,6 +363,7 @@
 
   window.MGProgress = {
     mirror, isFav, favs, toggleFav, recordPlay, summary, refresh,
+    lists, collections, createList, renameList, deleteList, inList, setInList,
     onChange: fn => listeners.push(fn),
     sync, exportCode, useCode, eraseOnline, setSyncEnabled,
     configured: () => !!api(),

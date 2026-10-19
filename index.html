@@ -125,14 +125,24 @@
         _stub: true, onChange() {}, isFav: () => false, favs: () => [], configured: () => false, syncEnabled: () => false,
         summary: () => ({ streak: 0, plays: 0, favourites: 0, days: 0 }), status: () => ({ status: 'off', lastSync: 0, hasPlayer: false }),
       };
+      const M = window.MG || {};
+      const esc = M.esc || (s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])));
+      const badge = (g, short) => (M.badge ? M.badge(g, short) : '');
+      const kidMode = () => !!(M.isKidMode && M.isKidMode());
+      const vis = g => !kidMode() || !!g.kids;
+      // Favourites and the player's own lists, as [{id, name, games, fav}]. An older progress.js has only favourites.
+      const collections = () => (P.collections ? P.collections() : [{ id: 'favs', name: 'Favourites', games: P.favs(), fav: true }]);
       const byId = id => GAMES.find(g => g.id === id);
       const secName = g => SECTIONS.find(s => s.id === g.sec).name;
       const iconClass = g => ` sec-${g.sec}${g.icon.length > 2 ? ' small' : ''}`;
+      const gamesOf = c => c.games.map(byId).filter(g => g && vis(g));
+      const hashFor = c => (c.fav ? 'favs' : `l-${c.id}`);
 
       // ---- Pieces: hero, shelves of icon cards, and list rows ----
       const card = (g, kidsLink) => `
         <a class="gcard" href="games/${g.id}/${kidsLink ? '?kids' : ''}" role="listitem">
           <span class="gicon${iconClass(g)}" aria-hidden="true">${g.icon}</span>
+          ${g.kids ? badge(g, true) : ''}
           <span class="gname">${g.name}</span>
         </a>`;
 
@@ -142,63 +152,91 @@
           <div class="rail" role="list">${games.map(g => card(g, kidsLink)).join('')}</div>
         </section>`;
 
-      const row = (g, kidsLink) => {
+      const row = (g, kidsLink, removeFrom) => {
         const on = P.isFav(g.id);
         return `
         <div class="item">
           <a class="item-link" href="games/${g.id}/${kidsLink ? '?kids' : ''}">
             <span class="mini${iconClass(g)}" aria-hidden="true">${g.icon}</span>
-            <span class="item-text"><b>${g.name}${g.kids && !kidsLink ? ' <i class="kid" title="Great for kids">★</i>' : ''}</b><small>${g.blurb}</small></span>
+            <span class="item-text"><b>${g.name}${g.kids ? ` ${badge(g)}` : ''}</b><small>${g.blurb}</small></span>
           </a>
+          ${P._stub ? '' : `<button class="rowbtn addlist" data-addlist="${g.id}" aria-label="Save ${g.name} to a list" title="Save to a list">＋</button>`}
+          ${removeFrom ? `<button class="rowbtn" data-remove="${g.id}" data-from="${removeFrom}" aria-label="Remove ${g.name} from this list" title="Remove from this list">✕</button>` : ''}
           ${P._stub ? '' : `<button class="heart" data-fav="${g.id}" aria-pressed="${on}" aria-label="${on ? 'Remove ' + g.name + ' from favourites' : 'Add ' + g.name + ' to favourites'}">${on ? '♥' : '♡'}</button>`}
         </div>`;
       };
 
       // One big, obvious thing to do: carry on where you left off, or try something new.
       function hero() {
-        const last = (MG.store.json('recent') || []).map(byId).find(Boolean);
-        const g = last || GAMES[Math.floor(Date.now() / 86400000) % GAMES.length];
+        const pool = GAMES.filter(vis);
+        const last = (MG.store.json('recent') || []).map(byId).find(g => g && vis(g));
+        const g = last || pool[Math.floor(Date.now() / 86400000) % pool.length];
         return `
         <a class="hero" href="games/${g.id}/">
           <span class="gicon${iconClass(g)}" aria-hidden="true">${g.icon}</span>
           <span class="hero-text">
             <span class="hero-label">${last ? 'Continue playing' : 'Today’s pick'}</span>
-            <b>${g.name}</b>
+            <b>${g.name}${g.kids ? ` ${badge(g)}` : ''}</b>
             <small>${g.blurb}</small>
           </span>
           <span class="play" aria-hidden="true">▶</span>
         </a>`;
       }
 
+      // Changes whenever a list, its name or its games change, so the page knows when to redraw.
+      const signature = () => JSON.stringify(collections().map(c => [c.id, c.name, c.games]));
       let favSig = '';
 
       // ---- The views ----
       function draw() {
         const f = location.hash.slice(1) || 'all';
         const q = search.value.trim().toLowerCase();
-        const favList = P.favs().map(byId).filter(Boolean);
-        favSig = favList.map(g => g.id).join();
+        const cols = collections();
+        favSig = signature();
+        const km = kidMode();
+        const custom = cols.filter(c => !c.fav);
+        const current = f.startsWith('l-') ? custom.find(c => `l-${c.id}` === f) : f === 'favs' ? cols.find(c => c.fav) : null;
         let html;
 
         if (q) {
-          const found = GAMES.filter(g => `${g.name} ${g.origin} ${g.blurb} ${secName(g)}`.toLowerCase().includes(q));
+          const found = GAMES.filter(g => vis(g) && `${g.name} ${g.origin} ${g.blurb} ${secName(g)}`.toLowerCase().includes(q));
           html = found.length
             ? `<div class="list">${found.map(g => row(g)).join('')}</div>`
             : '<p class="empty">No game matches that search.</p>';
-        } else if (f === 'all' || !(f === 'kids' || f === 'favs' || SECTIONS.some(s => s.id === f))) {
+        } else if (f === 'lists') {
+          html = `
+            <div class="topbar"><a class="back" href="#all">‹ All games</a></div>
+            <h2 class="view-title">Your lists <small>${cols.length}</small></h2>
+            <p class="section-blurb">Group games your own way, like a playlist. Favourites is a list too. Add a game to a list with the ＋ on any game.</p>
+            ${P._stub ? '' : '<form class="newlist" data-newlist><input maxlength="40" placeholder="Name a new list, for example Train rides" aria-label="Name of a new list" autocomplete="off"><button class="btn" type="submit">Create list</button></form>'}
+            <div class="list">${cols.map(c => `
+              <div class="item"><a class="item-link" href="#${hashFor(c)}">
+                <span class="mini listicon" aria-hidden="true">${c.fav ? '♥' : '☰'}</span>
+                <span class="item-text"><b>${esc(c.name)}</b><small>${gamesOf(c).length} game${gamesOf(c).length === 1 ? '' : 's'}</small></span>
+              </a></div>`).join('')}</div>`;
+        } else if (current) {
+          const games = gamesOf(current);
+          html = `
+            <div class="topbar"><a class="back" href="#${current.fav ? 'all' : 'lists'}">‹ ${current.fav ? 'All games' : 'Your lists'}</a></div>
+            <h2 class="view-title">${current.fav ? '♥ ' : ''}${esc(current.name)} <small>${games.length}</small></h2>
+            <p class="section-blurb">${current.fav ? 'The games you have hearted' : 'Your list'}</p>
+            ${current.fav ? '' : '<div class="list-actions"><button class="btn ghost" data-act="rename-list" data-list="' + current.id + '">Rename</button><button class="btn ghost" data-act="delete-list" data-list="' + current.id + '">Delete list</button></div>'}
+            ${games.length ? `<div class="list">${games.map(g => row(g, km, current.fav ? '' : current.id)).join('')}</div>` : `<p class="empty">${current.fav ? 'No favourites yet. Tap the ♡ on any game to keep it here.' : 'Nothing here yet. Tap the ＋ on any game to add it.'}</p>`}`;
+        } else if (f === 'all' || !(f === 'kids' || SECTIONS.some(s => s.id === f))) {
+          const listShelves = cols.filter(c => gamesOf(c).length).map(c => shelf(hashFor(c), `${c.fav ? '♥ ' : ''}${esc(c.name)}`, gamesOf(c), km));
           html = hero()
-            + (favList.length ? shelf('favs', '♥ Your favourites', favList) : '')
-            + shelf('kids', '★ Great for kids', GAMES.filter(g => g.kids), true)
-            + SECTIONS.map(s => shelf(s.id, s.name, GAMES.filter(g => g.sec === s.id))).join('');
+            + listShelves.join('')
+            + (km ? '' : shelf('kids', `${M.FACE || ''} Great for kids`, GAMES.filter(g => g.kids), true))
+            + SECTIONS.map(s => ({ s, games: GAMES.filter(g => g.sec === s.id && vis(g)) })).filter(x => x.games.length).map(x => shelf(x.s.id, x.s.name, x.games, km)).join('')
+            + (P._stub ? '' : '<p class="lists-link"><a href="#lists">Your lists and favourites ›</a></p>');
         } else {
-          const info = f === 'kids' ? { name: 'Great for kids', blurb: 'Each one opens on its easiest setting', games: GAMES.filter(g => g.kids), kids: true }
-            : f === 'favs' ? { name: 'Your favourites', blurb: 'The games you have hearted', games: favList }
-            : { ...SECTIONS.find(s => s.id === f), games: GAMES.filter(g => g.sec === f) };
+          const info = f === 'kids' ? { name: 'Great for kids', blurb: 'Made for children up to 11. Each one opens on its easiest setting.', games: GAMES.filter(g => g.kids), kids: true }
+            : { ...SECTIONS.find(s => s.id === f), games: GAMES.filter(g => g.sec === f && vis(g)), kids: km };
           html = `
             <div class="topbar"><a class="back" href="#all">‹ All games</a></div>
             <h2 class="view-title">${info.name} <small>${info.games.length}</small></h2>
             <p class="section-blurb">${info.blurb}</p>
-            ${info.games.length ? `<div class="list">${info.games.map(g => row(g, info.kids)).join('')}</div>` : '<p class="empty">No favourites yet. Tap the ♡ on any game to keep it here.</p>'}`;
+            ${info.games.length ? `<div class="list">${info.games.map(g => row(g, info.kids)).join('')}</div>` : '<p class="empty">Nothing here.</p>'}`;
         }
         view.innerHTML = html;
         drawProgress();
@@ -229,7 +267,7 @@
       }
       function drawProgress() {
         const sum = P.summary();
-        const has = sum.plays > 0 || sum.favourites > 0;
+        const has = sum.plays > 0 || sum.favourites > 0 || (P.lists && P.lists().length > 0);
         // One quiet line under the title instead of a big panel.
         const sub = document.querySelector('header.top .sub');
         if (sub) sub.textContent = sum.plays > 0
@@ -251,9 +289,24 @@
       document.addEventListener('click', async e => {
         const heart = e.target.closest('[data-fav]');
         if (heart) { P.toggleFav(heart.dataset.fav); return; }
+        const add = e.target.closest('[data-addlist]');
+        if (add) { if (M.saveSheet) M.saveSheet(add.dataset.addlist); return; }
+        const rm = e.target.closest('[data-remove]');
+        if (rm) { P.setInList(rm.dataset.from, rm.dataset.remove, false); return; }
         const btn = e.target.closest('[data-act]');
         if (!btn) return;
         const act = btn.dataset.act;
+        if (act === 'rename-list') {
+          const cur = collections().find(c => c.id === btn.dataset.list);
+          const name = prompt('Rename this list:', cur ? cur.name : '');
+          if (name && P.renameList(btn.dataset.list, name)) safeDraw();
+          return;
+        }
+        if (act === 'delete-list') {
+          const cur = collections().find(c => c.id === btn.dataset.list);
+          if (cur && confirm(`Delete the list “${cur.name}”?\n\nThe games stay; only the list is removed.`)) { P.deleteList(btn.dataset.list); location.hash = '#lists'; safeDraw(); }
+          return;
+        }
         if (act === 'on') { P.setSyncEnabled(true); note('Online backup is on.'); }
         if (act === 'copy') {
           const code = P.exportCode();
@@ -275,9 +328,18 @@
         drawProgress();
       });
 
+      // Creating a list from the Your lists page.
+      document.addEventListener('submit', e => {
+        const form = e.target.closest('[data-newlist]');
+        if (!form) return;
+        e.preventDefault();
+        const input = form.querySelector('input');
+        if (P.createList && P.createList(input.value)) { input.value = ''; safeDraw(); }
+        else { input.classList.add('bad'); setTimeout(() => input.classList.remove('bad'), 600); }
+      });
+
       P.onChange(() => {
-        const sig = P.favs().join();
-        try { if (sig !== favSig) draw(); else drawProgress(); } catch (err) { console.error(err); }
+        try { if (signature() !== favSig) safeDraw(); else drawProgress(); } catch (err) { console.error(err); }
       });
 
       // Install: a slim strip, using the browser's own prompt where there is one, and Share-sheet steps on iPhone and iPad.
@@ -312,6 +374,8 @@
       // A new view (another list, a search) fades in; a redraw after a heart tap does not.
       const enter = () => { view.classList.remove('enter'); void view.offsetWidth; view.classList.add('enter'); view.querySelectorAll('.list > .item').forEach((el, i) => el.style.setProperty('--i', Math.min(i, 12))); };
       window.addEventListener('hashchange', () => { search.value = ''; safeDraw(); enter(); window.scrollTo(0, 0); });
+      // Kid mode was switched in the header or the menu.
+      document.addEventListener('mg-kidmode', () => { safeDraw(); enter(); });
       safeDraw();
       enter();
     })();

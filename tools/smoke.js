@@ -84,7 +84,7 @@
         check('Home page', `${label}: one big pick plus a shelf for every section`, !!d.querySelector('.hero') && SECTIONS.every(s => shelves.includes(s.id)) && shelves.includes('kids'), `shelves: ${shelves.join(', ')}`);
         const height = d.documentElement.scrollHeight;
         check('Home page', `${label}: stays compact (under 2.6 phone screens)`, height <= 2.6 * 812, `${height}px tall`);
-        if (label.startsWith('returning')) check('Home page', 'the hero continues the last game played', d.querySelector('.hero b') && d.querySelector('.hero b').textContent === 'Sudoku' && /Continue/.test(d.querySelector('.hero-label').textContent));
+        if (label.startsWith('returning')) check('Home page', 'the hero continues the last game played', d.querySelector('.hero b') && d.querySelector('.hero b').textContent.trim().startsWith('Sudoku') && /Continue/.test(d.querySelector('.hero-label').textContent));
         if (label === 'new visitor') check('Home page', 'a new visitor gets a pick for today', d.querySelector('.hero-label') && /pick/i.test(d.querySelector('.hero-label').textContent));
       }
       if (!lenient && label.startsWith('returning')) {
@@ -138,6 +138,13 @@
           if (!d.querySelector('meta[name="description"]') || !d.querySelector('link[rel="canonical"]')) problems.push('description or canonical address');
           try { const ld = JSON.parse(d.querySelector('script[type="application/ld+json"]').textContent); if (!ld['@graph'].some(x => x['@type'] === 'FAQPage') || !ld['@graph'].some(x => x['@type'] === 'VideoGame')) problems.push('structured data'); } catch { problems.push('structured data'); }
         }
+        if (!lenient && label === 'new visitor') {
+          if (!w.MGTutorial) await sleep(500);
+          const miss = w.MGTutorial ? w.MGTutorial.missing() : ['tutorial did not load'];
+          if (miss.length) problems.push('tutorial points at ' + miss.join(' and '));
+          if (g.kids && !(d.querySelector('.sub .kidbadge') && /Ages \d+–\d+/.test(d.querySelector('.sub .kidbadge').textContent))) problems.push('kids badge');
+          if (!g.kids && d.querySelector('.sub .kidbadge')) problems.push('kids badge on a game that is not for kids');
+        }
         if (problems.length) bad.push(`${g.name}: ${problems.join(', ')}`);
         close();
       }
@@ -171,12 +178,14 @@
       a.d.querySelector('.fav-btn').click();
       a.d.querySelector('.card').dispatchEvent(new PointerEvent('pointerdown', { bubbles: true }));
       a.w.MG.store.set('hanoi-best-5', '33');
+      a.w.MGProgress.createList('Smoke list', 'golf');
       const saved = await until(() => a.w.MGProgress.status().status === 'ok' && a.w.MGProgress.status().hasPlayer);
       check('Saving online', 'a first play is saved to the server', saved, `status: ${a.w.MGProgress.status().status}`);
       testCode = a.w.MGProgress.exportCode();
       let server = null;
       try { server = (await (await fetch(`${apiUnderTest}/v1/me`, authed(testCode))).json()).state; } catch {}
       check('Saving online', 'the server holds the favourite and the score', server && server.favourites.golf && server.favourites.golf.on && server.bests['hanoi-best-5'] && server.bests['hanoi-best-5'].v === 33);
+      check('Saving online', 'the server holds the player\'s own game list', server && server.lists && Object.values(server.lists).some(l => l.name === 'Smoke list' && l.on && l.games.includes('golf')));
       a.close();
 
       seed({ 'mg-api': apiUnderTest });
@@ -184,6 +193,7 @@
       check('Saving online', 'a wrong or malformed code is refused and changes nothing', (await b.w.MGProgress.useCode('not a code')) === 'invalid' && (await b.w.MGProgress.useCode('0'.repeat(32) + '.' + 'A'.repeat(43))) === 'unknown' && !b.w.MGProgress.status().hasPlayer);
       const joined = await b.w.MGProgress.useCode(testCode);
       check('Saving online', 'a second device can use the progress code', joined === 'ok', `result: ${joined}`);
+      check('Saving online', 'the second device gets the game list', b.w.MGProgress.lists().some(l => l.name === 'Smoke list' && l.games.includes('golf')));
       check('Saving online', 'the second device gets the favourite and the score', b.w.MGProgress.isFav('golf') && b.w.localStorage.getItem('hanoi-best-5') === '33');
       await b.w.MGProgress.eraseOnline();
       const after = await fetch(`${apiUnderTest}/v1/me`, authed(testCode)).then(r => r.status).catch(() => 0);
@@ -229,7 +239,7 @@
         for (const [x, y] of Object.values(groups)) { C[x].click(); C[y].click(); }
         await sleep(1200); return winText(d);
       });
-      await play('Lights Off', 'games/lights-off/', async d => {
+      await play('Lights Off', 'games/lights-off/', async (d, w2) => {
         d.querySelector('#size [data-value="3"]').click();
         const L = [...d.querySelectorAll('.light')], on = L.map(b => (b.classList.contains('on') ? 1 : 0));
         const flip = (s, i) => { const r = Math.floor(i / 3), c = i % 3; for (const [dr, dc] of [[0, 0], [1, 0], [-1, 0], [0, 1], [0, -1]]) { const rr = r + dr, cc = c + dc; if (rr >= 0 && rr < 3 && cc >= 0 && cc < 3) s[rr * 3 + cc] ^= 1; } };
@@ -237,6 +247,7 @@
         for (let m = 0; m < 512 && sol === undefined; m++) { const s = on.slice(); for (let i = 0; i < 9; i++) if (m >> i & 1) flip(s, i); if (s.every(v => !v)) sol = m; }
         for (let i = 0; i < 9; i++) if (sol >> i & 1) L[i].click();
         await sleep(1200);
+        if (!lenient) check('Tutorial', 'winning a level retires the tutorial for that game', w2.localStorage.getItem('tut-done-lights-off') === '1');
         if (!lenient) check('Rewards', 'a win shows the celebration and offers the next size', d.querySelector('.win.celebrate .badge') && d.querySelector('.win .next') && !d.querySelector('.win .next').hidden && /4/.test(d.querySelector('.win .next').textContent), (d.querySelector('.win') || {}).className);
         return winText(d);
       });
@@ -324,6 +335,110 @@
       await sleep(200);
       check('Back button', 'a page restored by Back redraws with current data', /Golf/.test((home.d.querySelector('.hero b') || {}).textContent || ''));
       game.close(); home.close();
+    }
+
+    // 9. Kids badge and kid mode, game lists, focus while playing, and the gesture tutorial.
+    if (!lenient) {
+      const nonKidLinks = d => [...d.querySelectorAll('#view a[href*="games/"]')].map(a => (a.getAttribute('href').match(/games\/([a-z0-9-]+)\//) || [])[1]).filter(id => id && !GAMES.find(g => g.id === id).kids);
+
+      seed({});
+      let h = await open('', 700);
+      const kidShelf = h.d.querySelector('.shelf[data-shelf="kids"]');
+      check('Kids badge', 'every game in the kids shelf has a badge with its ages, and no star is used', kidShelf && kidShelf.querySelectorAll('.kidbadge').length === GAMES.filter(g => g.kids).length && !/★/.test(h.d.body.textContent));
+      h.w.location.hash = '#kids'; await sleep(300);
+      check('Kids badge', 'the kids list shows the age range on every row', [...h.d.querySelectorAll('.item')].every(r => /Ages \d+–\d+/.test(r.textContent)) && h.d.querySelectorAll('.item').length === GAMES.filter(g => g.kids).length);
+      h.close();
+
+      seed({ 'mg-kidmode': 'on' });
+      h = await open('', 700);
+      check('Kid mode', 'when on, the home page offers only games for children', nonKidLinks(h.d).length === 0 && h.d.querySelectorAll('.gcard').length > 10 && h.d.body.classList.contains('kidmode'), nonKidLinks(h.d).join());
+      check('Kid mode', 'the menu lists only games for children too', [...h.d.querySelectorAll('.drawer-item')].every(a => GAMES.find(g => a.getAttribute('href').includes('/' + g.id + '/')).kids));
+      const sInput = h.d.getElementById('search'); sInput.value = 'sudoku'; sInput.dispatchEvent(new Event('input')); await sleep(100);
+      const found1 = h.d.querySelectorAll('.item').length;
+      sInput.value = 'mahjong'; sInput.dispatchEvent(new Event('input')); await sleep(100);
+      check('Kid mode', 'search finds children\'s games but not the others', found1 === 1 && !!h.d.querySelector('.empty'));
+      sInput.value = ''; sInput.dispatchEvent(new Event('input'));
+      h.d.querySelector('.kidswitch').click(); await sleep(500);
+      check('Kid mode', 'switching it off brings every game back', !h.d.body.classList.contains('kidmode') && h.w.localStorage.getItem('mg-kidmode') === 'off' && nonKidLinks(h.d).length > 0);
+      h.close();
+
+      seed({ 'mg-kidmode': 'on', 'hanoi-best-3': '7', 'hanoi-best-4': '15' });
+      const kh = await open('games/hanoi/', 500);
+      const kOn = kh.d.querySelector('#size button[aria-pressed="true"]');
+      check('Kid mode', 'a kids game starts on its easiest level', kOn && kOn.dataset.value === '3', kOn && kOn.dataset.value);
+      kh.close();
+      const kn = await open('games/mahjong-solitaire/', 500);
+      check('Kid mode', 'a game for older players says so and offers a way back', !!kn.d.querySelector('.kidbar a') && !!kn.d.querySelector('.kidbar button'));
+      kn.d.querySelector('.kidbar button').click();
+      check('Kid mode', 'Play anyway dismisses the notice', !kn.d.querySelector('.kidbar'));
+      kn.close();
+
+      // Game lists
+      seed({});
+      const g1 = await open('games/golf/', 500);
+      g1.d.querySelector('.list-btn').click(); await sleep(400);
+      const sheetRows0 = g1.d.querySelectorAll('.sheet-row').length;
+      const nameInput = g1.d.querySelector('.sheet-new input'); nameInput.value = '  Train <b>rides</b> '; g1.d.querySelector('.sheet-new').dispatchEvent(new Event('submit', { cancelable: true, bubbles: true })); await sleep(200);
+      const made = g1.w.MGProgress.lists();
+      check('Game lists', 'a game can be saved to a new list from its page, and a list name is kept as plain text', sheetRows0 === 1 && made.length === 1 && made[0].games.join() === 'golf' && !/[<>]/.test(made[0].name), JSON.stringify(made));
+      const emptyName = g1.d.querySelector('.sheet-new input'); emptyName.value = '   '; g1.d.querySelector('.sheet-new').dispatchEvent(new Event('submit', { cancelable: true, bubbles: true })); await sleep(100);
+      check('Game lists', 'a blank name makes no list', g1.w.MGProgress.lists().length === 1);
+      g1.d.querySelectorAll('.sheet-row input')[0].click(); await sleep(100);
+      check('Game lists', 'Favourites is one of the lists in the sheet', g1.w.MGProgress.isFav('golf'));
+      g1.close();
+
+      const listId = made[0].id;
+      h = await open('', 700);
+      check('Game lists', 'the home page shows the list next to Favourites', !!h.d.querySelector('.shelf[data-shelf="favs"]') && !!h.d.querySelector('.shelf[data-shelf="l-' + listId + '"] .gcard'));
+      h.w.location.hash = '#lists'; await sleep(400);
+      check('Game lists', 'Your lists shows Favourites and the new list', h.d.querySelectorAll('.item').length === 2 && !!h.d.querySelector('[data-newlist]'));
+      h.w.location.hash = '#l-' + listId; await sleep(400);
+      check('Game lists', 'opening a list shows its games, with a way to remove them', h.d.querySelectorAll('.item').length === 1 && !!h.d.querySelector('[data-remove]') && !!h.d.querySelector('[data-act="rename-list"]'));
+      h.d.querySelector('[data-remove]').click(); await sleep(300);
+      check('Game lists', 'removing a game from a list works', h.w.MGProgress.lists()[0].games.length === 0 && !!h.d.querySelector('.empty'));
+      h.w.MGProgress.setInList(listId, 'sudoku', true);
+      h.w.MGProgress.renameList(listId, 'Evening');
+      check('Game lists', 'a list can be renamed and added to', h.w.MGProgress.lists()[0].name === 'Evening' && h.w.MGProgress.lists()[0].games.join() === 'sudoku');
+      h.w.MGProgress.deleteList(listId); await sleep(200);
+      const tomb = h.w.MGProgress._state().lists[listId];
+      check('Game lists', 'deleting a list removes it everywhere but leaves a marker so the delete reaches other devices', h.w.MGProgress.lists().length === 0 && tomb && tomb.on === false);
+      h.close();
+
+      // Focus while playing
+      seed({});
+      const f1 = await open('games/golf/', 500);
+      f1.d.querySelector('.card').dispatchEvent(new PointerEvent('pointerdown', { bubbles: true })); await sleep(1500);
+      const handle = f1.d.querySelector('.focus-handle');
+      check('Focus', 'once play starts, the header, rules and links step aside', f1.d.body.classList.contains('focus') && handle && !handle.hidden && f1.w.getComputedStyle(f1.d.querySelector('.howto')).display === 'none' && f1.w.getComputedStyle(f1.d.querySelector('.more')).display === 'none');
+      handle.click(); await sleep(200);
+      check('Focus', 'the handle brings everything back', !f1.d.body.classList.contains('focus') && f1.w.getComputedStyle(f1.d.querySelector('.howto')).display !== 'none');
+      f1.close();
+      seed({ 'mg-focus': 'off' });
+      const f2 = await open('games/golf/', 500);
+      f2.d.querySelector('.card').dispatchEvent(new PointerEvent('pointerdown', { bubbles: true })); await sleep(1500);
+      check('Focus', 'it can be turned off in the menu', !f2.d.body.classList.contains('focus'));
+      f2.close();
+
+      // Gesture tutorial
+      seed({});
+      const t1 = await open('games/hanoi/', 1700);
+      check('Tutorial', 'a new player sees the gesture demo on arrival', !!t1.d.querySelector('.coach .coach-text') && /peg/i.test(t1.d.querySelector('.coach-text').textContent));
+      const stepsBefore = t1.d.querySelectorAll('.coach-steps b').length;
+      t1.d.querySelector('.coach-next').click(); await sleep(150);
+      check('Tutorial', 'Next moves through the steps', stepsBefore >= 2 && t1.d.querySelector('.coach-steps b.on') === t1.d.querySelectorAll('.coach-steps b')[1]);
+      t1.d.querySelector('.peg').dispatchEvent(new PointerEvent('pointerdown', { bubbles: true })); await sleep(600);
+      check('Tutorial', 'touching the board makes the demo step aside', !t1.d.querySelector('.coach'));
+      t1.d.querySelector('.demo-btn').click(); await sleep(400);
+      check('Tutorial', 'the demo button plays it again', !!t1.d.querySelector('.coach'));
+      t1.close();
+      seed({ 'tut-done-hanoi': '1' });
+      const t2 = await open('games/hanoi/', 1700);
+      check('Tutorial', 'after a win it is not shown again', !t2.d.querySelector('.coach'));
+      t2.close();
+      seed({ 'sudoku-best-easy': '300000' });
+      const t3 = await open('games/sudoku/', 1700);
+      check('Tutorial', 'a returning player with scores does not see it', !t3.d.querySelector('.coach'));
+      t3.close();
     }
   } catch (err) {
     check('Test run', 'finished without crashing', false, err.stack || err.message);

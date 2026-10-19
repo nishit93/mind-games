@@ -92,3 +92,13 @@ var LEVELS = {
   'warehouse': ['warehouse-level', 'warehouse-best-', '#level'],
   'water-jugs': ['jugs-level', 'jugs-best-', '#level'],
 };
+
+// Suggested ages (from, to) for the games made for children. Shown as a badge, and used by Kid mode (kids: true).
+var AGES = {
+  'sudoku': [8, 11], 'nonogram': [7, 11], 'lights-off': [6, 11], 'pipes': [6, 11], 'colour-flood': [6, 11], 'eight-queens': [9, 11],
+  'bulls-and-cows': [8, 11], 'magic-square': [8, 11], 'make-24': [8, 11], 'number-pyramid': [7, 11], 'water-jugs': [9, 11],
+  '15-puzzle': [6, 11], 'hanoi': [6, 11], 'huarong-dao': [8, 11], 'traffic-jam': [6, 11],
+  'memory': [4, 8], 'recall': [5, 9], 'schulte-table': [7, 11], 'grid-recall': [6, 10], 'digit-span': [8, 11],
+  'pyramid': [7, 11], 'golf': [6, 11],
+};
+GAMES.forEach(function (g) { if (g.kids) g.ages = AGES[g.id] || [6, 11]; });
