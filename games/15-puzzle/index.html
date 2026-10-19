@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>15-Puzzle · Mind Games</title>
+  <meta name="theme-color" content="#F0EEE9">
+  <link rel="manifest" href="../../manifest.webmanifest">
+  <link rel="icon" href="../../icon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap">
+  <link rel="stylesheet" href="../../styles.css">
+</head>
+<body>
+  <main class="wrap">
+    <header class="top">
+      <div>
+        <h1>15-Puzzle</h1>
+        <p class="sub">Slide the tiles back into order.</p>
+      </div>
+      <a class="back" href="../../">← All games</a>
+    </header>
+
+    <div class="stats">
+      <span>Moves <b id="moves">0</b></span>
+      <span>Time <b id="time">0:00</b></span>
+      <span>Best <b id="best">–</b></span>
+    </div>
+
+    <div class="board" id="board">
+      <div class="win" id="win">
+        <div>
+          <h2>Well done</h2>
+          <p id="win-text"></p>
+          <button class="btn" id="again">Play again</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="controls">
+      <div class="seg" role="group" aria-label="Board size">
+        <button data-size="3">3×3</button>
+        <button data-size="4">4×4</button>
+        <button data-size="5">5×5</button>
+      </div>
+      <button class="btn" id="shuffle">New game</button>
+    </div>
+
+    <p class="hint">Tap a tile in the same row or column as the gap. Arrow keys work too.</p>
+  </main>
+  <script src="game.js"></script>
+  <script>
+    if ('serviceWorker' in navigator) navigator.serviceWorker.register('../../sw.js');
+  </script>
+</body>
+</html>

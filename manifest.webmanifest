@@ -1,0 +1,13 @@
+{
+  "name": "Mind Games",
+  "short_name": "Mind Games",
+  "description": "Calm puzzle and mind games from around the world.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#F0EEE9",
+  "theme_color": "#F0EEE9",
+  "icons": [
+    { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}

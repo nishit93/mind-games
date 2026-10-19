@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Mind Games</title>
+  <meta name="description" content="Calm puzzle and mind games from around the world.">
+  <meta name="theme-color" content="#F0EEE9">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="icon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main class="wrap">
+    <header class="top">
+      <div>
+        <h1>Mind Games</h1>
+        <p class="sub">Quiet puzzles from around the world.</p>
+      </div>
+    </header>
+
+    <section class="games">
+      <a class="card" href="games/15-puzzle/">
+        <div class="icon">15</div>
+        <div>
+          <h2>15-Puzzle</h2>
+          <p>USA, 1880s · Slide the tiles back into order.</p>
+        </div>
+      </a>
+      <div class="card soon">
+        <div class="icon">≡</div>
+        <div>
+          <h2>Tower of Hanoi</h2>
+          <p>France, 1883 · Coming soon</p>
+        </div>
+      </div>
+      <div class="card soon">
+        <div class="icon">◐</div>
+        <div>
+          <h2>Lights Out</h2>
+          <p>USA · Coming soon</p>
+        </div>
+      </div>
+    </section>
+  </main>
+  <script>
+    if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js');
+  </script>
+</body>
+</html>
