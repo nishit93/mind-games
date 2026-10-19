@@ -8,6 +8,7 @@
   const padEl = document.getElementById('pad');
   const startBtn = document.getElementById('start');
   const ov = MG.overlay(document.querySelector('.stage'));
+  if (!ov.win) ov.win = ov.show; // an older shell.js has no celebration: show the plain message
 
   let mode = MG.kids ? 'forward' : MG.store.get('span-mode') || 'forward';
   let len, lives, digits, typed, listening = false, round = 0, bestThisGame;
@@ -69,7 +70,7 @@
     answerEl.textContent = `It was ${want}.`;
     draw();
     if (!lives) {
-      ov.show(bestThisGame ? `${bestThisGame} digits` : 'Keep practising', bestThisGame ? `You held ${bestThisGame} digits ${mode === 'forward' ? 'forwards' : 'backwards'}.` : 'Try grouping the digits in pairs as they appear.', 'Play again', start, 900);
+      (bestThisGame ? ov.win : ov.show)(bestThisGame ? `${bestThisGame} digits` : 'Keep practising', bestThisGame ? `You held ${bestThisGame} digits ${mode === 'forward' ? 'forwards' : 'backwards'}.` : 'Try grouping the digits in pairs as they appear.', 'Play again', start, 900);
       return;
     }
     await MG.wait(1800);

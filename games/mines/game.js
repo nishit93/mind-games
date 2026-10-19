@@ -5,6 +5,7 @@
   const bestEl = document.getElementById('best');
   const clock = MG.clock(document.getElementById('time'));
   const ov = MG.overlay(document.querySelector('.stage'));
+  if (!ov.win) ov.win = ov.show; // an older shell.js has no celebration: show the plain message
 
   let level = MG.store.get('mines-level') || 'easy';
   let mode = 'dig';
@@ -130,7 +131,7 @@
     const prev = +MG.store.get(`mines-best-${level}`);
     if (!prev || ms < prev) MG.store.set(`mines-best-${level}`, ms);
     bestEl.textContent = MG.fmt(Math.min(ms, prev || ms));
-    ov.show('Field cleared', `Every safe square found in ${MG.fmt(ms)}.${!prev || ms < prev ? ' A new best.' : ''}`, 'Play again', () => newGame(), 500);
+    ov.win('Field cleared', `Every safe square found in ${MG.fmt(ms)}.${!prev || ms < prev ? ' A new best.' : ''}`, 'Play again', () => newGame(), 500);
   }
 
   document.getElementById('new').addEventListener('click', () => newGame());

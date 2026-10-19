@@ -20,6 +20,7 @@
   const totalEl = document.getElementById('total');
   const solvedEl = document.getElementById('solved');
   const ov = MG.overlay(document.querySelector('.stage'));
+  if (!ov.win) ov.win = ov.show; // an older shell.js has no celebration: show the plain message
 
   let level = +MG.store.get('pento-level') || 0;
   let solved = +MG.store.get('pento-solved') || 0;
@@ -117,7 +118,7 @@
     MG.store.set('pento-solved', solved);
     render();
     const last = level === LEVELS.length - 1;
-    ov.show('Perfect fit', `All ${pieces.length} pieces fill the ${W}×${H} box.`, last ? 'Play again' : 'Bigger box',
+    ov.win('Perfect fit', `All ${pieces.length} pieces fill the ${W}×${H} box.`, last ? 'Play again' : 'Bigger box',
       () => { if (last) newGame(); else document.querySelector(`#level [data-value="${level + 1}"]`).click(); }, 600);
   }
 

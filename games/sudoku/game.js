@@ -6,6 +6,7 @@
   const bestEl = document.getElementById('best');
   const clock = MG.clock(document.getElementById('time'));
   const ov = MG.overlay(document.querySelector('.stage'));
+  if (!ov.win) ov.win = ov.show; // an older shell.js has no celebration: show the plain message
 
   let N, B, PEERS, cells;
   const row = i => Math.floor(i / N), col = i => i % N;
@@ -128,7 +129,7 @@
       const prev = +MG.store.get(`sudoku-best-${level}`);
       if (!prev || ms < prev) MG.store.set(`sudoku-best-${level}`, ms);
       bestEl.textContent = MG.fmt(Math.min(ms, prev || ms));
-      ov.show('Solved', `${level[0].toUpperCase() + level.slice(1)} puzzle in ${MG.fmt(ms)}.${!prev || ms < prev ? ' A new best.' : ''}`,
+      ov.win('Solved', `${level[0].toUpperCase() + level.slice(1)} puzzle in ${MG.fmt(ms)}.${!prev || ms < prev ? ' A new best.' : ''}`,
         'New puzzle', () => newGame(), 600);
     }
   }

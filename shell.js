@@ -155,31 +155,104 @@
   // How to play: opens on a first visit, and the ? button jumps to it.
   const howto = document.querySelector('.howto');
   if (howto && game) {
-    if (!store.get(`seen-${game.id}`)) { howto.open = true; store.set(`seen-${game.id}`, '1'); }
+    // Open on the first two visits to a game, then folded away (it can always be opened again).
+    const visits = parseInt(store.get(`seen-${game.id}`), 10) || 0;
+    if (visits < 2) howto.open = true;
+    store.set(`seen-${game.id}`, String(Math.min(visits + 1, 9)));
     header.querySelector('.help-btn').addEventListener('click', () => {
       howto.open = true;
       howto.scrollIntoView({ behavior: 'smooth', block: 'start' });
     });
   }
 
+  // ---- Levels: games with a difficulty or size choice open one step above the highest level won ----
+  // LEVELS (games.js) maps a game to [setting key, best-score key prefix or null, selector of its level buttons, attribute].
+  const LV = typeof LEVELS === 'object' && LEVELS && game ? LEVELS[game.id] : null;
+  const lvBtnValue = b => (b.dataset.value !== undefined ? b.dataset.value : b.dataset.size);
+  const lvButtons = () => {
+    try { return LV ? [...document.querySelectorAll(LV[2] + ' button')].filter(b => lvBtnValue(b) !== undefined) : []; } catch { return []; }
+  };
+  const wonKey = game ? `lvdone-${game.id}` : '';
+  const wonLevels = () => { const v = store.json(wonKey); return Array.isArray(v) ? v.map(String) : []; };
+  const levelNow = () => {
+    const b = lvButtons().find(x => x.getAttribute('aria-pressed') === 'true' || x.classList.contains('on') || x.classList.contains('active'));
+    return b ? String(lvBtnValue(b)) : (LV && store.get(LV[0]) != null ? String(store.get(LV[0])) : null);
+  };
+  if (LV && !kids) {
+    try {
+      const order = lvButtons().map(b => String(lvBtnValue(b)));
+      const won = new Set(wonLevels());
+      if (LV[1]) order.forEach(v => { if (store.get(LV[1] + v) != null) won.add(v); });
+      let top = -1;
+      order.forEach((v, i) => { if (won.has(v)) top = i; });
+      // Once per visit to the site (not on every reload), so a level chosen on purpose is not undone mid-session.
+      let applied = false;
+      try { applied = sessionStorage.getItem(`lvl-${game.id}`) === '1'; sessionStorage.setItem(`lvl-${game.id}`, '1'); } catch {}
+      if (top >= 0 && !applied) {
+        const target = order[Math.min(top + 1, order.length - 1)];
+        if (store.get(LV[0]) !== target) store.set(LV[0], target);
+      }
+    } catch (err) { console.error('Level choice skipped:', err); }
+  }
+  // Remember that the current level was won; returns the next level's button, if there is one.
+  function noteWin() {
+    if (!LV) return null;
+    try {
+      const now = levelNow();
+      if (now === null) return null;
+      const won = wonLevels();
+      if (!won.includes(now)) store.set(wonKey, JSON.stringify([...won, now]));
+      const btns = lvButtons();
+      const i = btns.findIndex(b => String(lvBtnValue(b)) === now);
+      return i >= 0 && i < btns.length - 1 ? btns[i + 1] : null;
+    } catch { return null; }
+  }
+
   // A soft message layer over a game area (which needs position: relative).
+  // show() is for any message; win() adds a gentle celebration and, where there is one, an invitation to the next level.
   function overlay(container) {
     const el = document.createElement('div');
     el.className = 'win';
-    el.innerHTML = '<div><h2></h2><p></p><button class="btn"></button></div>';
+    el.innerHTML = '<div><div class="reward" aria-hidden="true"></div><h2></h2><p></p><p class="extra"></p><button class="btn"></button><button class="btn ghost next" hidden></button></div>';
     container.append(el);
-    let action, timer;
-    el.querySelector('button').addEventListener('click', () => { hide(); action && action(); });
-    function show(title, text, label = 'Play again', fn, delay = 450) {
+    const main = el.querySelector('button.btn'), next = el.querySelector('button.next');
+    let action, timer, nextBtn;
+    main.addEventListener('click', () => { hide(); action && action(); });
+    next.addEventListener('click', () => { hide(); if (nextBtn) nextBtn.click(); });
+    function show(title, text, label = 'Play again', fn, delay = 450, celebrate = false) {
       clearTimeout(timer);
       el.querySelector('h2').textContent = title;
       el.querySelector('p').textContent = text;
-      el.querySelector('button').textContent = label;
+      main.textContent = label;
       action = fn;
-      timer = setTimeout(() => el.classList.add('show'), delay);
+      el.classList.remove('celebrate');
+      const reward = el.querySelector('.reward'), extra = el.querySelector('.extra');
+      reward.innerHTML = '';
+      extra.textContent = '';
+      next.hidden = true;
+      nextBtn = null;
+      if (celebrate) {
+        nextBtn = noteWin();
+        const streak = (() => { try { return MGProgress.summary().streak; } catch { return 0; } })();
+        const bits = [];
+        if (nextBtn) bits.push('Next step unlocked');
+        if (streak >= 2) bits.push(`${streak}-day streak`);
+        extra.textContent = bits.join(' · ');
+        if (nextBtn) { next.textContent = `Try ${nextBtn.textContent.trim()}`; next.hidden = false; }
+        reward.innerHTML = '<svg viewBox="0 0 52 52" class="badge"><circle cx="26" cy="26" r="23"/><path d="M15 27l8 8 14-17"/></svg>'
+          + Array.from({ length: 14 }, (_, i) => `<i style="--a:${Math.round(i * 360 / 14)}deg;--d:${(i % 4) * 60}ms;--c:${['--peach', '--peri', '--mocha', '--tile-home'][i % 4]}"></i>`).join('');
+      }
+      timer = setTimeout(() => {
+        el.classList.add('show');
+        if (celebrate) {
+          el.classList.add('celebrate');
+          try { navigator.vibrate && navigator.vibrate([16, 40, 16]); } catch {}
+        }
+      }, delay);
     }
-    function hide() { clearTimeout(timer); el.classList.remove('show'); }
-    return { show, hide };
+    const win = (title, text, label, fn, delay) => show(title, text, label, fn, delay, true);
+    function hide() { clearTimeout(timer); el.classList.remove('show', 'celebrate'); }
+    return { show, win, hide };
   }
 
   // Segmented buttons: <div class="seg"><button data-value="x">…</div>

@@ -4,6 +4,7 @@
   const bestEl = document.getElementById('best');
   const clock = MG.clock(document.getElementById('time'));
   const ov = MG.overlay(document.querySelector('.stage'));
+  if (!ov.win) ov.win = ov.show; // an older shell.js has no celebration: show the plain message
 
   let n = +MG.store.get('cages-n') || 4;
   let solution, cages, cageOf, values, sel, done, cells;
@@ -145,7 +146,7 @@
       const prev = +MG.store.get(`cages-best-${n}`);
       if (!prev || ms < prev) MG.store.set(`cages-best-${n}`, ms);
       bestEl.textContent = MG.fmt(Math.min(ms, prev || ms));
-      ov.show('Solved', `${n}×${n} in ${MG.fmt(ms)}.${!prev || ms < prev ? ' A new best.' : ''}`, 'New puzzle', () => newGame(), 600);
+      ov.win('Solved', `${n}×${n} in ${MG.fmt(ms)}.${!prev || ms < prev ? ' A new best.' : ''}`, 'New puzzle', () => newGame(), 600);
     }
   }
 

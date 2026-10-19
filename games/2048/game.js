@@ -10,6 +10,7 @@
   const bestEl = document.getElementById('best');
   const undoBtn = document.getElementById('undo');
   const ov = MG.overlay(document.querySelector('.stage'));
+  if (!ov.win) ov.win = ov.show; // an older shell.js has no celebration: show the plain message
 
   let board, score, prev, won, over;
   const squares = Array.from({ length: 16 }, () => Object.assign(document.createElement('div'), { className: 'sq' }));
@@ -88,7 +89,7 @@
 
     if (!won && board.includes(2048)) {
       won = true;
-      ov.show('You made 2048', `Score ${score}. Keep going for a higher score?`, 'Keep going', null, 300);
+      ov.win('You made 2048', `Score ${score}. Keep going for a higher score?`, 'Keep going', null, 300);
     } else if (!['left', 'right', 'up', 'down'].some(d => slide(board, d).moved)) {
       over = true;
       ov.show('No moves left', `Final score ${score}.`, 'New game', newGame, 600);

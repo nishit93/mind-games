@@ -6,6 +6,7 @@
   const litEl = document.getElementById('lit');
   const bestEl = document.getElementById('best');
   const ov = MG.overlay(document.querySelector('.stage'));
+  if (!ov.win) ov.win = ov.show; // an older shell.js has no celebration: show the plain message
 
   let n = MG.kids ? 4 : +MG.store.get('pipes-n') || 6;
   let base, turns, source, moves, done, cells;
@@ -109,7 +110,7 @@
       const prev = +MG.store.get(`pipes-best-${n}`);
       if (!prev || moves < prev) MG.store.set(`pipes-best-${n}`, moves);
       bestEl.textContent = Math.min(moves, prev || moves);
-      ov.show('All connected', `The whole network flows, in ${moves} turns.`, 'New network', () => newGame(), 700);
+      ov.win('All connected', `The whole network flows, in ${moves} turns.`, 'New network', () => newGame(), 700);
     }
   }
 

@@ -16,6 +16,7 @@
   const bestEl = document.getElementById('best');
   const undoBtn = document.getElementById('undo');
   const ov = MG.overlay(document.querySelector('.stage'));
+  if (!ov.win) ov.win = ov.show; // an older shell.js has no celebration: show the plain message
 
   let level = +MG.store.get('warehouse-level') || 0;
   let W, H, walls, goals, crates, me, moves, history, done, cells;
@@ -110,7 +111,7 @@
     if (!prev || moves < prev) MG.store.set(`warehouse-best-${level}`, moves);
     bestEl.textContent = Math.min(moves, prev || moves);
     const last = level === LEVELS.length - 1;
-    ov.show(moves === min ? 'Perfectly stacked' : 'All crates home',
+    ov.win(moves === min ? 'Perfectly stacked' : 'All crates home',
       moves === min ? `${moves} moves, the fewest possible.` : `${moves} moves. The fewest possible is ${min}.`,
       last ? 'Play again' : 'Next level', () => { if (last) newGame(); else document.querySelector(`#level [data-value="${level + 1}"]`).click(); }, 600);
   }

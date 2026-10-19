@@ -4,6 +4,7 @@
   const solvedEl = document.getElementById('solved');
   const clock = MG.clock(document.getElementById('time'));
   const ov = MG.overlay(document.querySelector('.stage'));
+  if (!ov.win) ov.win = ov.show; // an older shell.js has no celebration: show the plain message
   const MAX_BASE = { 3: 5, 4: 9, 5: 12 };
 
   let rows = MG.kids ? 3 : +MG.store.get('pyramid-rows') || 3;
@@ -103,7 +104,7 @@
       const ms = clock.stop();
       pyrEl.classList.add('solved');
       render();
-      ov.show('Solid as a pyramid', `Every brick adds up. Solved in ${MG.fmt(ms)}.`, 'New pyramid', () => newGame(), 600);
+      ov.win('Solid as a pyramid', `Every brick adds up. Solved in ${MG.fmt(ms)}.`, 'New pyramid', () => newGame(), 600);
     }
   }
 

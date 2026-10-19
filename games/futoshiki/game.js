@@ -3,6 +3,7 @@
   const bestEl = document.getElementById('best');
   const clock = MG.clock(document.getElementById('time'));
   const ov = MG.overlay(document.querySelector('.stage'));
+  if (!ov.win) ov.win = ov.show; // an older shell.js has no celebration: show the plain message
 
   let n = +MG.store.get('futoshiki-n') || 4;
   // rels: { a, b } meaning value[a] < value[b], always between neighbours.
@@ -127,7 +128,7 @@
       const prev = +MG.store.get(`futoshiki-best-${n}`);
       if (!prev || ms < prev) MG.store.set(`futoshiki-best-${n}`, ms);
       bestEl.textContent = MG.fmt(Math.min(ms, prev || ms));
-      ov.show('Solved', `${n}×${n} in ${MG.fmt(ms)}.${!prev || ms < prev ? ' A new best.' : ''}`, 'New puzzle', () => newGame(), 600);
+      ov.win('Solved', `${n}×${n} in ${MG.fmt(ms)}.${!prev || ms < prev ? ' A new best.' : ''}`, 'New puzzle', () => newGame(), 600);
     }
   }
 

@@ -6,6 +6,7 @@
   const status = document.getElementById('status');
   const startBtn = document.getElementById('start');
   const ov = MG.overlay(document.querySelector('.stage'));
+  if (!ov.win) ov.win = ov.show; // an older shell.js has no celebration: show the plain message
 
   let level, lives, pattern, found, listening, round = 0, cells, n;
 
@@ -77,7 +78,7 @@
     if (!lives) {
       const reached = level - 1;
       status.textContent = 'That one was not in the pattern.';
-      ov.show(reached ? `Level ${reached} cleared` : 'Good start', reached ? `You remembered patterns of up to ${countFor(reached)} squares.` : 'Watch the whole shape, then tap it back.', 'Play again', start, 900);
+      (reached ? ov.win : ov.show)(reached ? `Level ${reached} cleared` : 'Good start', reached ? `You remembered patterns of up to ${countFor(reached)} squares.` : 'Watch the whole shape, then tap it back.', 'Play again', start, 900);
       return;
     }
     status.textContent = `That square wasn't lit. The ringed squares were. ${lives} ${lives === 1 ? 'try' : 'tries'} left.`;

@@ -28,6 +28,15 @@ Player progress (favourites, best scores, streaks, settings) is stored by a sepa
 - **Monitoring:** the 'Health check' GitHub workflow (`.github/workflows/monitor.yml`, runs `tools/monitor.sh`) checks the website, the progress server, browser access and the HTTPS certificate every 20 minutes and emails the owner when a run fails. Run `bash tools/monitor.sh` to check by hand. It only reads public addresses.
 - Not synced on purpose: `recent`, `seen-*`, `install-dismissed`, `queens-found-*` (too large) and `m24-tally`.
 
+## Behaviour added later (keep it working)
+
+- **Levels:** `LEVELS` at the end of `games.js` lists each game that has a level or size choice (setting key, best-score key prefix, level buttons). `shell.js` opens such a game one step above the highest level won (a best score exists for the level, or it is in `lvdone-<game>`, which `overlay.win()` fills in), once per browser session, and never from the Kids section. A new game with levels needs an entry in `LEVELS`.
+- **Wins:** a game reports a win with `ov.win(title, text, label, fn, delay)` (a gentle celebration, streak line and a "Try <next level>" button) and everything else (a loss, a hint, an answer shown) with `ov.show(...)`. Every game.js has `if (!ov.win) ov.win = ov.show;` after creating `ov`, so an older cached shell.js still works.
+- **How to play** opens on the first two visits to a game (`seen-<id>` counts visits), then stays folded.
+- **Coming back:** `progress.js` reloads its record on `pageshow` (Back button), when the tab is shown again and on `storage` events, so favourites show without a hard refresh. The home page redraws on `pageshow`.
+- **Motion:** page transitions, settle-in and the win celebration are in `styles.css` (bottom) and switch off for `prefers-reduced-motion`.
+- **Search and AI visibility:** after adding or editing a game's text, run `node tools/seo.mjs`. It writes each game page's title, description, canonical address, social tags and structured data, moves the history into its own visible section, and writes `sitemap.xml`, `robots.txt`, `llms.txt` and a plain game list in `<noscript>` on the home page. Commit the result.
+
 ## How the code is organised
 
 - `games.js`: the sections (`SECTIONS`: logic, math, moves, memory, cards) and the list of games (`GAMES`: id, sec, name, origin, icon, blurb, and `kids: true` for games that suit children). The menu, the home page and the offline cache all read it.

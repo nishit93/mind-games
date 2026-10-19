@@ -6,6 +6,7 @@
   const status = document.getElementById('status');
   const undoBtn = document.getElementById('undo');
   const ov = MG.overlay(document.querySelector('.stage'));
+  if (!ov.win) ov.win = ov.show; // an older shell.js has no celebration: show the plain message
 
   let wins = +MG.store.get('pyramid-wins') || 0;
   // s: { pyr: [card|null] x28, stock: [], waste: [], passes }
@@ -76,7 +77,7 @@
       wins++;
       MG.store.set('pyramid-wins', wins);
       render();
-      ov.show('Pyramid cleared', 'Every pair made 13.', 'New deal', deal, 500);
+      ov.win('Pyramid cleared', 'Every pair made 13.', 'New deal', deal, 500);
       return;
     }
     status.textContent = '';

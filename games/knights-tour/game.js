@@ -7,6 +7,7 @@
   const status = document.getElementById('status');
   const undoBtn = document.getElementById('undo');
   const ov = MG.overlay(document.querySelector('.stage'));
+  if (!ov.win) ov.win = ov.show; // an older shell.js has no celebration: show the plain message
 
   let n = +MG.store.get('knight-n') || 5;
   let path, cells, done;
@@ -65,7 +66,7 @@
     if (path.length === n * n) {
       done = true;
       status.textContent = 'Every square visited.';
-      ov.show('Full tour', `The knight visited all ${n * n} squares.`, 'Play again', () => newGame(), 600);
+      ov.win('Full tour', `The knight visited all ${n * n} squares.`, 'Play again', () => newGame(), 600);
     } else if (!moves(i).length) {
       status.textContent = `Stuck after ${path.length} squares. Undo, or start again.`;
     } else {

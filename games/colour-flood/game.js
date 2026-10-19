@@ -10,6 +10,7 @@
   const bestEl = document.getElementById('best');
   const status = document.getElementById('status');
   const ov = MG.overlay(document.querySelector('.stage'));
+  if (!ov.win) ov.win = ov.show; // an older shell.js has no celebration: show the plain message
 
   let n = MG.kids ? 8 : +MG.store.get('flood-n') || 12;
   let board, moves, par, done, cells;
@@ -83,7 +84,7 @@
       if (!prev || moves < prev) MG.store.set(`flood-best-${n}`, moves);
       bestEl.textContent = Math.min(moves, prev || moves);
       const verdict = moves < par ? `${par - moves} under par. Wonderful.` : moves === par ? 'Right on par.' : `${moves - par} over par. Try again for par?`;
-      ov.show(moves <= par ? 'Flooded' : 'All one colour', `${moves} moves. ${verdict}`, 'New board', () => newGame(), 600);
+      ov.win(moves <= par ? 'Flooded' : 'All one colour', `${moves} moves. ${verdict}`, 'New board', () => newGame(), 600);
     }
   });
 

@@ -15,6 +15,7 @@
   const undoBtn = document.getElementById('undo');
   const clock = MG.clock(document.getElementById('time'));
   const ov = MG.overlay(document.querySelector('.stage'));
+  if (!ov.win) ov.win = ov.show; // an older shell.js has no celebration: show the plain message
 
   const SLOTS = LAYERS.flatMap(([w, h, ox, oy], z) => Array.from({ length: w * h }, (_, k) => ({ z, x: ox + (k % w), y: oy + Math.floor(k / w) })));
   // tiles: kind index per slot, or -1 once removed
@@ -104,7 +105,7 @@
       done = true;
       const ms = clock.stop();
       render();
-      ov.show('Board cleared', `Every tile matched in ${MG.fmt(ms)}.`, 'New deal', deal, 500);
+      ov.win('Board cleared', `Every tile matched in ${MG.fmt(ms)}.`, 'New deal', deal, 500);
       return;
     }
     if (!freePairs().length) {

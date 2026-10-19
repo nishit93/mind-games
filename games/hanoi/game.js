@@ -4,6 +4,7 @@
   const minEl = document.getElementById('min');
   const bestEl = document.getElementById('best');
   const ov = MG.overlay(document.querySelector('.stage'));
+  if (!ov.win) ov.win = ov.show; // an older shell.js has no celebration: show the plain message
 
   let n = MG.kids ? 3 : +MG.store.get('hanoi-n') || 4;
   let pegs, held, moves, done;
@@ -69,7 +70,7 @@
     const min = 2 ** n - 1;
     const prev = +MG.store.get(`hanoi-best-${n}`);
     if (!prev || moves < prev) MG.store.set(`hanoi-best-${n}`, moves);
-    ov.show(moves === min ? 'Perfect' : 'Tower moved',
+    ov.win(moves === min ? 'Perfect' : 'Tower moved',
       moves === min ? `${moves} moves, the fewest possible.` : `${moves} moves. The fewest possible is ${min}.`,
       'Play again', () => newGame());
   }

@@ -6,6 +6,7 @@
   const undoBtn = document.getElementById('undo');
   const clock = MG.clock(document.getElementById('time'));
   const ov = MG.overlay(document.querySelector('.stage'));
+  if (!ov.win) ov.win = ov.show; // an older shell.js has no celebration: show the plain message
 
   let level = MG.store.get('target-level') || 'gentle';
   let solved = +MG.store.get('target-solved') || 0;
@@ -62,7 +63,7 @@
         const ms = clock.stop();
         draw();
         status.textContent = 'Right on target.';
-        ov.show('Right on target', `${target} in ${MG.fmt(ms)}.`, 'Next round', newRound, 500);
+        ov.win('Right on target', `${target} in ${MG.fmt(ms)}.`, 'Next round', newRound, 500);
         return;
       }
       const closest = tiles.reduce((m, t) => Math.min(m, Math.abs(t.f.n - target)), Infinity);

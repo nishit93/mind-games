@@ -4,6 +4,7 @@
   const bestEl = document.getElementById('best');
   const clock = MG.clock(document.getElementById('time'));
   const ov = MG.overlay(document.querySelector('.stage'));
+  if (!ov.win) ov.win = ov.show; // an older shell.js has no celebration: show the plain message
 
   let n = MG.kids ? 3 : +MG.store.get('schulte-n') || 5;
   let next, done;
@@ -41,7 +42,7 @@
       const prev = +MG.store.get(`schulte-best-${n}`);
       if (!prev || ms < prev) MG.store.set(`schulte-best-${n}`, ms);
       bestEl.textContent = `${(Math.min(ms, prev || ms) / 1000).toFixed(1)}s`;
-      ov.show('All found', `1 to ${n * n} in ${(ms / 1000).toFixed(1)} seconds.${!prev || ms < prev ? ' A new best.' : ''}`, 'New table', () => newGame(), 500);
+      ov.win('All found', `1 to ${n * n} in ${(ms / 1000).toFixed(1)} seconds.${!prev || ms < prev ? ' A new best.' : ''}`, 'New table', () => newGame(), 500);
     }
   }
 

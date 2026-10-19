@@ -54,6 +54,7 @@
   const fill = s => ({ ...empty(), ...(s && typeof s === 'object' ? s : {}) });
 
   let state, fresh = false;
+  let lastRaw = null; // the stored record as this page last wrote or read it
   let ver = 0;       // bumps on every change, so a sync can tell whether something changed while it was away
   let applying = false;
   const listeners = [];
@@ -64,6 +65,7 @@
   function save() {
     ver++;
     ls.set('mg-progress', JSON.stringify({ state }));
+    lastRaw = ls.get('mg-progress');
   }
 
   // Called for every localStorage write the games make through MG.store.
@@ -284,6 +286,27 @@
   } catch (err) { console.error('Progress import skipped:', err); }
   fresh = false;
 
+  // Coming back to a page (the Back button restores it from the browser's memory) or changing something in another tab
+  // leaves this page's copy of the record out of date. Every change is saved at once, so storage is always the truth:
+  // reload it, and tell the page if anything differs.
+  lastRaw = ls.get('mg-progress');
+  function refresh() {
+    try {
+      const raw = ls.get('mg-progress');
+      if (raw === lastRaw) return false;
+      lastRaw = raw;
+      state = fill(JSON.parse(raw).state);
+      ver++;
+      emit();
+      return true;
+    } catch { return false; }
+  }
+  try {
+    addEventListener('pageshow', e => { if (e.persisted) refresh(); });
+    document.addEventListener('visibilitychange', () => { if (!document.hidden) refresh(); });
+    addEventListener('storage', e => { if (e.key === 'mg-progress') refresh(); });
+  } catch {}
+
   // Sync soon after loading, when coming back online and when the tab is shown again.
   if (api()) {
     if (hasProgress() || getPlayer()) schedule(1500);
@@ -292,7 +315,7 @@
   }
 
   window.MGProgress = {
-    mirror, isFav, favs, toggleFav, recordPlay, summary,
+    mirror, isFav, favs, toggleFav, recordPlay, summary, refresh,
     onChange: fn => listeners.push(fn),
     sync, exportCode, useCode, eraseOnline, setSyncEnabled,
     configured: () => !!api(),

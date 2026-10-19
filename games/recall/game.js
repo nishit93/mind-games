@@ -7,6 +7,7 @@
   const startBtn = document.getElementById('start');
   const soundBtn = document.getElementById('sound');
   const ov = MG.overlay(document.querySelector('.stage'));
+  if (!ov.win) ov.win = ov.show; // an older shell.js has no celebration: show the plain message
 
   let speed = MG.kids ? 'calm' : MG.store.get('sequence-speed') || 'calm';
   let soundOn = MG.store.get('sequence-sound') !== 'off';
@@ -84,7 +85,7 @@
     setPads(false);
     const score = seq.length - 1;
     status.textContent = 'That was a different pad.';
-    ov.show(score ? `${score} in a row` : 'Not quite',
+    (score ? ov.win : ov.show)(score ? `${score} in a row` : 'Not quite',
       score ? `You repeated a pattern of ${score}. Breathe, and try again.` : 'Watch the first light, then tap the same pad.',
       'Play again', start, 500);
   }

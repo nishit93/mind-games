@@ -10,6 +10,7 @@
   const targetEl = document.getElementById('target');
   const clock = MG.clock(document.getElementById('time'));
   const ov = MG.overlay(document.querySelector('.stage'));
+  if (!ov.win) ov.win = ov.show; // an older shell.js has no celebration: show the plain message
 
   let n = MG.kids ? 3 : +MG.store.get('magic-n') || 3;
   let solution, given, values, sel, done, cells, sums;
@@ -112,7 +113,7 @@
       done = true;
       const ms = clock.stop();
       render();
-      ov.show('Magic', `Every line makes ${target()}. Solved in ${MG.fmt(ms)}.`, 'New square', () => newGame(), 600);
+      ov.win('Magic', `Every line makes ${target()}. Solved in ${MG.fmt(ms)}.`, 'New square', () => newGame(), 600);
     }
   }
 

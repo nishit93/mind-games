@@ -4,6 +4,7 @@
   const status = document.getElementById('status');
   const clock = MG.clock(document.getElementById('time'));
   const ov = MG.overlay(document.querySelector('.stage'));
+  if (!ov.win) ov.win = ov.show; // an older shell.js has no celebration: show the plain message
 
   let n = +MG.store.get('binary-n') || 6;
   let given, values, cells, done;
@@ -125,7 +126,7 @@
     if (!prev || ms < prev) MG.store.set(`binary-best-${n}`, ms);
     bestEl.textContent = MG.fmt(Math.min(ms, prev || ms));
     status.textContent = 'Solved.';
-    ov.show('Solved', `${n}×${n} in ${MG.fmt(ms)}.${!prev || ms < prev ? ' A new best.' : ''}`, 'New puzzle', () => newGame(), 700);
+    ov.win('Solved', `${n}×${n} in ${MG.fmt(ms)}.${!prev || ms < prev ? ' A new best.' : ''}`, 'New puzzle', () => newGame(), 700);
   }
 
   document.getElementById('new').addEventListener('click', () => newGame());

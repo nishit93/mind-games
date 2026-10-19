@@ -4,6 +4,7 @@
   const leftEl = document.getElementById('left');
   const clock = MG.clock(document.getElementById('time'));
   const ov = MG.overlay(document.querySelector('.stage'));
+  if (!ov.win) ov.win = ov.show; // an older shell.js has no celebration: show the plain message
 
   let n = MG.kids ? 3 : +MG.store.get('lights-n') || 5;
   let on, cells, moves, done;
@@ -59,7 +60,7 @@
     if (on.every(v => !v)) {
       done = true;
       const ms = clock.stop();
-      ov.show('All lights off', `${moves} moves in ${MG.fmt(ms)}.`, 'Play again', () => newGame());
+      ov.win('All lights off', `${moves} moves in ${MG.fmt(ms)}.`, 'Play again', () => newGame());
     }
   }
 

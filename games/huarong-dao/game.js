@@ -13,6 +13,7 @@
   const minEl = document.getElementById('min');
   const bestEl = document.getElementById('best');
   const ov = MG.overlay(document.querySelector('.stage'));
+  if (!ov.win) ov.win = ov.show; // an older shell.js has no celebration: show the plain message
 
   let level = MG.kids ? 0 : +MG.store.get('huarong-level') || 0;
   let pieces, moves, done;
@@ -91,7 +92,7 @@
     if (!prev || moves < prev) MG.store.set(`huarong-best-${level}`, moves);
     render();
     const last = level === LEVELS.length - 1;
-    ov.show(moves === min ? 'Perfect escape' : 'The general is free',
+    ov.win(moves === min ? 'Perfect escape' : 'The general is free',
       moves === min ? `${moves} moves, the fewest possible.` : `${moves} moves. The fewest possible is ${min}.`,
       last ? 'Play again' : 'Next level', () => { if (!last) document.querySelector(`#level [data-value="${level + 1}"]`).click(); else newGame(); }, 600);
   }

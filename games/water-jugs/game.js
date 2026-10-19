@@ -16,6 +16,7 @@
   const bestEl = document.getElementById('best');
   const undoBtn = document.getElementById('undo');
   const ov = MG.overlay(document.querySelector('.stage'));
+  if (!ov.win) ov.win = ov.show; // an older shell.js has no celebration: show the plain message
 
   let level = MG.kids ? 0 : +MG.store.get('jugs-level') || 0;
   let water, picked, moves, history, done;
@@ -73,7 +74,7 @@
       if (!prev || moves < prev) MG.store.set(`jugs-best-${level}`, moves);
       render();
       const last = level === LEVELS.length - 1;
-      ov.show(moves === L.min ? 'Perfectly measured' : 'Measured',
+      ov.win(moves === L.min ? 'Perfectly measured' : 'Measured',
         moves === L.min ? `${L.target} litres in ${moves} moves, the fewest possible.` : `${L.target} litres in ${moves} moves. The fewest possible is ${L.min}.`,
         last ? 'Play again' : 'Next level', () => { if (last) newGame(); else document.querySelector(`#level [data-value="${level + 1}"]`).click(); }, 600);
     }

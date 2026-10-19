@@ -5,6 +5,7 @@
   const countEl = document.getElementById('count');
   const bestEl = document.getElementById('best');
   const ov = MG.overlay(document.querySelector('.stage'));
+  if (!ov.win) ov.win = ov.show; // an older shell.js has no celebration: show the plain message
 
   let len = MG.kids ? 3 : +MG.store.get('bulls-len') || 4;
   let secret, guess, guesses, done;
@@ -74,7 +75,7 @@
       const n = guesses.length;
       const prev = +MG.store.get(`bulls-best-${len}`);
       if (!prev || n < prev) MG.store.set(`bulls-best-${len}`, n);
-      ov.show('Cracked it', `The number was ${secret}. You needed ${n} guess${n === 1 ? '' : 'es'}.`, 'Play again', () => newGame());
+      ov.win('Cracked it', `The number was ${secret}. You needed ${n} guess${n === 1 ? '' : 'es'}.`, 'Play again', () => newGame());
     }
     render();
   }

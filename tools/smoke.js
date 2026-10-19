@@ -18,8 +18,8 @@
   // Nothing listens on this address, so by default the whole site is tested as if the server were down,
   // and a test can never reach (or create players on) the real server by accident.
   const DEAD_API = 'http://127.0.0.1:9';
-  const seed = data => { localStorage.clear(); for (const [k, v] of Object.entries({ 'mg-api': DEAD_API, ...data })) localStorage.setItem(k, v); };
-  const restore = () => { localStorage.clear(); for (const [k, v] of Object.entries(snapshot)) localStorage.setItem(k, v); };
+  const seed = data => { try { sessionStorage.clear(); } catch {} localStorage.clear(); for (const [k, v] of Object.entries({ 'mg-api': DEAD_API, ...data })) localStorage.setItem(k, v); };
+  const restore = () => { try { sessionStorage.clear(); } catch {} localStorage.clear(); for (const [k, v] of Object.entries(snapshot)) localStorage.setItem(k, v); };
   const until = async (fn, ms = 15000) => { const t0 = Date.now(); while (Date.now() - t0 < ms) { if (fn()) return true; await sleep(200); } return false; };
   // Real syncing is tested only against a server we are allowed to talk to: the one named in ?api=, or the live site's own.
   const apiUnderTest = params.get('api') || (location.origin === 'https://nishit93.github.io' ? MG_CONFIG.api : '');
@@ -133,6 +133,10 @@
         if (!lenient) {
           if (!(w.MGProgress && !w.MGProgress._stub)) problems.push('progress features');
           if (!d.querySelector('.fav-btn')) problems.push('heart');
+          const hist = d.querySelector('section.history');
+          if (!(hist && hist.querySelector('h2') && hist.querySelector('p') && hist.textContent.trim().length > 80)) problems.push('history section');
+          if (!d.querySelector('meta[name="description"]') || !d.querySelector('link[rel="canonical"]')) problems.push('description or canonical address');
+          try { const ld = JSON.parse(d.querySelector('script[type="application/ld+json"]').textContent); if (!ld['@graph'].some(x => x['@type'] === 'FAQPage') || !ld['@graph'].some(x => x['@type'] === 'VideoGame')) problems.push('structured data'); } catch { problems.push('structured data'); }
         }
         if (problems.length) bad.push(`${g.name}: ${problems.join(', ')}`);
         close();
@@ -232,7 +236,9 @@
         let sol;
         for (let m = 0; m < 512 && sol === undefined; m++) { const s = on.slice(); for (let i = 0; i < 9; i++) if (m >> i & 1) flip(s, i); if (s.every(v => !v)) sol = m; }
         for (let i = 0; i < 9; i++) if (sol >> i & 1) L[i].click();
-        await sleep(800); return winText(d);
+        await sleep(1200);
+        if (!lenient) check('Rewards', 'a win shows the celebration and offers the next size', d.querySelector('.win.celebrate .badge') && d.querySelector('.win .next') && !d.querySelector('.win .next').hidden && /4/.test(d.querySelector('.win .next').textContent), (d.querySelector('.win') || {}).className);
+        return winText(d);
       });
       await play('15-Puzzle (and its score is saved)', 'games/15-puzzle/', async (d, w) => {
         d.querySelector('[data-size="3"]').click(); await sleep(100);
@@ -267,6 +273,57 @@
         for (let k = 0; k < 300; k++) { const sw = [...d.querySelectorAll('.sw:not(:disabled)')]; if (!sw.length) break; sw[Math.floor(Math.random() * sw.length)].click(); }
         await sleep(900); return winText(d);
       });
+    }
+
+    // 8. Newer behaviour: levels, the how-to box, coming back with Back.
+    if (!lenient) {
+      const pressed = d => { const b = d.querySelector('#size button[aria-pressed="true"], #level button[aria-pressed="true"]'); return b ? b.dataset.value : null; };
+      seed({ 'hanoi-n': '3', 'hanoi-best-3': '7', 'hanoi-best-4': '15' });
+      const h = await open('games/hanoi/', 500);
+      check('Levels', 'a game opens one level above the highest one won (3 and 4 won, so 5)', pressed(h.d) === '5', 'on level ' + pressed(h.d));
+      h.close();
+      seed({ 'hanoi-n': '3', 'hanoi-best-3': '7' });
+      const hk = await open('games/hanoi/?kids', 500);
+      check('Levels', 'from the Kids section it still starts on the easiest level', pressed(hk.d) === '3', 'on level ' + pressed(hk.d));
+      hk.close();
+      seed({ 'hanoi-best-7': '127' });
+      const ht = await open('games/hanoi/', 500);
+      check('Levels', 'after the hardest level it stays on the hardest', pressed(ht.d) === '7', 'on level ' + pressed(ht.d));
+      ht.close();
+      seed({ 'sudoku-best-mini': '100000' });
+      const su = await open('games/sudoku/', 500);
+      check('Levels', 'a game with named levels moves on too (mini won, so easy)', pressed(su.d) === 'easy', 'on level ' + pressed(su.d));
+      su.close();
+      seed({ 'fifteen-best-3': JSON.stringify({ moves: 20, ms: 30000 }) });
+      const fp = await open('games/15-puzzle/', 500);
+      const fpOn = fp.d.querySelector('.seg [aria-pressed="true"]');
+      check('Levels', '15-Puzzle moves on after a 3x3 win (to 4x4)', fpOn && fpOn.dataset.size === '4', fpOn ? fpOn.dataset.size : 'none pressed');
+      fp.close();
+      seed({ 'lvdone-lights-off': '["3"]' });
+      const lo = await open('games/lights-off/', 500);
+      check('Levels', 'a game without saved scores remembers wins too (3x3 won, so 4x4)', pressed(lo.d) === '4', 'on level ' + pressed(lo.d));
+      lo.close();
+
+      seed({});
+      const seen = [];
+      for (let i = 0; i < 3; i++) { const g = await open('games/golf/', 300); seen.push(g.d.querySelector('.howto').open); g.close(); }
+      check('How to play', 'open on the first two visits, folded from the third', seen.join() === 'true,true,false', seen.join());
+      const g3 = await open('games/golf/', 300);
+      g3.d.querySelector('.help-btn').click();
+      check('How to play', 'the ? button opens it again', g3.d.querySelector('.howto').open);
+      g3.close();
+
+      seed({});
+      const home = await open('', 600);
+      const game = await open('games/golf/', 500);
+      game.d.querySelector('.fav-btn').click();
+      await sleep(400);
+      check('Back button', 'a favourite chosen on a game page shows on the open home page without a refresh', !!home.d.querySelector('.shelf[data-shelf="favs"]'));
+      home.w.localStorage.setItem('recent', '["golf"]');
+      home.w.dispatchEvent(new PageTransitionEvent('pageshow', { persisted: true }));
+      await sleep(200);
+      check('Back button', 'a page restored by Back redraws with current data', /Golf/.test((home.d.querySelector('.hero b') || {}).textContent || ''));
+      game.close(); home.close();
     }
   } catch (err) {
     check('Test run', 'finished without crashing', false, err.stack || err.message);

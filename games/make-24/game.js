@@ -4,6 +4,7 @@
   const streakEl = document.getElementById('streak');
   const undoBtn = document.getElementById('undo');
   const ov = MG.overlay(document.querySelector('.stage'));
+  if (!ov.win) ov.win = ov.show; // an older shell.js has no celebration: show the plain message
 
   let level = MG.kids ? 'easy' : MG.store.get('m24-level') || 'easy';
   let deal, answer, done;
@@ -44,7 +45,7 @@
         MG.store.set('m24-tally', JSON.stringify(tally));
         draw();
         status.textContent = 'That makes 24.';
-        ov.show('24', `Nicely done. That's ${tally.solved} solved.`, 'Next deal', newDeal, 500);
+        ov.win('24', `Nicely done. That's ${tally.solved} solved.`, 'Next deal', newDeal, 500);
       } else {
         status.textContent = `That makes ${Combine.show(tiles[0].f)}, not 24. Undo and try another way.`;
       }

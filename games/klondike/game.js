@@ -6,6 +6,7 @@
   const undoBtn = document.getElementById('undo');
   const clock = MG.clock(document.getElementById('time'));
   const ov = MG.overlay(document.querySelector('.stage'));
+  if (!ov.win) ov.win = ov.show; // an older shell.js has no celebration: show the plain message
 
   let draw = +MG.store.get('klondike-draw') || 1;
   let wins = +MG.store.get('klondike-wins') || 0;
@@ -86,7 +87,7 @@
       MG.store.set('klondike-wins', wins);
       const ms = clock.stop();
       render();
-      ov.show('Solved', `All cards home in ${moves} moves and ${MG.fmt(ms)}.`, 'New deal', deal, 500);
+      ov.win('Solved', `All cards home in ${moves} moves and ${MG.fmt(ms)}.`, 'New deal', deal, 500);
     }
   }
 

@@ -628,3 +628,96 @@ h1 {
 .sec-memory { --ic-bg: #5E8F7A; --ic-fg: #FFFFFF; }  /* a calm sage */
 .sec-cards { --ic-bg: #92A8D1; --ic-fg: #26334F; }   /* Serenity */
 .gicon, .mini { background: var(--ic-bg, var(--tile)); color: var(--ic-fg, var(--tile-text)); }
+
+/* ---- Motion: gentle moves between pages and states. Everything here switches off for people who ask for less motion. ---- */
+
+/* Pages dissolve into each other where the browser supports cross-page transitions. */
+@view-transition { navigation: auto; }
+::view-transition-old(root) { animation: mg-out .18s ease both; }
+::view-transition-new(root) { animation: mg-in .32s .04s ease both; }
+@keyframes mg-out { to { opacity: 0; } }
+@keyframes mg-in { from { opacity: 0; transform: translateY(6px); } }
+
+/* A page, and the board on it, settle in rather than appearing. */
+.wrap { animation: mg-rise .45s cubic-bezier(.2, .7, .3, 1) both; }
+.stage { animation: mg-settle .6s .08s cubic-bezier(.2, .7, .3, 1) both; }
+@keyframes mg-rise { from { opacity: 0; transform: translateY(8px); } }
+@keyframes mg-settle { from { opacity: 0; transform: scale(.975); } }
+
+/* Home page: a new view (another list, a search) fades up, one row after another. */
+#view.enter > * { animation: mg-rise .4s cubic-bezier(.2, .7, .3, 1) both; }
+#view.enter > :nth-child(2) { animation-delay: .05s; }
+#view.enter > :nth-child(3) { animation-delay: .1s; }
+#view.enter > :nth-child(4) { animation-delay: .15s; }
+#view.enter > :nth-child(n+5) { animation-delay: .2s; }
+#view.enter .list > .item { animation: mg-rise .35s cubic-bezier(.2, .7, .3, 1) both; animation-delay: calc(var(--i, 0) * 25ms); }
+
+/* How to play opens and closes smoothly (browsers without this just open at once). */
+.howto { interpolate-size: allow-keywords; }
+.howto::details-content {
+  block-size: 0;
+  overflow: clip;
+  transition: block-size .4s cubic-bezier(.2, .7, .3, 1), content-visibility .4s allow-discrete;
+}
+.howto[open]::details-content { block-size: auto; }
+.howto[open] > :not(summary) { animation: mg-rise .45s cubic-bezier(.2, .7, .3, 1) both; }
+
+/* Buttons answer a touch. */
+.btn, .seg button, .icon-btn, .heart, .gcard, .hero, .item-link, .tile-link {
+  transition: transform .18s ease, background-color .25s ease, color .25s ease, opacity .25s ease, box-shadow .25s ease;
+}
+.btn:active, .seg button:active, .icon-btn:active, .heart:active { transform: scale(.94); }
+.gcard:active, .hero:active, .tile-link:active { transform: scale(.98); }
+.heart[aria-pressed="true"], .fav-btn[aria-pressed="true"] { animation: mg-pop .45s cubic-bezier(.3, 1.6, .4, 1); }
+@keyframes mg-pop { 0% { transform: scale(.7); } 60% { transform: scale(1.25); } 100% { transform: scale(1); } }
+
+/* ---- Reward when a puzzle is solved: a tick that draws itself, a soft ring of petals, and the message in stages. ---- */
+.win > div { max-width: min(92%, 22rem); }
+.win .reward { position: relative; height: 64px; margin: 0 auto 6px; display: none; }
+.win.celebrate .reward { display: block; }
+.win .badge { width: 56px; height: 56px; display: block; margin: 4px auto 0; overflow: visible; }
+.win .badge circle { fill: color-mix(in srgb, var(--peach) 35%, transparent); stroke: var(--tile-home); stroke-width: 2.5; }
+.win .badge path { fill: none; stroke: var(--text); stroke-width: 3.5; stroke-linecap: round; stroke-linejoin: round; }
+.win.celebrate .badge circle { stroke-dasharray: 145; stroke-dashoffset: 145; animation: mg-draw .7s .1s ease forwards, mg-glow 1.6s .8s ease-out; transform-origin: center; }
+.win.celebrate .badge path { stroke-dasharray: 40; stroke-dashoffset: 40; animation: mg-draw .45s .55s ease forwards; }
+@keyframes mg-draw { to { stroke-dashoffset: 0; } }
+@keyframes mg-glow { 0% { filter: drop-shadow(0 0 0 transparent); } 40% { filter: drop-shadow(0 0 10px var(--peach)); } 100% { filter: drop-shadow(0 0 0 transparent); } }
+.win .reward i {
+  position: absolute;
+  left: 50%; top: 32px;
+  width: 7px; height: 7px;
+  margin: -3px;
+  border-radius: 50%;
+  background: var(--peach);
+  opacity: 0;
+  pointer-events: none;
+}
+.win.celebrate .reward i { animation: mg-petal 1.5s calc(.55s + var(--d, 0ms)) cubic-bezier(.15, .7, .3, 1) both; }
+.win .reward i:nth-of-type(4n+1) { background: var(--peach); }
+.win .reward i:nth-of-type(4n+2) { background: var(--peri); }
+.win .reward i:nth-of-type(4n+3) { background: var(--mocha); }
+.win .reward i:nth-of-type(4n) { background: var(--tile-home); }
+@keyframes mg-petal {
+  0% { opacity: 0; transform: rotate(var(--a)) translateY(-18px) scale(.4); }
+  15% { opacity: 1; }
+  100% { opacity: 0; transform: rotate(var(--a)) translateY(-78px) scale(1); }
+}
+.win.celebrate h2 { animation: mg-rise .5s .35s cubic-bezier(.3, 1.4, .4, 1) both; }
+.win.celebrate p { animation: mg-rise .5s .55s ease both; }
+.win.celebrate .extra { animation: mg-rise .5s .75s ease both; }
+.win.celebrate .btn { animation: mg-rise .5s .95s ease both; }
+.win .extra { margin: -8px 0 14px; color: var(--accent); font-weight: 700; font-size: .9rem; }
+.win .extra:empty { display: none; }
+.win .next { margin-top: 8px; }
+.win .next[hidden] { display: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .001ms !important; animation-delay: 0s !important; animation-iteration-count: 1 !important; transition-duration: .001ms !important; }
+  @view-transition { navigation: none; }
+  .win .reward i { display: none; }
+}
+
+/* History of the game: always visible, under the folded how-to. */
+.history { margin: 6px 0 22px; padding: 0 2px; }
+.history h2 { font-size: 1rem; margin: 0 0 6px; font-weight: 700; }
+.history p { margin: 0; color: var(--muted); font-size: .95rem; line-height: 1.55; }

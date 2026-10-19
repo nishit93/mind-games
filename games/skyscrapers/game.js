@@ -3,6 +3,7 @@
   const bestEl = document.getElementById('best');
   const clock = MG.clock(document.getElementById('time'));
   const ov = MG.overlay(document.querySelector('.stage'));
+  if (!ov.win) ov.win = ov.show; // an older shell.js has no celebration: show the plain message
 
   let n = Math.min(+MG.store.get('sky-n') || 4, 5);
   // clues: { top, bottom, left, right } arrays of length n; 0 = no clue.
@@ -169,7 +170,7 @@
       const prev = +MG.store.get(`sky-best-${n}`);
       if (!prev || ms < prev) MG.store.set(`sky-best-${n}`, ms);
       bestEl.textContent = MG.fmt(Math.min(ms, prev || ms));
-      ov.show('City built', `${n}×${n} in ${MG.fmt(ms)}.${!prev || ms < prev ? ' A new best.' : ''}`, 'New city', () => newGame(), 600);
+      ov.win('City built', `${n}×${n} in ${MG.fmt(ms)}.${!prev || ms < prev ? ' A new best.' : ''}`, 'New city', () => newGame(), 600);
     }
   }
 

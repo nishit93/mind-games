@@ -6,6 +6,7 @@
   const status = document.getElementById('status');
   const undoBtn = document.getElementById('undo');
   const ov = MG.overlay(document.querySelector('.stage'));
+  if (!ov.win) ov.win = ov.show; // an older shell.js has no celebration: show the plain message
 
   let n = +MG.store.get('rings-n') || 4;
   let on, moves, history, done;
@@ -57,7 +58,7 @@
       const prev = +MG.store.get(`rings-best-${n}`);
       if (!prev || moves < prev) MG.store.set(`rings-best-${n}`, moves);
       const min = fewest(n);
-      ov.show(moves === min ? 'Perfectly freed' : 'All rings off',
+      ov.win(moves === min ? 'Perfectly freed' : 'All rings off',
         moves === min ? `${moves} moves, the fewest possible.` : `${moves} moves. The fewest possible is ${min}.`, 'Play again', () => newGame(), 700);
     }
     render();

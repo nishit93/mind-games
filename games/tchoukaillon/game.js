@@ -5,6 +5,7 @@
   const status = document.getElementById('status');
   const undoBtn = document.getElementById('undo');
   const ov = MG.overlay(document.querySelector('.stage'));
+  if (!ov.win) ov.win = ov.show; // an older shell.js has no celebration: show the plain message
 
   let seeds = +MG.store.get('tchouk-seeds') || 10;
   let solved = +MG.store.get('tchouk-solved') || 0;
@@ -71,7 +72,7 @@
       solved++;
       MG.store.set('tchouk-solved', solved);
       status.textContent = 'Every seed is home.';
-      ov.show('All sown', `All ${seeds} seeds are in the store.`, 'Play again', () => newGame(), 600);
+      ov.win('All sown', `All ${seeds} seeds are in the store.`, 'Play again', () => newGame(), 600);
     } else if (!pits.some((c, j) => j > 0 && c === j)) {
       status.textContent = 'No pit can be played. Undo and try another order.';
     } else {

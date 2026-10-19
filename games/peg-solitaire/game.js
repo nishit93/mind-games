@@ -5,6 +5,7 @@
   const bestEl = document.getElementById('best');
   const undoBtn = document.getElementById('undo');
   const ov = MG.overlay(document.querySelector('.stage'));
+  if (!ov.win) ov.win = ov.show; // an older shell.js has no celebration: show the plain message
 
   // The English cross: the middle three rows and columns.
   const onBoard = i => {
@@ -87,7 +88,7 @@
     let title = 'No more jumps', text = `${left} pegs left. Can you finish with fewer?`;
     if (left === 1 && pegs[CENTRE]) { title = 'Perfect'; text = 'One peg, right in the centre.'; }
     else if (left === 1) { title = 'Brilliant'; text = 'Just one peg left. Next time, aim for the centre.'; }
-    ov.show(title, text, 'Play again', newGame);
+    (left === 1 ? ov.win : ov.show)(title, text, 'Play again', newGame);
   }
 
   undoBtn.addEventListener('click', () => {

@@ -6,6 +6,7 @@
   const status = document.getElementById('status');
   const undoBtn = document.getElementById('undo');
   const ov = MG.overlay(document.querySelector('.stage'));
+  if (!ov.win) ov.win = ov.show; // an older shell.js has no celebration: show the plain message
 
   // s: { cols: [[card] x7], stock: [card], pile: [card] }
   let s, history, done;
@@ -50,7 +51,7 @@
       const prev = MG.store.get('golf-best');
       if (prev === null || n < +prev) MG.store.set('golf-best', n);
       render();
-      ov.show(n ? `Score ${n}` : 'Hole in one', n ? `${n} card${n === 1 ? '' : 's'} left in the columns. Lower is better.` : 'Every column cleared.', 'New deal', deal, 600);
+      (n ? ov.show : ov.win)(n ? `Score ${n}` : 'Hole in one', n ? `${n} card${n === 1 ? '' : 's'} left in the columns. Lower is better.` : 'Every column cleared.', 'New deal', deal, 600);
     }
   }
 

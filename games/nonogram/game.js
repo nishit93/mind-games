@@ -3,6 +3,7 @@
   const bestEl = document.getElementById('best');
   const clock = MG.clock(document.getElementById('time'));
   const ov = MG.overlay(document.querySelector('.stage'));
+  if (!ov.win) ov.win = ov.show; // an older shell.js has no celebration: show the plain message
 
   let n = MG.kids ? 5 : +MG.store.get('nonogram-n') || 5;
   let mode = 'fill';
@@ -98,7 +99,7 @@
     const prev = +MG.store.get(`nonogram-best-${n}`);
     if (!prev || ms < prev) MG.store.set(`nonogram-best-${n}`, ms);
     bestEl.textContent = MG.fmt(Math.min(ms, prev || ms));
-    ov.show('Solved', `${n}×${n} in ${MG.fmt(ms)}.${!prev || ms < prev ? ' A new best.' : ''}`, 'New puzzle', () => newGame(), 1200);
+    ov.win('Solved', `${n}×${n} in ${MG.fmt(ms)}.${!prev || ms < prev ? ' A new best.' : ''}`, 'New puzzle', () => newGame(), 1200);
   }
 
   // Press, then drag to paint the same value across squares.

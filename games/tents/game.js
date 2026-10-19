@@ -6,6 +6,7 @@
   const needEl = document.getElementById('need');
   const bestEl = document.getElementById('best');
   const ov = MG.overlay(document.querySelector('.stage'));
+  if (!ov.win) ov.win = ov.show; // an older shell.js has no celebration: show the plain message
   const clock = { t: 0 };
 
   let n = +MG.store.get('tents-n') || 6;
@@ -121,7 +122,7 @@
       const prev = +MG.store.get(`tents-best-${n}`);
       if (!prev || ms < prev) MG.store.set(`tents-best-${n}`, ms);
       bestEl.textContent = MG.fmt(Math.min(ms, prev || ms));
-      ov.show('Campsite ready', `Every tree has its tent. ${MG.fmt(ms)}.`, 'New puzzle', () => newGame(), 600);
+      ov.win('Campsite ready', `Every tree has its tent. ${MG.fmt(ms)}.`, 'New puzzle', () => newGame(), 600);
     }
   }
 

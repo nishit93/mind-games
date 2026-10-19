@@ -59,3 +59,36 @@ var GAMES = [
   { id: 'golf', sec: 'cards', kids: true, name: 'Golf', origin: 'Britain, 1900s', icon: '♣', blurb: 'Clear cards one higher or lower.' },
   { id: 'mahjong-solitaire', sec: 'cards', name: 'Mahjong Solitaire', origin: 'USA, 1981', icon: '中', blurb: 'Match free tiles in pairs.' },
 ];
+
+// Games with a level or size choice, so they can open one step above the highest level the player has won.
+// game id: [setting key, best-score key prefix (null if the game keeps none), selector of the level buttons, button attribute]
+var LEVELS = {
+  '15-puzzle': ['fifteen-size', 'fifteen-best-', '.seg'],
+  'binary': ['binary-n', 'binary-best-', '#size'],
+  'bulls-and-cows': ['bulls-len', 'bulls-best-', '#size'],
+  'cages': ['cages-n', 'cages-best-', '#size'],
+  'chinese-rings': ['rings-n', 'rings-best-', '#size'],
+  'colour-flood': ['flood-n', 'flood-best-', '#size'],
+  'futoshiki': ['futoshiki-n', 'futoshiki-best-', '#size'],
+  'hanoi': ['hanoi-n', 'hanoi-best-', '#size'],
+  'huarong-dao': ['huarong-level', 'huarong-best-', '#level'],
+  'knights-tour': ['knight-n', 'knight-best-', '#size'],
+  'lights-off': ['lights-n', null, '#size'],
+  'magic-square': ['magic-n', null, '#size'],
+  'make-24': ['m24-level', null, '#level'],
+  'memory': ['memory-size', 'memory-best-', '#size'],
+  'mines': ['mines-level', 'mines-best-', '#level'],
+  'nonogram': ['nonogram-n', 'nonogram-best-', '#size'],
+  'number-pyramid': ['pyramid-rows', null, '#size'],
+  'pentominoes': ['pento-level', null, '#level'],
+  'pipes': ['pipes-n', 'pipes-best-', '#size'],
+  'schulte-table': ['schulte-n', 'schulte-best-', '#size'],
+  'skyscrapers': ['sky-n', 'sky-best-', '#size'],
+  'sudoku': ['sudoku-level', 'sudoku-best-', '#level'],
+  'target-number': ['target-level', null, '#level'],
+  'tchoukaillon': ['tchouk-seeds', null, '#size'],
+  'tents': ['tents-n', 'tents-best-', '#size'],
+  'traffic-jam': ['traffic-level', 'traffic-best-', '#level'],
+  'warehouse': ['warehouse-level', 'warehouse-best-', '#level'],
+  'water-jugs': ['jugs-level', 'jugs-best-', '#level'],
+};

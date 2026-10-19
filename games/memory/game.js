@@ -6,6 +6,7 @@
   const bestEl = document.getElementById('best');
   const clock = MG.clock(document.getElementById('time'));
   const ov = MG.overlay(document.querySelector('.stage'));
+  if (!ov.win) ov.win = ov.show; // an older shell.js has no celebration: show the plain message
 
   let size = MG.kids ? 12 : +MG.store.get('memory-size') || 16;
   let deck, cards, open, matched, turns, lock;
@@ -71,7 +72,7 @@
     if (!prev || turns < prev) MG.store.set(`memory-best-${size}`, turns);
     bestEl.textContent = MG.store.get(`memory-best-${size}`);
     const perfect = turns === size / 2;
-    ov.show(perfect ? 'Perfect memory' : 'All pairs found',
+    ov.win(perfect ? 'Perfect memory' : 'All pairs found',
       `${turns} turns in ${MG.fmt(ms)}.${!prev || turns < prev ? ' A new best.' : ''}`, 'Play again', () => newGame(), 700);
   }
 

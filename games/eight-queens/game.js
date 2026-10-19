@@ -8,6 +8,7 @@
   const status = document.getElementById('status');
   const shadeBtn = document.getElementById('shade');
   const ov = MG.overlay(document.querySelector('.stage'));
+  if (!ov.win) ov.win = ov.show; // an older shell.js has no celebration: show the plain message
 
   let n = MG.kids ? 5 : +MG.store.get('queens-n') || 8;
   let shade = MG.store.get('queens-shade') !== 'off';
@@ -82,7 +83,7 @@
     render();
     status.textContent = isNew ? 'A new solution.' : 'Solved, but you have found this one before.';
     const left = TOTAL[n] - list.length;
-    ov.show(isNew ? 'A new solution' : 'Solved again',
+    ov.win(isNew ? 'A new solution' : 'Solved again',
       left ? `${list.length} of ${TOTAL[n]} found. ${left} more to discover.` : `You have found all ${TOTAL[n]} solutions on this board.`,
       'Next', () => newGame(), 700);
   }

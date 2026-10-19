@@ -16,6 +16,7 @@
   const minEl = document.getElementById('min');
   const bestEl = document.getElementById('best');
   const ov = MG.overlay(document.querySelector('.stage'));
+  if (!ov.win) ov.win = ov.show; // an older shell.js has no celebration: show the plain message
 
   let level = MG.kids ? 0 : +MG.store.get('traffic-level') || 0;
   let cars, moves, done;
@@ -95,7 +96,7 @@
     if (!prev || moves < prev) MG.store.set(`traffic-best-${level}`, moves);
     bestEl.textContent = Math.min(moves, prev || moves);
     const last = level === LEVELS.length - 1;
-    ov.show(moves === min ? 'Perfect drive' : 'Free to go',
+    ov.win(moves === min ? 'Perfect drive' : 'Free to go',
       moves === min ? `${moves} moves, the fewest possible.` : `${moves} moves. The fewest possible is ${min}.`,
       last ? 'Play again' : 'Next level', () => { if (last) newGame(); else document.querySelector(`#level [data-value="${level + 1}"]`).click(); }, 700);
   }
