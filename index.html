@@ -8,7 +8,11 @@
   <meta name="theme-color" content="#F0EEE9">
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="icon" href="icon.svg" type="image/svg+xml">
-  <link rel="apple-touch-icon" href="icon.svg">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
+  <meta name="apple-mobile-web-app-title" content="Mind Games">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap">
   <link rel="stylesheet" href="styles.css">
@@ -25,6 +29,17 @@
       <span class="kids-star" aria-hidden="true">★</span>
       <span><b>Great for kids</b><small>Gentle games that build counting, memory and logic</small></span>
     </a>
+    <div class="install" id="install" hidden>
+      <img src="icon-192.png" alt="" width="44" height="44">
+      <div>
+        <b>Keep Mind Games on your phone</b>
+        <small id="install-text">Add it to your home screen to play like an app, even offline.</small>
+      </div>
+      <div class="install-actions">
+        <button class="btn" id="install-btn" hidden>Install</button>
+        <button class="install-close" id="install-close" aria-label="Not now">✕</button>
+      </div>
+    </div>
     <div id="sections"></div>
     <p class="empty" id="empty" hidden>No game matches that search.</p>
   </main>
@@ -78,6 +93,32 @@
         draw();
         window.scrollTo({ top: 0, behavior: 'smooth' });
       });
+      // Install card: the browser's own prompt where available, Share-sheet instructions on iPhone and iPad.
+      const install = document.getElementById('install');
+      const standalone = matchMedia('(display-mode: standalone)').matches || navigator.standalone;
+      const ios = /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+      let promptEvent = null;
+      const showInstall = () => { install.hidden = standalone || MG.store.get('install-dismissed') === '1'; };
+      if (ios) {
+        document.getElementById('install-text').innerHTML = 'Tap <b>Share</b> <span aria-hidden="true">⬆︎</span> in Safari, then <b>Add to Home Screen</b>.';
+        showInstall();
+      }
+      window.addEventListener('beforeinstallprompt', e => {
+        e.preventDefault();
+        promptEvent = e;
+        document.getElementById('install-btn').hidden = false;
+        showInstall();
+      });
+      document.getElementById('install-btn').addEventListener('click', async () => {
+        if (!promptEvent) return;
+        promptEvent.prompt();
+        await promptEvent.userChoice;
+        promptEvent = null;
+        install.hidden = true;
+      });
+      document.getElementById('install-close').addEventListener('click', () => { MG.store.set('install-dismissed', '1'); install.hidden = true; });
+      window.addEventListener('appinstalled', () => { install.hidden = true; });
+
       search.addEventListener('input', draw);
       window.addEventListener('hashchange', draw);
       draw();

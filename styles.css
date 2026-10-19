@@ -459,3 +459,24 @@ h1 {
 .more { margin-top: 28px; }
 .all-link { display: inline-block; margin-top: 14px; color: var(--accent); text-decoration: none; font-weight: 600; }
 .sub a { color: inherit; }
+
+/* Install card on the home page */
+.install {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 14px;
+  padding: 12px 12px 12px 14px;
+  border-radius: 18px;
+  background: var(--surface);
+  box-shadow: var(--shadow);
+}
+.install[hidden] { display: none; }
+.install img { border-radius: 10px; flex: none; }
+.install > div:nth-child(2) { flex: 1; min-width: 0; }
+.install b { display: block; font-weight: 700; font-size: .95rem; }
+.install small { display: block; color: var(--muted); font-size: .82rem; margin-top: 2px; }
+.install small b { display: inline; font-size: inherit; color: var(--text); }
+.install-actions { display: flex; align-items: center; gap: 6px; }
+.install-actions .btn { margin: 0; padding: 8px 14px; }
+.install-close { border: 0; background: transparent; color: var(--muted); font-size: 1rem; cursor: pointer; padding: 6px; }
