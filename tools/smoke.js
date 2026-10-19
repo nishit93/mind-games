@@ -173,6 +173,34 @@
         for (let i = 0; i < 9; i++) if (sol >> i & 1) L[i].click();
         await sleep(800); return winText(d);
       });
+      await play('15-Puzzle (and its score is saved)', 'games/15-puzzle/', async (d, w) => {
+        d.querySelector('[data-size="3"]').click(); await sleep(100);
+        const step = (d.getElementById('board').clientWidth - 16 - 12) / 3 + 6;
+        const read = () => { const c = Array(9).fill(0); d.querySelectorAll('.tile').forEach(t => { const m = t.style.transform.match(/translate\(([\d.]+)px, ([\d.]+)px\)/); c[Math.round((m[2] - 8) / step) * 3 + Math.round((m[1] - 8) / step)] = +t.textContent; }); return c; };
+        const start = read(), goal = '1,2,3,4,5,6,7,8,0', prev = new Map([[start.join(), null]]);
+        let layer = [start], found = null;
+        while (layer.length && !found) {
+          const next = [];
+          for (const s of layer) {
+            const g = s.indexOf(0), r = Math.floor(g / 3), c = g % 3;
+            for (const p of [r > 0 ? g - 3 : -1, r < 2 ? g + 3 : -1, c > 0 ? g - 1 : -1, c < 2 ? g + 1 : -1]) {
+              if (p < 0) continue;
+              const t = s.slice(); [t[g], t[p]] = [t[p], t[g]];
+              const k = t.join(); if (prev.has(k)) continue;
+              prev.set(k, [s.join(), s[p]]);
+              if (k === goal) { found = k; break; }
+              next.push(t);
+            }
+            if (found) break;
+          }
+          layer = next;
+        }
+        const path = []; for (let k = found; prev.get(k);) { const [p, tile] = prev.get(k); path.unshift(tile); k = p; }
+        for (const v of path) [...d.querySelectorAll('.tile')].find(t => +t.textContent === v).dispatchEvent(new PointerEvent('pointerdown', { bubbles: true, cancelable: true }));
+        await sleep(1200);
+        const saved = JSON.parse(w.localStorage.getItem('fifteen-best-3') || 'null');
+        return d.querySelector('.win.show') && saved && saved.moves === path.length && w.MGProgress._state().bests['fifteen-best-3'] ? 'Well done' : '';
+      });
       await play('Colour Flood', 'games/colour-flood/', async d => {
         d.querySelector('#size [data-value="8"]').click();
         for (let k = 0; k < 300; k++) { const sw = [...d.querySelectorAll('.sw:not(:disabled)')]; if (!sw.length) break; sw[Math.floor(Math.random() * sw.length)].click(); }
