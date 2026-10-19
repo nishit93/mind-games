@@ -25,6 +25,7 @@ Player progress (favourites, best scores, streaks, settings) is stored by a sepa
 - `progress.js` is the client side. The games keep writing their own localStorage keys through `MG.store.set`, and `progress.js` mirrors the ones that matter (it recognises them by name: `*-best*`, `*-solved`/`*-wins`, and settings ending in `-level`, `-n`, `-size`, `-draw`, `-rows`, `-len`, `-mode`, `-speed`, `-sound`, `-shade`, `-seeds`). **A new game that follows these key names is synced automatically.** Add a rule in `classify()` for any other key, and add `-best` keys where higher is better to `HIGHER_BETTER`.
 - The client does not merge: it sends its whole record and replaces it with the server's merged answer. The merge rules live only in the API repo (`src/merge.js`).
 - A guest is created on the server only after real progress exists (a play, a favourite or a score), not on a plain visit. A "progress code" (id and secret) moves progress to another device; "Erase my online data" calls `DELETE /v1/me`.
+- **Monitoring:** the 'Health check' GitHub workflow (`.github/workflows/monitor.yml`, runs `tools/monitor.sh`) checks the website, the progress server, browser access and the HTTPS certificate every 20 minutes and emails the owner when a run fails. Run `bash tools/monitor.sh` to check by hand. It only reads public addresses.
 - Not synced on purpose: `recent`, `seen-*`, `install-dismissed`, `queens-found-*` (too large) and `m24-tally`.
 
 ## How the code is organised
