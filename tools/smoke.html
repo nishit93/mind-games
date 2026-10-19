@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex">
+  <title>Smoke test · Mind Games</title>
+  <style>
+    body { font: 15px/1.5 system-ui, sans-serif; margin: 16px auto; max-width: 760px; padding: 0 16px; color: #3b312b; background: #f0eee9; }
+    h1 { font-size: 1.3rem; margin: 0 0 4px; }
+    .note { color: #7d7470; margin: 0 0 14px; font-size: .9rem; }
+    .row { padding: 6px 10px; border-radius: 8px; margin: 3px 0; background: #f8f6f2; }
+    .row.fail { background: #f6d9d4; }
+    .row small { color: #7d7470; display: block; word-break: break-word; }
+    h2 { font-size: 1rem; margin: 18px 0 4px; }
+    #title.pass { color: #3d7a4a; } #title.fail { color: #b0463b; }
+  </style>
+</head>
+<body>
+  <h1 id="title">Smoke test running…</h1>
+  <p class="note">Checks every file and every game, the home page from several starting states, and plays some games to a win.
+    It borrows this browser's saved data for a moment and puts it back afterwards.
+    Options: <code>?lenient=1</code> only requires that everything is playable; <code>?quick=1</code> skips the play-throughs.</p>
+  <div id="out"></div>
+  <script src="../games.js"></script>
+  <script src="smoke.js"></script>
+</body>
+</html>

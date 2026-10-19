@@ -77,7 +77,7 @@
             <span class="mini${g.icon.length > 2 ? ' small' : ''}" aria-hidden="true">${g.icon}</span>
             <span><b>${g.name}${g.kids && !kidsLink ? ' <i class="kid" title="Great for kids">★</i>' : ''}</b><small>${g.blurb}</small></span>
           </a>
-          <button class="heart" data-fav="${g.id}" aria-pressed="${on}" aria-label="${on ? 'Remove ' + g.name + ' from favourites' : 'Add ' + g.name + ' to favourites'}">${on ? '♥' : '♡'}</button>
+          ${P._stub ? '' : `<button class="heart" data-fav="${g.id}" aria-pressed="${on}" aria-label="${on ? 'Remove ' + g.name + ' from favourites' : 'Add ' + g.name + ' to favourites'}">${on ? '♥' : '♡'}</button>`}
         </div>`;
       };
 
@@ -119,6 +119,16 @@
         document.getElementById('fav-tiles').innerHTML = favList.slice(0, 8).map(g => tile(g)).join('');
 
         drawProgress(f, q);
+      }
+
+      // Last resort: a plain list of every game, so the home page can never be empty.
+      function fallback() {
+        sectionsEl.innerHTML = SECTIONS.map(s => `<section class="home-section"><h2>${s.name}</h2><div class="tiles">${
+          GAMES.filter(g => g.sec === s.id).map(g => `<div class="tile-wrap"><a class="tile-link" href="games/${g.id}/"><span class="mini${g.icon.length > 2 ? ' small' : ''}" aria-hidden="true">${g.icon}</span><span><b>${g.name}</b><small>${g.blurb}</small></span></a></div>`).join('')
+        }</div></section>`).join('');
+      }
+      function safeDraw() {
+        try { draw(); } catch (err) { console.error('Home page drawing failed, showing the plain list:', err); try { fallback(); } catch {} }
       }
 
       // ---- Your progress ----
@@ -178,14 +188,14 @@
 
       P.onChange(() => {
         const sig = P.favs().join();
-        if (sig !== favSig) draw(); else drawProgress();
+        try { if (sig !== favSig) draw(); else drawProgress(); } catch (err) { console.error(err); }
       });
 
       chipsEl.addEventListener('click', e => {
         const c = e.target.closest('.chip');
         if (!c) return;
         history.replaceState(null, '', c.dataset.f === 'all' ? location.pathname : `#${c.dataset.f}`);
-        draw();
+        safeDraw();
         window.scrollTo({ top: 0, behavior: 'smooth' });
       });
 
@@ -215,9 +225,9 @@
       document.getElementById('install-close').addEventListener('click', () => { MG.store.set('install-dismissed', '1'); install.hidden = true; });
       window.addEventListener('appinstalled', () => { install.hidden = true; });
 
-      search.addEventListener('input', draw);
-      window.addEventListener('hashchange', draw);
-      draw();
+      search.addEventListener('input', safeDraw);
+      window.addEventListener('hashchange', safeDraw);
+      safeDraw();
     })();
   </script>
 </body>

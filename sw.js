@@ -1,7 +1,7 @@
 // Network first so updates show up right away; fall back to cache offline.
 importScripts('games.js');
 
-const CACHE = 'mind-games-v6';
+const CACHE = 'mind-games-v7';
 const SHELL = [
   './', 'index.html', 'styles.css', 'games.js', 'shell.js', 'progress.js', 'icon.svg', 'icon-192.png', 'icon-512.png', 'icon-maskable-512.png', 'apple-touch-icon.png', 'manifest.webmanifest',
   'shared/combine.js', 'shared/combine.css', 'shared/latin.js', 'shared/latin.css', 'shared/cards.js', 'shared/cards.css',
@@ -9,7 +9,8 @@ const SHELL = [
 ];
 
 self.addEventListener('install', e => {
-  e.waitUntil(caches.open(CACHE).then(c => c.addAll(SHELL)));
+  // Add the files one by one and ignore failures, so a single missing file can never block an update.
+  e.waitUntil(caches.open(CACHE).then(c => Promise.allSettled(SHELL.map(url => c.add(new Request(url, { cache: 'reload' }))))));
   self.skipWaiting();
 });
 
@@ -19,15 +20,21 @@ self.addEventListener('activate', e => {
   self.clients.claim();
 });
 
+// Ask the server whether a file changed instead of trusting the browser's own short-term copy,
+// so a visit right after an update never mixes new and old files.
+const fresh = request => fetch(request, { cache: 'no-cache' }).catch(() => fetch(request));
+
 self.addEventListener('fetch', e => {
   if (e.request.method !== 'GET') return;
   e.respondWith(
-    fetch(e.request)
+    fresh(e.request)
       .then(res => {
-        const copy = res.clone();
-        caches.open(CACHE).then(c => c.put(e.request, copy));
+        if (res.ok) {
+          const copy = res.clone();
+          caches.open(CACHE).then(c => c.put(e.request, copy)).catch(() => {});
+        }
         return res;
       })
-      .catch(() => caches.match(e.request))
+      .catch(() => caches.match(e.request).then(hit => hit || Response.error()))
   );
 });

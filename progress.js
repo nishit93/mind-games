@@ -89,11 +89,6 @@
     if (changed) { save(); schedule(); }
   }
 
-  // Pick up anything already stored (or changed by a game that did not go through MG.store).
-  // First run: older values get time 0, so they can never overwrite something newer from another device.
-  for (const key of ls.keys()) if (classify(key)) mirror(key, ls.get(key), fresh ? 0 : Date.now());
-  fresh = false;
-
   // ---- Favourites, days played, plays ---------------------------------------------------------------------
 
   const isFav = id => !!(state.favourites[id] && state.favourites[id].on);
@@ -280,6 +275,14 @@
     ls.set('mg-sync', on ? 'on' : 'off');
     if (on) { setStatus(api() ? 'idle' : 'off'); schedule(200); } else { clearTimeout(timer); setStatus(api() ? 'paused' : 'off'); }
   }
+
+  // Pick up anything already stored, such as scores from before this module existed, or keys a game
+  // wrote without going through MG.store. This must run last: it uses everything defined above.
+  // First run: older values get time 0, so they can never overwrite something newer from another device.
+  try {
+    for (const key of ls.keys()) if (classify(key)) mirror(key, ls.get(key), fresh ? 0 : Date.now());
+  } catch (err) { console.error('Progress import skipped:', err); }
+  fresh = false;
 
   // Sync soon after loading, when coming back online and when the tab is shown again.
   if (api()) {

@@ -10,6 +10,11 @@ A calm website of single-player puzzle and mind games from around the world. Liv
 - **Use plain, traditional game names**, never brand or trademark names (that's why it's "Lights Off", "Mines" and "Recall", not "Lights Out", "Minesweeper" or "Simon"). Brands may be mentioned only in the history notes.
 - Every game needs a **How to play** section: goal, rules, how the controls work, tips, and a short history.
 - Keep the design calm: soft colours, gentle motion, no harsh alerts. The colours come from recent Pantone Colours of the Year: Cloud Dancer (2026), Mocha Mousse (2025), Peach Fuzz (2024), Very Peri (2022), plus Ultimate Gray (2021). Light and dark mode are both supported.
+- **Never break what already works.** New features must fail safe: if a new script is missing, broken or old, the games must still load and play (`shell.js` installs a fallback for `MGProgress`, and the home page falls back to a plain list). Don't initialise things in an order that only works on a clean browser.
+- **Run the complete test before and after every deployment, not a spot check.** Open `tools/smoke.html` (locally, then on the live site after the push) and the result must read PASS. It checks every file, all games, the home page from a new visitor *and* from returning players with old or damaged saved data, favourites and scores, and plays five games to a win. Add `?lenient=1` to only require that everything is playable (for mixed-version tests) and `?quick=1` to skip the play-throughs.
+- **Test from a returning player's state, not only a clean browser.** Many real visitors have saved data from earlier versions. A change to saved data or startup code needs a test with old keys already in localStorage. When you add a new kind of state or startup step, add a matching case to `STATES` in `tools/smoke.js`.
+- For a major change, also test stale-file mixtures (old pages with new scripts, new pages with old scripts, a missing or corrupt new script) by serving copies of the site built from `git show <old commit>:<file>`.
+- When the live site breaks, restore a working site first (fix forward if it is small, otherwise revert), then explain.
 - Test changes in the browser at phone width before pushing, then check the live site after the push.
 
 ## Backend

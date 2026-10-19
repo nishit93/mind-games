@@ -1,5 +1,18 @@
 // Shared page shell: header, games menu, how-to toggle, and small helpers the games use (window.MG).
 (() => {
+  // If progress.js is missing or failed to start, carry on without favourites, streaks and sync
+  // rather than breaking the page. Nothing else may depend on it being there.
+  if (!window.MGProgress) {
+    window.MGProgress = {
+      _stub: true,
+      mirror() {}, recordPlay() {}, toggleFav: () => false, onChange() {}, setSyncEnabled() {},
+      isFav: () => false, favs: () => [], configured: () => false, syncEnabled: () => false, exportCode: () => '',
+      summary: () => ({ streak: 0, plays: 0, favourites: 0, days: 0 }),
+      status: () => ({ status: 'off', lastSync: 0, hasPlayer: false }),
+      sync: async () => 'off', useCode: async () => 'error', eraseOnline: async () => {},
+      _state: () => ({ favourites: {}, bests: {}, stats: {}, settings: {}, days: [] }),
+    };
+  }
   const root = new URL('.', document.currentScript.src).href;
   const game = GAMES.find(g => g.id === document.body.dataset.game);
   const main = document.querySelector('main');
@@ -8,7 +21,7 @@
     get(k) { try { return localStorage.getItem(k); } catch { return null; } },
     set(k, v) {
       try { localStorage.setItem(k, v); } catch {}
-      if (window.MGProgress) MGProgress.mirror(k, v); // scores and settings are also kept in the progress record
+      try { MGProgress.mirror(k, v); } catch (err) { console.error(err); } // scores and settings are also kept in the progress record
     },
     json(k) { try { return JSON.parse(store.get(k)); } catch { return null; } },
   };
@@ -41,11 +54,11 @@
       <h1>${game ? game.name : 'Mind Games'}</h1>
       <p class="sub">${game ? `${game.origin} · <a href="${root}#${section.id}">${section.name}</a>` : 'Quiet puzzles from around the world.'}</p>
     </div>
-    ${game ? '<button class="icon-btn fav-btn" aria-label="Add to favourites" aria-pressed="false">♡</button><button class="icon-btn help-btn" aria-label="How to play">?</button>' : ''}`;
+    ${game ? `${MGProgress._stub ? '' : '<button class="icon-btn fav-btn" aria-label="Add to favourites" aria-pressed="false">♡</button>'}<button class="icon-btn help-btn" aria-label="How to play">?</button>` : ''}`;
   main.prepend(header);
 
   // Heart: favourite this game.
-  if (game && window.MGProgress) {
+  if (game && !MGProgress._stub) {
     const fav = header.querySelector('.fav-btn');
     const drawFav = () => {
       const on = MGProgress.isFav(game.id);
