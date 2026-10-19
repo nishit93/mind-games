@@ -1,7 +1,7 @@
 // Network first so updates show up right away; fall back to cache offline.
 importScripts('games.js');
 
-const CACHE = 'mind-games-v7';
+const CACHE = 'mind-games-v8';
 const SHELL = [
   './', 'index.html', 'styles.css', 'games.js', 'shell.js', 'progress.js', 'icon.svg', 'icon-192.png', 'icon-512.png', 'icon-maskable-512.png', 'apple-touch-icon.png', 'manifest.webmanifest',
   'shared/combine.js', 'shared/combine.css', 'shared/latin.js', 'shared/latin.css', 'shared/cards.js', 'shared/cards.css',
@@ -26,6 +26,8 @@ const fresh = request => fetch(request, { cache: 'no-cache' }).catch(() => fetch
 
 self.addEventListener('fetch', e => {
   if (e.request.method !== 'GET') return;
+  // Never touch API calls: player data must not be kept in the offline cache.
+  if (new URL(e.request.url).pathname.startsWith('/v1/')) return;
   e.respondWith(
     fresh(e.request)
       .then(res => {

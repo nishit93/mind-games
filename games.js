@@ -1,6 +1,6 @@
 // The game list. kids: true marks games that suit children (they also open on their easiest setting from the Kids section).
-// Address of the Mind Games API (leave empty until the server is live). Without it, progress stays on the device.
-var MG_CONFIG = { api: '' };
+// Address of the Mind Games API. Without it (or when it cannot be reached), progress simply stays on the device.
+var MG_CONFIG = { api: 'https://mindgames-api.duckdns.org' };
 
 var SECTIONS = [
   { id: 'logic', name: 'Logic', blurb: 'Grids and rules to reason through' },

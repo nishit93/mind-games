@@ -19,9 +19,9 @@ A calm website of single-player puzzle and mind games from around the world. Liv
 
 ## Backend
 
-Player progress (favourites, best scores, streaks, settings) is stored by a separate **private** repo, `nishit93/mind-games-api` (folder `D:\MindGamesApi`), hosted on Oracle Cloud Always Free in Mumbai. Players are anonymous guests, with no personal data.
+Player progress (favourites, best scores, streaks, settings) is stored by a separate **private** repo, `nishit93/mind-games-api` (folder `D:\MindGamesApi`), **live** at `https://mindgames-api.duckdns.org` on Oracle Cloud Always Free in Mumbai (how it runs and how to deploy it are in that repo's README). Players are anonymous guests, with no personal data.
 
-- The site works fully from browser storage alone; sync is optional and must never block play. Sync is **off until `MG_CONFIG.api` in `games.js` is set** to the server's HTTPS address. For local testing, `localStorage['mg-api']` overrides it (only https, localhost or 127.0.0.1 are accepted).
+- The site works fully from browser storage alone; sync is optional and must never block play. Sync is **on** because `MG_CONFIG.api` in `games.js` holds the server's HTTPS address; if the server is down or unreachable the site just keeps everything on the device and retries. For testing, `localStorage['mg-api']` overrides the address (only https, localhost or 127.0.0.1 are accepted). **Never run tests that load the site against the real server by accident:** `tools/smoke.js` seeds every test with an unreachable address (so the whole site is tested as if the server were down) and only tests real syncing against `?api=<address>` (for example a local copy of the API from the API repo, with `ALLOWED_ORIGINS=http://localhost:8766`) or on the live site, where it creates and then erases its own test player.
 - `progress.js` is the client side. The games keep writing their own localStorage keys through `MG.store.set`, and `progress.js` mirrors the ones that matter (it recognises them by name: `*-best*`, `*-solved`/`*-wins`, and settings ending in `-level`, `-n`, `-size`, `-draw`, `-rows`, `-len`, `-mode`, `-speed`, `-sound`, `-shade`, `-seeds`). **A new game that follows these key names is synced automatically.** Add a rule in `classify()` for any other key, and add `-best` keys where higher is better to `HIGHER_BETTER`.
 - The client does not merge: it sends its whole record and replaces it with the server's merged answer. The merge rules live only in the API repo (`src/merge.js`).
 - A guest is created on the server only after real progress exists (a play, a favourite or a score), not on a plain visit. A "progress code" (id and secret) moves progress to another device; "Erase my online data" calls `DELETE /v1/me`.
@@ -37,7 +37,7 @@ Player progress (favourites, best scores, streaks, settings) is stored by a sepa
 - Section colours: `.sec-logic`, `.sec-math`, `.sec-moves`, `.sec-memory`, `.sec-cards` set the icon colours (Pantone-based) for shelf cards, list rows, the menu and the hero.
 - `styles.css`: shared styles and colour tokens.
 - `shared/`: code used by several games: `combine.js` (Make 24, Target Number), `latin.js` (Futoshiki, Skyscrapers), `cards.js` (Klondike, Pyramid, Golf).
-- `sw.js`: offline support (network first, cache as fallback). Bump `CACHE` when the file list changes, and list any new `shared/` file there.
+- `sw.js`: offline support (network first, asking the server whether files changed, cache as fallback; API calls under `/v1/` are never touched or cached). Bump `CACHE` when the file list changes, and list any new `shared/` file there.
 - `games/<id>/index.html` holds the page and its How to play text; `games/<id>/game.js` holds the game logic.
 - To add a game, copy an existing game folder's structure and add one entry to `games.js` with its section.
 - Puzzles that promise one solution or a "fewest possible" number must be checked with a solver (in the game, or offline when levels are fixed).

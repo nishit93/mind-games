@@ -15,7 +15,15 @@
   // This browser's saved data is put back at the end, whatever happens.
   const snapshot = {};
   for (const k of Object.keys(localStorage)) snapshot[k] = localStorage.getItem(k);
-  const seed = data => { localStorage.clear(); for (const [k, v] of Object.entries(data)) localStorage.setItem(k, v); };
+  // Nothing listens on this address, so by default the whole site is tested as if the server were down,
+  // and a test can never reach (or create players on) the real server by accident.
+  const DEAD_API = 'http://127.0.0.1:9';
+  const seed = data => { localStorage.clear(); for (const [k, v] of Object.entries({ 'mg-api': DEAD_API, ...data })) localStorage.setItem(k, v); };
+  const restore = () => { localStorage.clear(); for (const [k, v] of Object.entries(snapshot)) localStorage.setItem(k, v); };
+  const until = async (fn, ms = 15000) => { const t0 = Date.now(); while (Date.now() - t0 < ms) { if (fn()) return true; await sleep(200); } return false; };
+  // Real syncing is tested only against a server we are allowed to talk to: the one named in ?api=, or the live site's own.
+  const apiUnderTest = params.get('api') || (location.origin === 'https://nishit93.github.io' ? MG_CONFIG.api : '');
+  let testCode = '';
 
   // Saved data as it looked before progress tracking existed, and with damaged records.
   const LEGACY = {
@@ -151,7 +159,47 @@
       b.close();
     }
 
-    // 6. Play some games to a win.
+    // 6. Saving to a real server and moving progress to another device.
+    if (!lenient && apiUnderTest) {
+      const authed = code => ({ headers: { authorization: `Bearer ${code}` } });
+      seed({ 'mg-api': apiUnderTest });
+      const a = await open('games/golf/', 600);
+      a.d.querySelector('.fav-btn').click();
+      a.d.querySelector('.card').dispatchEvent(new PointerEvent('pointerdown', { bubbles: true }));
+      a.w.MG.store.set('hanoi-best-5', '33');
+      const saved = await until(() => a.w.MGProgress.status().status === 'ok' && a.w.MGProgress.status().hasPlayer);
+      check('Saving online', 'a first play is saved to the server', saved, `status: ${a.w.MGProgress.status().status}`);
+      testCode = a.w.MGProgress.exportCode();
+      let server = null;
+      try { server = (await (await fetch(`${apiUnderTest}/v1/me`, authed(testCode))).json()).state; } catch {}
+      check('Saving online', 'the server holds the favourite and the score', server && server.favourites.golf && server.favourites.golf.on && server.bests['hanoi-best-5'] && server.bests['hanoi-best-5'].v === 33);
+      a.close();
+
+      seed({ 'mg-api': apiUnderTest });
+      const b = await open('games/sudoku/', 500);
+      check('Saving online', 'a wrong or malformed code is refused and changes nothing', (await b.w.MGProgress.useCode('not a code')) === 'invalid' && (await b.w.MGProgress.useCode('0'.repeat(32) + '.' + 'A'.repeat(43))) === 'unknown' && !b.w.MGProgress.status().hasPlayer);
+      const joined = await b.w.MGProgress.useCode(testCode);
+      check('Saving online', 'a second device can use the progress code', joined === 'ok', `result: ${joined}`);
+      check('Saving online', 'the second device gets the favourite and the score', b.w.MGProgress.isFav('golf') && b.w.localStorage.getItem('hanoi-best-5') === '33');
+      await b.w.MGProgress.eraseOnline();
+      const after = await fetch(`${apiUnderTest}/v1/me`, authed(testCode)).then(r => r.status).catch(() => 0);
+      check('Saving online', 'erasing online data really erases it and stops syncing', after === 401 && !b.w.MGProgress.status().hasPlayer && !b.w.MGProgress.syncEnabled(), `server answered ${after}`);
+      check('Saving online', 'progress stays on the device after erasing', b.w.MGProgress.isFav('golf'));
+      b.close();
+      testCode = '';
+    }
+    if (!lenient) {
+      // With the server unreachable, the site must carry on and keep everything on the device.
+      seed({});
+      const c = await open('games/golf/', 500);
+      c.d.querySelector('.fav-btn').click();
+      c.d.querySelector('.card').dispatchEvent(new PointerEvent('pointerdown', { bubbles: true }));
+      await sleep(2500);
+      check('Saving online', 'with the server unreachable, everything still works and is kept on the device', c.w.MGProgress.isFav('golf') && c.w.MGProgress.summary().plays === 1 && ['error', 'offline', 'idle'].includes(c.w.MGProgress.status().status), `status: ${c.w.MGProgress.status().status}`);
+      c.close();
+    }
+
+    // 7. Play some games to a win.
     if (!quick) {
       seed({});
       const play = async (name, path, fn) => {
@@ -223,7 +271,8 @@
   } catch (err) {
     check('Test run', 'finished without crashing', false, err.stack || err.message);
   } finally {
-    seed(snapshot);
+    if (testCode && apiUnderTest) { try { await fetch(`${apiUnderTest}/v1/me`, { method: 'DELETE', headers: { authorization: `Bearer ${testCode}` } }); } catch {} }
+    restore();
   }
 
   // Report
