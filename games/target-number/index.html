@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Target Number · Mind Games</title>
+  <meta name="theme-color" content="#F0EEE9">
+  <link rel="manifest" href="../../manifest.webmanifest">
+  <link rel="icon" href="../../icon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap">
+  <link rel="stylesheet" href="../../styles.css">
+  <link rel="stylesheet" href="../../shared/combine.css">
+</head>
+<body data-game="target-number">
+  <main class="wrap">
+    <div class="stats">
+      <span>Solved <b id="solved">0</b></span>
+      <span>Time <b id="time">0:00</b></span>
+    </div>
+
+    <div class="stage">
+      <div class="combine">
+        <div class="target">Target <b id="target">0</b></div>
+        <div class="nums" id="nums"></div>
+        <div class="ops" id="ops"></div>
+        <p class="status" id="status"></p>
+      </div>
+    </div>
+
+    <div class="controls">
+      <div class="seg" id="level" role="group" aria-label="Difficulty">
+        <button data-value="gentle">Gentle</button>
+        <button data-value="classic">Classic</button>
+      </div>
+      <div class="actions">
+        <button class="btn ghost" id="undo">Undo</button>
+        <button class="btn ghost" id="show">Show me</button>
+      </div>
+    </div>
+
+    <details class="howto">
+      <summary>How to play</summary>
+      <h3>Goal</h3>
+      <p>Reach the target number exactly by combining the six numbers you're given.</p>
+      <h3>How it works</h3>
+      <ul>
+        <li>Tap a number, then a sign (+ − × ÷), then a second number. The two are replaced by the answer.</li>
+        <li>Each number can be used once. You don't have to use them all.</li>
+        <li>Only whole numbers above zero are allowed at every step, so no fractions and no negatives. A division must come out exactly.</li>
+        <li>You win as soon as the target appears. Undo takes back a step. “Show me” reveals one way to do it.</li>
+        <li><b>Gentle</b> targets are under 200. <b>Classic</b> targets run from 101 to 999, as on television.</li>
+        <li>Every target can be reached.</li>
+      </ul>
+      <h3>Tips</h3>
+      <ul>
+        <li>Get close with a big multiplication first, then fix the difference with small numbers. For 412, try 4 × 100 = 400, then add 12.</li>
+        <li>The big numbers (25, 50, 75, 100) are good for building hundreds. 75 and 25 can also make 3 (75 ÷ 25).</li>
+        <li>Work backwards: is the target a multiple of one of your numbers? Then find the other factor.</li>
+      </ul>
+      <h3>A little history</h3>
+      <p>This is the numbers round from the French TV game <i>Des chiffres et des lettres</i>, first broadcast in 1965, where it is called <i>Le compte est bon</i> (“the count is right”). The format was later adapted for television in many countries.</p>
+    </details>
+  </main>
+  <script src="../../games.js"></script>
+  <script src="../../shell.js"></script>
+  <script src="../../shared/combine.js"></script>
+  <script src="game.js"></script>
+</body>
+</html>

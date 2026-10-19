@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Tchoukaillon · Mind Games</title>
+  <meta name="theme-color" content="#F0EEE9">
+  <link rel="manifest" href="../../manifest.webmanifest">
+  <link rel="icon" href="../../icon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap">
+  <link rel="stylesheet" href="../../styles.css">
+  <style>
+    .board-t {
+      display: flex;
+      gap: 6px;
+      background: var(--board);
+      border-radius: 40px;
+      padding: 12px;
+      overflow-x: auto;
+    }
+    .pit, .store {
+      flex: 1 0 40px;
+      min-height: 150px;
+      border: 0;
+      border-radius: 999px;
+      background: color-mix(in srgb, var(--muted) 16%, var(--board));
+      box-shadow: inset 0 2px 6px rgb(74 59 51 / .12);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 2px 10px;
+      font: inherit;
+      color: var(--text);
+      cursor: pointer;
+    }
+    .store { flex: 1.3 0 52px; cursor: default; background: color-mix(in srgb, var(--tile-home) 30%, var(--board)); }
+    .pit.ready { box-shadow: inset 0 0 0 3px var(--tile-home); }
+    .pit:disabled { cursor: default; }
+    .seeds { display: flex; flex-wrap: wrap; justify-content: center; gap: 3px; max-width: 34px; }
+    .seed { width: 8px; height: 8px; border-radius: 50%; background: var(--tile); }
+    .store .seeds { max-width: 44px; }
+    .count { font-weight: 700; }
+    .idx { font-size: .72rem; color: var(--muted); }
+  </style>
+</head>
+<body data-game="tchoukaillon">
+  <main class="wrap">
+    <div class="stats">
+      <span>Seeds left <b id="left">0</b></span>
+      <span>Solved <b id="solved">0</b></span>
+    </div>
+
+    <div class="stage"><div class="board-t" id="board"></div></div>
+    <p class="status" id="status"></p>
+
+    <div class="controls">
+      <div class="seg" id="size" role="group" aria-label="Number of seeds">
+        <button data-value="5">5</button>
+        <button data-value="10">10</button>
+        <button data-value="16">16</button>
+        <button data-value="24">24</button>
+        <button data-value="34">34</button>
+      </div>
+      <div class="actions">
+        <button class="btn ghost" id="undo">Undo</button>
+        <button class="btn" id="restart">Restart</button>
+      </div>
+    </div>
+
+    <details class="howto">
+      <summary>How to play</summary>
+      <h3>Goal</h3>
+      <p>Move every seed into the store on the left.</p>
+      <h3>How it works</h3>
+      <ul>
+        <li>The pits are numbered 1, 2, 3 and so on, counting away from the store.</li>
+        <li>Tap a pit to pick up all its seeds and sow them one by one into the pits towards the store, finishing in the store.</li>
+        <li>A move is only allowed if the <b>last seed lands exactly in the store</b>, which means the pit must hold exactly as many seeds as its number. Pit 3 needs exactly 3 seeds. Pits that can be played glow peach.</li>
+        <li>If no pit can be played and seeds remain, you're stuck. Use Undo and try a different order.</li>
+        <li>Choose how many seeds to start with. Every starting position can be solved.</li>
+      </ul>
+      <h3>Tips</h3>
+      <ul>
+        <li>When more than one pit is ready, the ready pit nearest the store is always the right choice. Playing a far pit first tends to overfill the near ones.</li>
+        <li>Watch how sowing from a far pit adds one seed to each pit in between, and plan for which pits that will make ready.</li>
+      </ul>
+      <h3>A little history</h3>
+      <p>Tchoukaillon is a one-player puzzle based on <i>Tchouka</i>, a sowing game from Central Asia, part of the large mancala family of seed games. It was described as a solitaire in 1977, and mathematicians have studied it because each number of seeds has exactly one solvable starting position.</p>
+    </details>
+  </main>
+  <script src="../../games.js"></script>
+  <script src="../../shell.js"></script>
+  <script src="game.js"></script>
+</body>
+</html>

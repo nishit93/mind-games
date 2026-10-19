@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Water Jugs · Mind Games</title>
+  <meta name="theme-color" content="#F0EEE9">
+  <link rel="manifest" href="../../manifest.webmanifest">
+  <link rel="icon" href="../../icon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap">
+  <link rel="stylesheet" href="../../styles.css">
+  <style>
+    .shelf {
+      background: var(--board);
+      border-radius: calc(var(--radius) + 4px);
+      padding: 18px 12px 14px;
+    }
+    .goal { text-align: center; color: var(--muted); margin: 0 0 14px; }
+    .goal b { color: var(--text); font-size: 1.3rem; }
+    .jugs { display: flex; justify-content: center; align-items: flex-end; gap: 14px; min-height: 230px; }
+    .jug-col { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+    .jug {
+      position: relative;
+      width: 72px;
+      border: 0;
+      padding: 0;
+      border-radius: 10px 10px 18px 18px;
+      background: color-mix(in srgb, var(--surface) 70%, transparent);
+      box-shadow: inset 0 0 0 3px color-mix(in srgb, var(--muted) 45%, transparent);
+      overflow: hidden;
+      cursor: pointer;
+      transition: transform .2s ease, box-shadow .2s ease;
+    }
+    .jug.picked { transform: translateY(-8px); box-shadow: inset 0 0 0 3px var(--accent); }
+    .jug.hit { box-shadow: inset 0 0 0 3px var(--tile-home); }
+    .water {
+      position: absolute;
+      left: 0; right: 0; bottom: 0;
+      background: linear-gradient(#9DB0D8, #92A8D1);
+      transition: height .45s ease;
+    }
+    .amount { position: relative; z-index: 1; font-weight: 700; font-size: 1.1rem; color: var(--text); }
+    .cap { font-size: .8rem; color: var(--muted); }
+    .mini-btns { display: flex; gap: 4px; }
+    .mini-btn {
+      border: 0;
+      border-radius: 8px;
+      padding: 5px 8px;
+      background: var(--surface);
+      color: var(--text);
+      font: inherit;
+      font-size: .78rem;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body data-game="water-jugs">
+  <main class="wrap">
+    <div class="stats">
+      <span>Moves <b id="moves">0</b></span>
+      <span>Fewest possible <b id="min">6</b></span>
+      <span>Best <b id="best">–</b></span>
+    </div>
+
+    <div class="stage">
+      <div class="shelf">
+        <p class="goal" id="goal"></p>
+        <div class="jugs" id="jugs"></div>
+        <p class="status" id="status"></p>
+      </div>
+    </div>
+
+    <div class="controls">
+      <div class="seg" id="level" role="group" aria-label="Level">
+        <button data-value="0" aria-label="Level 1">1</button>
+        <button data-value="1" aria-label="Level 2">2</button>
+        <button data-value="2" aria-label="Level 3">3</button>
+        <button data-value="3" aria-label="Level 4">4</button>
+        <button data-value="4" aria-label="Level 5">5</button>
+        <button data-value="5" aria-label="Level 6">6</button>
+      </div>
+      <div class="actions">
+        <button class="btn ghost" id="undo">Undo</button>
+        <button class="btn" id="restart">Restart</button>
+      </div>
+    </div>
+
+    <details class="howto">
+      <summary>How to play</summary>
+      <h3>Goal</h3>
+      <p>Measure out an exact amount of water using jugs that have no markings: get the target amount into any one jug.</p>
+      <h3>How it works</h3>
+      <ul>
+        <li><b>Pour:</b> tap one jug, then another. Water pours from the first into the second until the first is empty or the second is full.</li>
+        <li><b>Fill and Empty:</b> on levels with a tap, each jug has Fill and Empty buttons. On levels without a tap, the water you start with is all you have.</li>
+        <li>The number on each jug is how much water it holds now; the number below is how much it can hold.</li>
+        <li>Each pour, fill or empty is one move. Try to match the fewest possible.</li>
+      </ul>
+      <h3>Tips</h3>
+      <ul>
+        <li>A full jug poured into a smaller one leaves the difference behind. With jugs of 5 and 3, filling the 5 and pouring into the 3 leaves exactly 2.</li>
+        <li>Keep a pattern going: fill the big jug, pour into the small one, empty the small one, pour again. This cycles through every amount you can make.</li>
+        <li>You can only make amounts that are multiples of the largest number dividing both jug sizes, so think about which jug sizes work together.</li>
+      </ul>
+      <h3>A little history</h3>
+      <p>Pouring puzzles appear in the work of Italian mathematician Niccolò Tartaglia in the 1500s, who asked how to split 8 measures of wine fairly using jugs of 5 and 3. Similar riddles were told even earlier, and the puzzle became famous again in the 1995 film <i>Die Hard with a Vengeance</i>.</p>
+    </details>
+  </main>
+  <script src="../../games.js"></script>
+  <script src="../../shell.js"></script>
+  <script src="game.js"></script>
+</body>
+</html>

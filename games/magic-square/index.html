@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Magic Square · Mind Games</title>
+  <meta name="theme-color" content="#F0EEE9">
+  <link rel="manifest" href="../../manifest.webmanifest">
+  <link rel="icon" href="../../icon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap">
+  <link rel="stylesheet" href="../../styles.css">
+  <style>
+    .ms {
+      display: grid;
+      gap: 6px;
+      background: var(--board);
+      border-radius: calc(var(--radius) + 4px);
+      padding: 10px;
+      max-width: 400px;
+      margin: 0 auto;
+    }
+    .cell {
+      aspect-ratio: 1;
+      border: 0;
+      border-radius: 12px;
+      background: var(--surface);
+      color: var(--accent);
+      font: inherit;
+      font-weight: 700;
+      font-size: clamp(1.1rem, 6vw, 1.8rem);
+      cursor: pointer;
+    }
+    .cell.given { color: var(--text); cursor: default; }
+    .cell.sel { background: color-mix(in srgb, var(--tile-home) 60%, var(--surface)); }
+    .sum {
+      display: grid;
+      place-items: center;
+      font-weight: 700;
+      font-size: .95rem;
+      color: var(--muted);
+      border-radius: 10px;
+    }
+    .sum.ok { color: var(--tile-home-text); background: var(--tile-home); }
+    .sum.over { color: #A2463C; }
+    .diag { font-size: .8rem; }
+    .pad { display: grid; gap: 8px; margin-top: 14px; }
+    .key {
+      border: 0;
+      border-radius: 12px;
+      padding: 12px 0;
+      background: var(--surface);
+      color: var(--text);
+      font: inherit;
+      font-size: 1.15rem;
+      font-weight: 600;
+      box-shadow: var(--shadow);
+      cursor: pointer;
+    }
+    .key.used { opacity: .3; box-shadow: none; }
+  </style>
+</head>
+<body data-game="magic-square">
+  <main class="wrap">
+    <div class="stats">
+      <span>Magic total <b id="target">15</b></span>
+      <span>Time <b id="time">0:00</b></span>
+    </div>
+
+    <div class="stage"><div class="ms" id="grid"></div></div>
+    <div class="pad" id="pad"></div>
+
+    <div class="controls">
+      <div class="seg" id="size" role="group" aria-label="Square size">
+        <button data-value="3">3×3</button>
+        <button data-value="4">4×4</button>
+      </div>
+      <button class="btn" id="new">New square</button>
+    </div>
+
+    <details class="howto">
+      <summary>How to play</summary>
+      <h3>Goal</h3>
+      <p>Place every number once so that each row, each column and both diagonals add up to the same magic total.</p>
+      <h3>How it works</h3>
+      <ul>
+        <li>On 3×3 you use the numbers 1 to 9 and every line must make <b>15</b>. On 4×4 you use 1 to 16 and every line must make <b>34</b>.</li>
+        <li>A few numbers are already placed to get you started.</li>
+        <li>Tap an empty square, then tap a number. Tap ⌫ to clear a square.</li>
+        <li>The totals at the end of each row, under each column and in the corners (for the diagonals) update as you go. They turn peach when a full line hits the magic total.</li>
+      </ul>
+      <h3>Tips</h3>
+      <ul>
+        <li>On 3×3 the middle square is always 5, the middle number of 1 to 9.</li>
+        <li>On 3×3 the even numbers 2, 4, 6 and 8 always sit in the corners.</li>
+        <li>Opposite squares through the middle add up to 10 on 3×3, so they balance each other.</li>
+        <li>On 4×4, look for lines with three numbers already filled: the fourth is simply 34 minus their sum.</li>
+      </ul>
+      <h3>A little history</h3>
+      <p>According to Chinese legend, around 2000 BC a turtle rose from the Lo river with a pattern of dots on its shell: the 3×3 magic square now called the Lo Shu. Magic squares later spread to India, the Islamic world and Europe. The artist Albrecht Dürer put a 4×4 one in his 1514 engraving <i>Melencolia I</i>, with the year hidden in its bottom row.</p>
+    </details>
+  </main>
+  <script src="../../games.js"></script>
+  <script src="../../shell.js"></script>
+  <script src="game.js"></script>
+</body>
+</html>

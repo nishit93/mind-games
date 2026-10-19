@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Number Pyramid · Mind Games</title>
+  <meta name="theme-color" content="#F0EEE9">
+  <link rel="manifest" href="../../manifest.webmanifest">
+  <link rel="icon" href="../../icon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap">
+  <link rel="stylesheet" href="../../styles.css">
+  <style>
+    .pyr {
+      background: var(--board);
+      border-radius: calc(var(--radius) + 4px);
+      padding: 16px 10px;
+      display: grid;
+      gap: 6px;
+    }
+    .row { display: flex; justify-content: center; gap: 6px; }
+    .brick {
+      flex: 0 0 var(--w);
+      height: 52px;
+      border: 0;
+      border-radius: 10px;
+      background: var(--surface);
+      color: var(--accent);
+      font: inherit;
+      font-weight: 700;
+      font-size: 1.2rem;
+      cursor: pointer;
+    }
+    .brick.given { background: var(--tile); color: var(--tile-text); cursor: default; }
+    .brick.sel { box-shadow: inset 0 0 0 3px var(--accent); }
+    .brick.wrong { color: #A2463C; }
+    .solved .brick:not(.given) { background: var(--tile-home); color: var(--tile-home-text); }
+    .pad { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; margin-top: 14px; }
+    .key {
+      border: 0;
+      border-radius: 12px;
+      padding: 12px 0;
+      background: var(--surface);
+      color: var(--text);
+      font: inherit;
+      font-size: 1.15rem;
+      font-weight: 600;
+      box-shadow: var(--shadow);
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body data-game="number-pyramid">
+  <main class="wrap">
+    <div class="stats">
+      <span>Time <b id="time">0:00</b></span>
+      <span>Solved <b id="solved">0</b></span>
+    </div>
+
+    <div class="stage"><div class="pyr" id="pyr"></div></div>
+    <div class="pad" id="pad"></div>
+
+    <div class="controls">
+      <div class="seg" id="size" role="group" aria-label="Pyramid size">
+        <button data-value="3">3 rows</button>
+        <button data-value="4">4 rows</button>
+        <button data-value="5">5 rows</button>
+      </div>
+      <button class="btn" id="new">New</button>
+    </div>
+
+    <details class="howto">
+      <summary>How to play</summary>
+      <h3>Goal</h3>
+      <p>Fill every empty brick so that each brick equals the sum of the two bricks directly below it.</p>
+      <h3>How it works</h3>
+      <ul>
+        <li>Brown bricks are given. Tap an empty brick and type its number with the keypad (or your keyboard). ⌫ deletes a digit.</li>
+        <li>Each brick rests on two bricks. Top = left + right below it.</li>
+        <li>When every brick is filled, any brick that doesn't add up turns red.</li>
+        <li>Every pyramid can be worked out step by step, without guessing.</li>
+        <li>3 rows use small numbers and are great for young players. 5 rows are a real workout.</li>
+      </ul>
+      <h3>Example</h3>
+      <p>If the two bricks below are 3 and 5, the brick on top is 8. If a brick is 8 and one of the bricks below it is 3, the other must be 8 − 3 = 5.</p>
+      <h3>Tips</h3>
+      <ul>
+        <li>Look for any brick where two of the three numbers (the brick and its two supports) are known. The third is a quick sum or subtraction.</li>
+        <li>Sometimes you need to work downwards with subtraction, not just upwards with addition.</li>
+      </ul>
+      <h3>A little history</h3>
+      <p>Number pyramids, called <i>Zahlenmauern</i> (“number walls”) in Germany, are a favourite in primary-school maths there and in many other countries. They practise adding and subtracting while quietly teaching algebra.</p>
+    </details>
+  </main>
+  <script src="../../games.js"></script>
+  <script src="../../shell.js"></script>
+  <script src="game.js"></script>
+</body>
+</html>
