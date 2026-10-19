@@ -12,6 +12,10 @@ A calm website of single-player puzzle and mind games from around the world. Liv
 - Keep the design calm: soft colours, gentle motion, no harsh alerts. The colours come from recent Pantone Colours of the Year: Cloud Dancer (2026), Mocha Mousse (2025), Peach Fuzz (2024), Very Peri (2022), plus Ultimate Gray (2021). Light and dark mode are both supported.
 - Test changes in the browser at phone width before pushing, then check the live site after the push.
 
+## Backend
+
+Player progress (favourites, best scores, streaks, settings) is stored by a separate **private** repo, `nishit93/mind-games-api` (folder `D:\MindGamesApi`), hosted on Oracle Cloud Always Free in Mumbai. Players are anonymous guests, with no personal data. Until the server is live, the site keeps working from browser storage alone, and sync must stay optional so the site works offline and without the server.
+
 ## How the code is organised
 
 - `games.js`: the sections (`SECTIONS`: logic, math, moves, memory, cards) and the list of games (`GAMES`: id, sec, name, origin, icon, blurb, and `kids: true` for games that suit children). The menu, the home page and the offline cache all read it.
