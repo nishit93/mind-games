@@ -854,3 +854,49 @@ body.focus .howto, body.focus .more, body.focus .history, body.focus .kidbar { d
 
 /* Eight levels (Traffic Jam) still fit a 320px phone: buttons narrow a little on small screens. */
 .seg button { min-width: 0; padding-left: clamp(9px, 3vw, 14px); padding-right: clamp(9px, 3vw, 14px); }
+
+/* Menu: categories are folded groups */
+.drawer-group { margin: 0; }
+.drawer-heading { display: flex; align-items: center; justify-content: space-between; cursor: pointer; list-style: none; border-radius: 12px; padding: 14px 12px 8px; }
+.drawer-heading::-webkit-details-marker { display: none; }
+.drawer-heading small { font-weight: 700; opacity: .7; letter-spacing: 0; margin-left: auto; margin-right: 10px; }
+.drawer-heading::after { content: ''; width: 8px; height: 8px; border-right: 2px solid currentColor; border-bottom: 2px solid currentColor; transform: rotate(-45deg); transition: transform .25s ease; opacity: .6; }
+.drawer-group[open] > .drawer-heading::after { transform: rotate(45deg); }
+.drawer-heading:hover, .drawer-heading:focus-visible { background: var(--surface); outline: none; }
+.drawer-all { display: block; padding: 4px 12px 8px; font-size: .84rem; font-weight: 600; color: var(--accent); text-decoration: none; }
+.drawer-group[open] > :not(summary) { animation: mg-rise .3s ease both; }
+
+/* Puzzle of the day */
+.dailybar { margin: 8px 0 2px; padding: 8px 14px; border-radius: 14px; background: color-mix(in srgb, var(--peri) 14%, var(--surface)); color: var(--text); }
+.dailybar p { margin: 0; font-size: .88rem; }
+.daily { display: flex; align-items: center; gap: 12px; margin: 14px 0 0; padding: 10px 14px 10px 10px; border-radius: 18px; background: color-mix(in srgb, var(--peri) 12%, var(--surface)); color: var(--text); text-decoration: none; box-shadow: var(--shadow); }
+.daily .gicon { width: 46px; height: 46px; border-radius: 14px; flex: none; }
+.daily-text { flex: 1; min-width: 0; }
+.daily-text small { display: block; color: var(--muted); font-size: .74rem; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; }
+.daily-text b { display: block; font-weight: 700; font-size: 1rem; line-height: 1.25; }
+.daily-state { flex: none; font-size: .85rem; font-weight: 700; color: var(--accent); }
+.daily.done { background: var(--surface); }
+.daily.done .daily-state { color: var(--muted); }
+.daily:active { transform: scale(.985); }
+
+/* Stats page */
+.stat-tiles { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin: 14px 0 4px; }
+.stat-tiles.two { grid-template-columns: repeat(2, 1fr); }
+.stat-tile { background: var(--surface); border-radius: 16px; padding: 12px 6px; text-align: center; box-shadow: var(--shadow); }
+.stat-tile b { display: block; font-size: 1.5rem; line-height: 1.1; }
+.stat-tile small { display: block; color: var(--muted); font-size: .72rem; margin-top: 2px; }
+.stat-head { font-size: 1rem; margin: 22px 0 8px; }
+.stat-head small { color: var(--muted); font-weight: 600; margin-left: 6px; }
+.stat-sec { margin: 16px 0 4px; font-size: .78rem; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+.cal { display: grid; grid-auto-flow: column; grid-template-rows: repeat(7, 1fr); gap: 3px; }
+.cal i { aspect-ratio: 1; border-radius: 4px; background: var(--board); }
+.cal i.cal-on { background: var(--tile-home); }
+.cal i.cal-today { outline: 2px solid var(--accent); outline-offset: 1px; }
+.cal i.cal-empty { background: transparent; }
+.stat-game { padding: 10px 0; border-top: 1px solid color-mix(in srgb, var(--muted) 16%, transparent); }
+.stat-game > a { color: var(--text); font-weight: 700; text-decoration: none; }
+.stat-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+.stat-chip { background: var(--surface); border-radius: 999px; padding: 3px 12px; font-size: .82rem; box-shadow: var(--shadow); }
+.stat-chip small { color: var(--muted); margin-right: 6px; font-weight: 600; }
+.stat-chip b { font-weight: 700; }
+@media (max-width: 340px) { .stat-tiles { grid-template-columns: repeat(2, 1fr); } }

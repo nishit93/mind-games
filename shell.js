@@ -49,6 +49,48 @@
   const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 
   const section = game && SECTIONS.find(s => s.id === game.sec);
+
+  // ---- Puzzle of the day ----
+  // The page address carries ?daily=<today's date>. Everything the game draws at random is then taken from a generator
+  // started from the date and the game, so everyone gets the same puzzle, on the level the pool names. Normal randomness
+  // and the player's own saved level are put back as soon as the page has finished loading.
+  const daily = (() => {
+    try {
+      const d = new URLSearchParams(location.search).get('daily');
+      if (!d || !game || typeof DAILY === 'undefined' || d !== dailyDate()) return null;
+      const e = DAILY.find(x => x.id === game.id);
+      return e ? { id: e.id, level: e.level, date: d } : null;
+    } catch { return null; }
+  })();
+  if (daily) {
+    try {
+      let h = 1779033703 ^ (daily.date + ':' + daily.id).length;
+      for (const ch of daily.date + ':' + daily.id) { h = Math.imul(h ^ ch.charCodeAt(0), 3432918353); h = (h << 13) | (h >>> 19); }
+      let a = h >>> 0;
+      const realRandom = Math.random, realMirror = MGProgress.mirror;
+      Math.random = () => { a = (a + 0x6D2B79F5) | 0; let t = Math.imul(a ^ (a >>> 15), 1 | a); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
+      MGProgress.mirror = () => {};
+      const lvKey = typeof LEVELS === 'object' && LEVELS[game.id] ? LEVELS[game.id][0] : null;
+      let saved = null;
+      try { if (lvKey) { saved = localStorage.getItem(lvKey); localStorage.setItem(lvKey, daily.level); } } catch {}
+      document.addEventListener('DOMContentLoaded', () => {
+        Math.random = realRandom; MGProgress.mirror = realMirror;
+        try { if (lvKey) { if (saved === null) localStorage.removeItem(lvKey); else localStorage.setItem(lvKey, saved); } } catch {}
+      });
+    } catch (err) { console.error('Puzzle of the day could not start:', err); }
+  }
+  const dailyDone = () => { try { const v = JSON.parse(localStorage.getItem('mg-daily')); return Array.isArray(v) ? v : []; } catch { return []; } };
+  const dailyStreak = () => {
+    const have = new Set(dailyDone()); const d = new Date(); d.setHours(0, 0, 0, 0);
+    if (!have.has(dailyDate(d))) d.setDate(d.getDate() - 1);
+    let n = 0; while (have.has(dailyDate(d))) { n++; d.setDate(d.getDate() - 1); }
+    return n;
+  };
+  function markDaily() {
+    if (!daily) return 0;
+    try { const done = dailyDone(); if (!done.includes(daily.date)) localStorage.setItem('mg-daily', JSON.stringify([...done, daily.date].sort().slice(-400))); } catch {}
+    return dailyStreak();
+  }
   // Kid mode (a switch the player turns on) shows only the games for children, and every game then starts on its easiest
   // setting, like the Kids section does. It is kept on this device only.
   const isKidMode = () => store.get('mg-kidmode') === 'on';
@@ -215,20 +257,24 @@
       ${game ? `<button class="switch" role="switch" data-sw="focus" aria-checked="${focusOn()}"><span>Focus while playing<small>Hide everything else once you start</small></span><i class="knob" aria-hidden="true"></i></button>` : ''}
     </div>
     <input class="search drawer-search" type="search" placeholder="Find a game" aria-label="Find a game">
+    ${(() => { try { const p = dailyPick(km); const g = GAMES.find(x => x.id === p.id); return `<a class="drawer-kids drawer-daily" href="${root}games/${p.id}/?daily=${p.date}">☀ Puzzle of the day <small>${g.name}${dailyDone().includes(p.date) ? ' · done' : ''}</small></a>`; } catch { return ''; } })()}
     ${km ? '' : `<a class="drawer-kids" href="${root}#kids">${FACE} Great for kids</a>`}
     <a class="drawer-kids drawer-favs" href="${root}#favs">♥ Favourites</a>
     <a class="drawer-kids drawer-lists" href="${root}#lists">☰ Your lists</a>
+    <a class="drawer-kids drawer-stats" href="${root}#stats">▤ Your stats</a>
     ${SECTIONS.map(s => {
       const games = GAMES.filter(g => g.sec === s.id && (!km || g.kids));
+      const isCurrent = !!game && game.sec === s.id;
       return games.length ? `
-      <div class="drawer-group">
-        <a class="drawer-heading" href="${root}#${s.id}">${s.name}</a>
+      <details class="drawer-group"${isCurrent ? ' open' : ''} data-def="${isCurrent ? 1 : 0}">
+        <summary class="drawer-heading"><span>${s.name}</span><small>${games.length}</small></summary>
+        <a class="drawer-all" href="${root}#${s.id}">See all in ${s.name} ›</a>
         ${games.map(g => `
           <a class="drawer-item${g === game ? ' current' : ''}" href="${href(g)}" data-name="${g.name.toLowerCase()} ${g.origin.toLowerCase()} ${s.name.toLowerCase()}"${g === game ? ' aria-current="page"' : ''}>
             ${icon(g)}
             <span><b>${g.name}${g.kids ? ` ${badge(g, true)}` : ''}</b><small>${g.origin}</small></span>
           </a>`).join('')}
-      </div>` : '';
+      </details>` : '';
     }).join('')}
     <p class="drawer-empty" hidden>No game matches.</p>`;
 
@@ -236,7 +282,11 @@
     search.addEventListener('input', () => {
       const q = search.value.trim().toLowerCase();
       drawer.querySelectorAll('.drawer-item').forEach(a => { a.hidden = !!q && !a.dataset.name.includes(q); });
-      drawer.querySelectorAll('.drawer-group').forEach(g => { g.hidden = !g.querySelector('.drawer-item:not([hidden])'); });
+      drawer.querySelectorAll('.drawer-group').forEach(g => {
+        g.hidden = !g.querySelector('.drawer-item:not([hidden])');
+        g.open = q ? true : g.dataset.def === '1';
+        const all = g.querySelector('.drawer-all'); if (all) all.hidden = !!q;
+      });
       drawer.querySelectorAll('.drawer-kids').forEach(a => { a.hidden = !!q; });
       drawer.querySelector('.drawer-empty').hidden = !!drawer.querySelector('.drawer-item:not([hidden])');
     });
@@ -263,6 +313,32 @@
   menuBtn.addEventListener('click', () => setOpen(true));
   scrim.addEventListener('click', () => setOpen(false));
   document.addEventListener('keydown', e => { if (e.key === 'Escape') setOpen(false); });
+
+  // The puzzle of the day: a banner, and the controls that would replace the puzzle ask before they do.
+  if (daily) {
+    const lvSel = typeof LEVELS === 'object' && LEVELS[game.id] ? LEVELS[game.id][2] : null;
+    const label = lvSel && document.querySelector(lvSel + ' button[data-value="' + daily.level + '"], ' + lvSel + ' button[data-size="' + daily.level + '"]');
+    const bar = document.createElement('div');
+    bar.className = 'dailybar';
+    bar.innerHTML = `<p><b>Puzzle of the day</b> · ${new Date().toLocaleDateString([], { weekday: 'long', day: 'numeric', month: 'long' })}${label ? ' · ' + esc(label.textContent.trim()) : ''}</p>`;
+    header.after(bar);
+    const leave = () => {
+      const wrap = document.createElement('div');
+      wrap.className = 'sheet-wrap';
+      wrap.innerHTML = '<div class="sheet-scrim"></div><div class="sheet" role="dialog" aria-modal="true" aria-label="Leave the puzzle of the day"><h2>Leave the puzzle of the day?</h2><p class="sheet-sub">Starting something new replaces today’s puzzle. You can come back to it from the home page.</p><button class="btn sheet-done" type="button">Keep playing</button><a class="btn ghost sheet-done" href="' + location.pathname + '">Start a regular game</a></div>';
+      document.body.append(wrap);
+      requestAnimationFrame(() => wrap.classList.add('open'));
+      const close = () => { wrap.classList.add('leaving'); setTimeout(() => wrap.remove(), 250); };
+      wrap.querySelector('.sheet-scrim').addEventListener('click', close);
+      wrap.querySelector('button').addEventListener('click', close);
+    };
+    document.addEventListener('click', e => {
+      const c = e.target.closest && e.target.closest('.controls button, .controls .seg *');
+      if (!c || c.closest('.sheet-wrap')) return;
+      e.preventDefault(); e.stopPropagation();
+      if (!document.querySelector('.sheet-wrap')) leave();
+    }, true);
+  }
 
   // Kid mode is on but this is a game for older players: say so gently, and offer a way back.
   if (game && kidMode && !game.kids) {
@@ -355,7 +431,7 @@
       if (cur !== null && values.length && !values.includes(cur)) localStorage.removeItem(LV[0]);
     } catch {}
   }
-  if (LV && !kids) {
+  if (LV && !kids && !daily) {
     try {
       const order = lvButtons().map(b => String(lvBtnValue(b)));
       const won = new Set(wonLevels());
@@ -371,9 +447,11 @@
       }
     } catch (err) { console.error('Level choice skipped:', err); }
   }
+  let lastDailyStreak = 0;
   // Remember that the current level was won; returns the next level's button, if there is one.
   function noteWin() {
     if (game) store.set(`tut-done-${game.id}`, '1');
+    if (daily) lastDailyStreak = markDaily();
     if (!LV) return null;
     try {
       const now = levelNow();
@@ -413,10 +491,11 @@
         nextBtn = noteWin();
         const streak = (() => { try { return MGProgress.summary().streak; } catch { return 0; } })();
         const bits = [];
-        if (nextBtn) bits.push('Next step unlocked');
-        if (streak >= 2) bits.push(`${streak}-day streak`);
+        if (daily && lastDailyStreak) bits.push(lastDailyStreak > 1 ? `Puzzle of the day done · ${lastDailyStreak}-day streak` : 'Puzzle of the day done');
+        else if (nextBtn) bits.push('Next step unlocked');
+        if (streak >= 2 && !daily) bits.push(`${streak}-day streak`);
         extra.textContent = bits.join(' · ');
-        if (nextBtn) { next.textContent = `Try ${nextBtn.textContent.trim()}`; next.hidden = false; }
+        if (nextBtn && !daily) { next.textContent = `Try ${nextBtn.textContent.trim()}`; next.hidden = false; }
         reward.innerHTML = '<svg viewBox="0 0 52 52" class="badge"><circle cx="26" cy="26" r="23"/><path d="M15 27l8 8 14-17"/></svg>'
           + Array.from({ length: 14 }, (_, i) => `<i style="--a:${Math.round(i * 360 / 14)}deg;--d:${(i % 4) * 60}ms;--c:${['--peach', '--peri', '--mocha', '--tile-home'][i % 4]}"></i>`).join('');
       }
@@ -444,11 +523,11 @@
   // A clock shown in el; starts on the first move.
   function clock(el) {
     let started = 0, id = 0, stopped = 0;
-    const draw = () => { el.textContent = fmt((stopped || Date.now()) - started); };
+    const draw = () => { if (el) el.textContent = fmt((stopped || Date.now()) - started); };
     return {
-      start() { if (started) return; started = Date.now(); id = setInterval(draw, 250); },
+      start() { if (started) return; started = Date.now(); if (el) id = setInterval(draw, 250); },
       stop() { clearInterval(id); if (!started) return 0; stopped = Date.now(); draw(); return stopped - started; },
-      reset() { clearInterval(id); started = stopped = 0; el.textContent = '0:00'; },
+      reset() { clearInterval(id); started = stopped = 0; if (el) el.textContent = '0:00'; },
     };
   }
 
@@ -461,7 +540,7 @@
     return a;
   };
 
-  window.MG = { root, game, kids, store, fmt, overlay, seg, clock, wait, shuffle, esc, badge, ageText, isKidMode, setKidMode, saveSheet, demo: () => loadTutorial(true), FACE };
+  window.MG = { root, game, kids, store, fmt, overlay, seg, clock, wait, shuffle, esc, badge, ageText, isKidMode, setKidMode, saveSheet, daily, dailyDone, dailyStreak, demo: () => loadTutorial(true), FACE };
 
   // Show the gesture tutorial on arrival, until a level of this game has been won.
   if (game && !tutorialDone()) setTimeout(() => loadTutorial(false), 200);

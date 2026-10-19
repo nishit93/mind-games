@@ -60,7 +60,7 @@
     if (on.every(v => !v)) {
       done = true;
       const ms = clock.stop();
-      ov.win('All lights off', `${moves} moves in ${MG.fmt(ms)}.`, 'Play again', () => newGame());
+      ov.win('All lights off', `${moves} move${moves === 1 ? '' : 's'}.`, 'Play again', () => newGame());
     }
   }
 

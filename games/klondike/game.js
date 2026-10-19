@@ -87,7 +87,7 @@
       MG.store.set('klondike-wins', wins);
       const ms = clock.stop();
       render();
-      ov.win('Solved', `All cards home in ${moves} moves and ${MG.fmt(ms)}.`, 'New deal', deal, 500);
+      ov.win('Solved', `All cards home in ${moves} moves.`, 'New deal', deal, 500);
     }
   }
 

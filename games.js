@@ -25,11 +25,13 @@ var GAMES = [
   { id: 'eight-queens', sec: 'logic', kids: true, name: 'Eight Queens', origin: 'Germany, 1848', icon: '♛', blurb: 'Place queens that never attack.' },
   { id: 'knights-tour', sec: 'logic', name: "Knight's Tour", origin: 'India, 800s', icon: '♞', blurb: 'Visit every square with a knight.' },
   { id: 'bulls-and-cows', sec: 'logic', kids: true, name: 'Bulls & Cows', origin: 'Britain, 1800s', icon: '#?', blurb: 'Crack the secret number.' },
+  { id: 'one-stroke', sec: 'logic', kids: true, name: 'One Stroke', origin: 'Prussia, 1736', icon: '✎', blurb: 'Draw every line without lifting your pen.' },
 
   // Math & numbers
   { id: 'magic-square', sec: 'math', kids: true, name: 'Magic Square', origin: 'China, ancient', icon: '15', blurb: 'Every line adds to the same total.' },
   { id: 'make-24', sec: 'math', kids: true, name: 'Make 24', origin: 'China, 1900s', icon: '24', blurb: 'Four numbers, one target.' },
   { id: 'target-number', sec: 'math', name: 'Target Number', origin: 'France, 1965', icon: '◎', blurb: 'Reach the target with six numbers.' },
+  { id: 'next-in-line', sec: 'math', kids: true, name: 'Next in Line', origin: 'India & Italy, ancient', icon: '2,4,?', blurb: 'Spot the rule and pick the next number.' },
   { id: 'number-pyramid', sec: 'math', kids: true, name: 'Number Pyramid', origin: 'Germany, school classic', icon: '△', blurb: 'Each brick is the sum of two below.' },
   { id: 'cages', sec: 'math', name: 'Cages', origin: 'Japan, 2004', icon: '+', blurb: 'Latin squares with sums and products.' },
   { id: 'water-jugs', sec: 'math', kids: true, name: 'Water Jugs', origin: 'Italy, 1500s', icon: '⊔', blurb: 'Measure exactly with odd jugs.' },
@@ -41,6 +43,7 @@ var GAMES = [
   { id: 'hanoi', sec: 'moves', kids: true, name: 'Tower of Hanoi', origin: 'France, 1883', icon: '≡', blurb: 'Move the tower, one disc at a time.' },
   { id: 'huarong-dao', sec: 'moves', kids: true, name: 'Huarong Dao', origin: 'China, early 1900s', icon: '▣', blurb: 'Slide the blocks to free the general.' },
   { id: 'traffic-jam', sec: 'moves', kids: true, name: 'Traffic Jam', origin: 'Japan, 1970s', icon: '▭', blurb: 'Clear a path for the red car.' },
+  { id: 'maze', sec: 'moves', kids: true, name: 'Maze', origin: 'Crete, ancient', icon: '⌗', blurb: 'Find the way out of the maze.' },
   { id: 'warehouse', sec: 'moves', name: 'Warehouse', origin: 'Japan, 1982', icon: '▢', blurb: 'Push every crate onto a spot.' },
   { id: 'pentominoes', sec: 'moves', name: 'Pentominoes', origin: 'England & USA, 1900s', icon: '⧉', blurb: 'Fit twelve shapes into a box.' },
   { id: 'peg-solitaire', sec: 'moves', name: 'Peg Solitaire', origin: 'France, 1697', icon: '⁘', blurb: 'Jump pegs until one is left.' },
@@ -52,12 +55,16 @@ var GAMES = [
   { id: 'schulte-table', sec: 'memory', kids: true, name: 'Schulte Table', origin: 'Germany, 1900s', icon: '#', blurb: 'Find the numbers in order, fast.' },
   { id: 'grid-recall', sec: 'memory', kids: true, name: 'Grid Recall', origin: 'Memory science classic', icon: '⊞', blurb: 'Remember which squares lit up.' },
   { id: 'digit-span', sec: 'memory', kids: true, name: 'Digit Span', origin: 'Britain, 1887', icon: '123', blurb: 'Hold a growing number in mind.' },
+  { id: 'odd-one-out', sec: 'memory', kids: true, name: 'Odd One Out', origin: 'Japan & USA, 1900s', icon: '◍', blurb: 'Find the square with a slightly different shade.' },
+  { id: 'colour-word', sec: 'memory', kids: true, name: 'Colour Word', origin: 'USA, 1935', icon: 'Aa', blurb: 'Name the ink, not the word.' },
+  { id: 'word-search', sec: 'memory', kids: true, name: 'Word Search', origin: 'USA, 1968', icon: 'ABC', blurb: 'Find the hidden words in the grid.' },
 
   // Solitaire & tiles
   { id: 'klondike', sec: 'cards', name: 'Klondike', origin: 'North America, 1890s', icon: '♠', blurb: 'The classic patience game.' },
   { id: 'pyramid', sec: 'cards', kids: true, name: 'Pyramid', origin: 'Europe, 1800s', icon: '♢', blurb: 'Pair cards that add up to 13.' },
   { id: 'golf', sec: 'cards', kids: true, name: 'Golf', origin: 'Britain, 1900s', icon: '♣', blurb: 'Clear cards one higher or lower.' },
   { id: 'mahjong-solitaire', sec: 'cards', name: 'Mahjong Solitaire', origin: 'USA, 1981', icon: '中', blurb: 'Match free tiles in pairs.' },
+  { id: 'free-cells', sec: 'cards', name: 'Free Cells', origin: 'USA, 1978', icon: '♠', blurb: 'All cards face up: plan your way home.' },
 ];
 
 // Games with a level or size choice, so they can open one step above the highest level the player has won.
@@ -91,6 +98,11 @@ var LEVELS = {
   'traffic-jam': ['traffic-level', 'traffic-best-', '#level'],
   'warehouse': ['warehouse-level', 'warehouse-best-', '#level'],
   'water-jugs': ['jugs-level', 'jugs-best-', '#level'],
+  'maze': ['maze-n', 'maze-best-', '#size'],
+  'one-stroke': ['stroke-level', 'stroke-best-', '#level'],
+  'next-in-line': ['nextline-level', null, '#level'],
+  'colour-word': ['colourword-level', null, '#level'],
+  'word-search': ['wordsearch-n', 'wordsearch-best-', '#size'],
 };
 
 // Suggested ages (from, to) for the games made for children. Shown as a badge, and used by Kid mode (kids: true).
@@ -100,5 +112,24 @@ var AGES = {
   '15-puzzle': [6, 11], 'hanoi': [6, 11], 'huarong-dao': [8, 11], 'traffic-jam': [6, 11],
   'memory': [4, 8], 'recall': [5, 9], 'schulte-table': [7, 11], 'grid-recall': [6, 10], 'digit-span': [8, 11],
   'pyramid': [7, 11], 'golf': [6, 11],
+  'one-stroke': [7, 11], 'next-in-line': [8, 11], 'maze': [6, 11], 'odd-one-out': [5, 9], 'colour-word': [8, 11], 'word-search': [7, 11],
 };
 GAMES.forEach(function (g) { if (g.kids) g.ages = AGES[g.id] || [6, 11]; });
+
+// Puzzle of the day: one game a day, the same puzzle for everyone (it is built from the date), on a fixed level.
+// Only games that build their puzzle when the page opens, with no timing involved, belong here. level is the value of the game's level button.
+var DAILY = [
+  { id: 'sudoku', level: 'medium', label: 'Medium' }, { id: 'nonogram', level: '8', label: '8×8' }, { id: 'binary', level: '6', label: '6×6' }, { id: 'futoshiki', level: '5', label: '5×5' },
+  { id: 'skyscrapers', level: '5', label: '5×5' }, { id: 'tents', level: '8', label: '8×8' }, { id: 'pipes', level: '6', label: '6×6' }, { id: 'lights-off', level: '5', label: '5×5' },
+  { id: 'cages', level: '5', label: '5×5' }, { id: 'number-pyramid', level: '4', label: '4 rows' }, { id: 'make-24', level: 'tricky', label: 'Tricky' }, { id: 'target-number', level: 'classic', label: 'Classic' },
+  { id: 'colour-flood', level: '12', label: 'Medium' }, { id: '15-puzzle', level: '4', label: '4×4' },
+];
+function dailyDate(d) { d = d || new Date(); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); }
+// Today's pick. In kid mode only games for children are used.
+function dailyPick(kidsOnly, d) {
+  d = d || new Date();
+  var pool = DAILY.filter(function (e) { return !kidsOnly || GAMES.some(function (x) { return x.id === e.id && x.kids; }); });
+  var day = Math.floor(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()) / 86400000);
+  var e = pool[day % pool.length];
+  return { id: e.id, level: e.level, label: e.label, date: dailyDate(d) };
+}

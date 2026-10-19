@@ -104,7 +104,7 @@
       const ms = clock.stop();
       pyrEl.classList.add('solved');
       render();
-      ov.win('Solid as a pyramid', `Every brick adds up. Solved in ${MG.fmt(ms)}.`, 'New pyramid', () => newGame(), 600);
+      ov.win('Solid as a pyramid', `Every brick adds up.`, 'New pyramid', () => newGame(), 600);
     }
   }
 

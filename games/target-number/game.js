@@ -63,7 +63,7 @@
         const ms = clock.stop();
         draw();
         status.textContent = 'Right on target.';
-        ov.win('Right on target', `${target} in ${MG.fmt(ms)}.`, 'Next round', newRound, 500);
+        ov.win('Right on target', `${target} made.`, 'Next round', newRound, 500);
         return;
       }
       const closest = tiles.reduce((m, t) => Math.min(m, Math.abs(t.f.n - target)), Infinity);

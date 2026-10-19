@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Maze: free to play, rules and history · Mind Games</title>
+  <meta name="theme-color" content="#F0EEE9">
+  <!-- seo:start -->
+  <meta name="description" content="Maze (Crete, ancient): Find the way out of the maze. Free to play online, no sign-up, with rules and history. Mazes are among the oldest puzzles.">
+  <link rel="canonical" href="https://nishit93.github.io/mind-games/games/maze/">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Mind Games">
+  <meta property="og:title" content="Maze · Mind Games">
+  <meta property="og:description" content="Maze (Crete, ancient): Find the way out of the maze. Free to play online, no sign-up, with rules and history. Mazes are among the oldest puzzles.">
+  <meta property="og:url" content="https://nishit93.github.io/mind-games/games/maze/">
+  <meta property="og:image" content="https://nishit93.github.io/mind-games/icon-512.png">
+  <meta name="twitter:card" content="summary">
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"VideoGame","name":"Maze","url":"https://nishit93.github.io/mind-games/games/maze/","description":"Find the way out of the maze. Mazes are among the oldest puzzles.","genre":["Puzzle","Sliding & shapes"],"applicationCategory":"Game","gamePlatform":"Web browser","operatingSystem":"Any","playMode":"SinglePlayer","inLanguage":"en","isAccessibleForFree":true,"image":"https://nishit93.github.io/mind-games/icon-512.png","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"publisher":{"@type":"Organization","name":"Mind Games","url":"https://nishit93.github.io/mind-games/"},"audience":{"@type":"PeopleAudience","suggestedMinAge":6}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Mind Games","item":"https://nishit93.github.io/mind-games/"},{"@type":"ListItem","position":2,"name":"Sliding & shapes","item":"https://nishit93.github.io/mind-games/#moves"},{"@type":"ListItem","position":3,"name":"Maze","item":"https://nishit93.github.io/mind-games/games/maze/"}]},{"@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How do you play Maze?","acceptedAnswer":{"@type":"Answer","text":"Find your way from the top-left corner to the peach square in the bottom-right corner. Your dot moves one square at a time. Walls block the way. Swipe across the maze to run along a corridor. You stop at a fork or a dead end. Or tap a square right next to you, use the arrow buttons, or press the arrow keys. Squares you have visited turn peach, so you can see where you have been. Every maze has exactly one route, and the game shows how many steps it takes. Try to match it."}},{"@type":"Question","name":"Where does Maze come from?","acceptedAnswer":{"@type":"Answer","text":"Mazes are among the oldest puzzles. Greek myth tells of the Labyrinth on Crete, where the hero Theseus found his way to the Minotaur and back. Hedge mazes became fashionable in European gardens, and the one at Hampton Court Palace near London, planted around 1700, is still open to visitors. This game builds its mazes with a method called depth-first search, which carves one winding path through every square."}},{"@type":"Question","name":"Is Maze free to play?","acceptedAnswer":{"@type":"Answer","text":"Yes. Maze on Mind Games is free, works in any browser on a phone or computer, needs no account and keeps your best scores on your device."}}]}]}</script>
+  <!-- seo:end -->
+  <link rel="manifest" href="../../manifest.webmanifest">
+  <link rel="icon" href="../../icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="../../apple-touch-icon.png">
+  <meta name="apple-mobile-web-app-title" content="Mind Games">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap">
+  <link rel="stylesheet" href="../../styles.css">
+
+  <style>
+    .dpad { display: grid; grid-template-columns: repeat(3, 56px); gap: 6px; justify-content: center; margin-top: 14px; }
+    .dpad button { height: 50px; border: 0; border-radius: 12px; background: var(--surface); box-shadow: var(--shadow); font: inherit; font-size: 1.2rem; color: var(--text); cursor: pointer; }
+    .dpad button:active { transform: scale(.94); }
+    .maze { display: grid; background: var(--board); border-radius: calc(var(--radius) + 4px); padding: 8px; aspect-ratio: 1; touch-action: none; user-select: none; }
+    .mc { position: relative; box-sizing: border-box; border: 0 solid color-mix(in srgb, var(--text) 60%, transparent); cursor: pointer; }
+    .mc.u { border-top-width: 2px; } .mc.r { border-right-width: 2px; } .mc.d { border-bottom-width: 2px; } .mc.l { border-left-width: 2px; }
+    .mc.seen { background: color-mix(in srgb, var(--tile-home) 30%, transparent); }
+    .mc.exit::after { content: ''; position: absolute; inset: 24%; border-radius: 4px; background: var(--tile-home); box-shadow: 0 0 0 2px color-mix(in srgb, var(--text) 35%, transparent); }
+    .mc.me::before { content: ''; position: absolute; inset: 18%; border-radius: 50%; background: var(--accent); box-shadow: 0 2px 5px rgb(74 59 51 / .35); z-index: 1; }
+    .maze.bump { animation: mz-bump .22s ease; }
+    @keyframes mz-bump { 30% { transform: translateX(-3px); } 60% { transform: translateX(3px); } }
+  </style>
+</head>
+<body data-game="maze">
+  <main class="wrap">
+    <div class="stats">
+      <span>Steps <b id="moves">0</b></span>
+      <span>Fewest possible <b id="min">0</b></span>
+      <span>Best <b id="best">–</b></span>
+    </div>
+
+    <div class="stage"><div class="maze" id="maze" aria-label="Maze"></div></div>
+    <div class="dpad" id="dpad">
+      <span></span><button data-d="up" aria-label="Up">↑</button><span></span>
+      <button data-d="left" aria-label="Left">←</button><button data-d="down" aria-label="Down">↓</button><button data-d="right" aria-label="Right">→</button>
+    </div>
+
+    <div class="controls">
+      <div class="seg" id="size" role="group" aria-label="Maze size">
+        <button data-value="7">Small</button>
+        <button data-value="10">Medium</button>
+        <button data-value="14">Large</button>
+      </div>
+      <button class="btn" id="new">New maze</button>
+    </div>
+
+    <details class="howto">
+      <summary>How to play</summary>
+      <h3>Goal</h3>
+      <p>Find your way from the top-left corner to the peach square in the bottom-right corner.</p>
+      <h3>How it works</h3>
+      <ul>
+        <li>Your dot moves one square at a time. Walls block the way.</li>
+        <li>Swipe across the maze to run along a corridor. You stop at a fork or a dead end.</li>
+        <li>Or tap a square right next to you, use the arrow buttons, or press the arrow keys.</li>
+        <li>Squares you have visited turn peach, so you can see where you have been.</li>
+        <li>Every maze has exactly one route, and the game shows how many steps it takes. Try to match it.</li>
+      </ul>
+      <h3>Tips</h3>
+      <ul>
+        <li>Dead ends are a good sign you took a wrong turn. Go back to the last fork.</li>
+        <li>Sometimes it is easier to look at the exit and work backwards from it.</li>
+        <li>A trick that works in every maze like this: keep one hand on a wall and follow it.</li>
+      </ul>
+    </details>
+    <section class="history" id="history"><h2>The history of Maze</h2>
+      <p>Mazes are among the oldest puzzles. Greek myth tells of the Labyrinth on Crete, where the hero Theseus found his way to the Minotaur and back. Hedge mazes became fashionable in European gardens, and the one at Hampton Court Palace near London, planted around 1700, is still open to visitors. This game builds its mazes with a method called depth-first search, which carves one winding path through every square.</p>
+    </section>
+  </main>
+  <script src="../../games.js"></script>
+  <script src="../../progress.js"></script>
+  <script src="../../shell.js"></script>
+  <script src="game.js"></script>
+</body>
+</html>

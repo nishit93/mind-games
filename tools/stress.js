@@ -11,7 +11,8 @@
   const run = (params.get('run') || 'games,flows,states,tutorial,layout').split(',');
   const from = +params.get('from') || 0, to = +params.get('to') || GAMES.length;
   const taps = +params.get('taps') || 60;
-  const games = GAMES.slice(from, to);
+  const ids = params.get('ids');   // ?ids=maze,word-search tests just those games
+  const games = ids ? GAMES.filter(g => ids.split(',').includes(g.id)) : GAMES.slice(from, to);
   const results = [];
   const sleep = ms => new Promise(r => setTimeout(r, ms));
   const check = (group, name, ok, detail = '') => results.push({ group, name, ok: !!ok, detail: String(detail).slice(0, 600) });
@@ -252,7 +253,8 @@
       const e2 = window.__errs.length;
       const states = [];
       for (let i = 0; i < 6; i++) { h.d.querySelector('.kidswitch').click(); await sleep(150); states.push(h.d.body.classList.contains('kidmode') + ':' + h.d.querySelectorAll('.drawer-item').length + ':' + new Set([...h.d.querySelectorAll('#view .gcard')].map(a => a.getAttribute('href'))).size); }
-      check('Kid mode', 'switching kid mode on and off six times keeps the page, menu and storage in step', states.join() === 'true:22:' + states[0].split(':')[2] + ',false:38:' + states[1].split(':')[2] + ',true:22:' + states[0].split(':')[2] + ',false:38:' + states[1].split(':')[2] + ',true:22:' + states[0].split(':')[2] + ',false:38:' + states[1].split(':')[2] && !errsSince(e2).length, states.join(' ') + ' ' + errsSince(e2).join(' | '));
+const KIDS = GAMES.filter(g => g.kids).length, ALL = GAMES.length, third = x => x.split(':')[2];
+      check('Kid mode', 'switching kid mode on and off six times keeps the page, menu and storage in step', states.every((x, k) => x.startsWith(k % 2 === 0 ? 'true:' + KIDS + ':' : 'false:' + ALL + ':')) && third(states[0]) === third(states[2]) && third(states[1]) === third(states[3]) && !errsSince(e2).length, states.join(' ') + ' ' + errsSince(e2).join(' | '));
       h.close();
 
       // the save sheet, opened and closed again and again

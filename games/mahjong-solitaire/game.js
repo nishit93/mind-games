@@ -105,7 +105,7 @@
       done = true;
       const ms = clock.stop();
       render();
-      ov.win('Board cleared', `Every tile matched in ${MG.fmt(ms)}.`, 'New deal', deal, 500);
+      ov.win('Board cleared', `Every tile matched.`, 'New deal', deal, 500);
       return;
     }
     if (!freePairs().length) {

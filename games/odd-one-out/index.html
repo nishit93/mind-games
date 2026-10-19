@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Odd One Out: free to play, rules and history · Mind Games</title>
+  <meta name="theme-color" content="#F0EEE9">
+  <!-- seo:start -->
+  <meta name="description" content="Odd One Out (Japan &amp; USA, 1900s): Find the square with a slightly different shade. Free to play online, no sign-up, with rules and history.">
+  <link rel="canonical" href="https://nishit93.github.io/mind-games/games/odd-one-out/">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Mind Games">
+  <meta property="og:title" content="Odd One Out · Mind Games">
+  <meta property="og:description" content="Odd One Out (Japan &amp; USA, 1900s): Find the square with a slightly different shade. Free to play online, no sign-up, with rules and history.">
+  <meta property="og:url" content="https://nishit93.github.io/mind-games/games/odd-one-out/">
+  <meta property="og:image" content="https://nishit93.github.io/mind-games/icon-512.png">
+  <meta name="twitter:card" content="summary">
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"VideoGame","name":"Odd One Out","url":"https://nishit93.github.io/mind-games/games/odd-one-out/","description":"Find the square with a slightly different shade. Seeing small differences in colour is a real skill that doctors and designers test.","genre":["Puzzle","Memory & focus"],"applicationCategory":"Game","gamePlatform":"Web browser","operatingSystem":"Any","playMode":"SinglePlayer","inLanguage":"en","isAccessibleForFree":true,"image":"https://nishit93.github.io/mind-games/icon-512.png","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"publisher":{"@type":"Organization","name":"Mind Games","url":"https://nishit93.github.io/mind-games/"},"audience":{"@type":"PeopleAudience","suggestedMinAge":6}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Mind Games","item":"https://nishit93.github.io/mind-games/"},{"@type":"ListItem","position":2,"name":"Memory & focus","item":"https://nishit93.github.io/mind-games/#memory"},{"@type":"ListItem","position":3,"name":"Odd One Out","item":"https://nishit93.github.io/mind-games/games/odd-one-out/"}]},{"@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How do you play Odd One Out?","acceptedAnswer":{"@type":"Answer","text":"Find the one square whose colour is a little different from all the others. Keep going as the difference gets smaller. All the squares are almost the same shade, but one is slightly lighter or darker. Tap it. Each correct tap takes you up a level: the grid grows and the difference shrinks. You have three tries. A wrong tap costs a try, and the right square is shown. There is no clock. Look as long as you like."}},{"@type":"Question","name":"Where does Odd One Out come from?","acceptedAnswer":{"@type":"Answer","text":"Seeing small differences in colour is a real skill that doctors and designers test. The Japanese ophthalmologist Shinobu Ishihara published his colour-vision plates in 1917, and in 1943 the American Dean Farnsworth devised the 100 Hue Test, in which people arrange coloured caps by shade. Spot-the-difference puzzles like this one are a gentle, everyday cousin of those tests."}},{"@type":"Question","name":"Is Odd One Out free to play?","acceptedAnswer":{"@type":"Answer","text":"Yes. Odd One Out on Mind Games is free, works in any browser on a phone or computer, needs no account and keeps your best scores on your device."}}]}]}</script>
+  <!-- seo:end -->
+  <link rel="manifest" href="../../manifest.webmanifest">
+  <link rel="icon" href="../../icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="../../apple-touch-icon.png">
+  <meta name="apple-mobile-web-app-title" content="Mind Games">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap">
+  <link rel="stylesheet" href="../../styles.css">
+
+  <style>
+    .og { display: grid; gap: 6px; background: var(--board); border-radius: calc(var(--radius) + 4px); padding: 10px; aspect-ratio: 1; }
+    .sq { border: 0; border-radius: 12px; cursor: pointer; transition: transform .15s ease, box-shadow .25s ease; }
+    .sq:active { transform: scale(.95); }
+    .sq.found { box-shadow: 0 0 0 4px var(--text); }
+    .sq.miss { animation: oo-shake .35s ease; }
+    @keyframes oo-shake { 25% { transform: translateX(-4px); } 75% { transform: translateX(4px); } }
+    .sq:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+  </style>
+</head>
+<body data-game="odd-one-out">
+  <main class="wrap">
+    <div class="stats">
+      <span>Level <b id="level">1</b></span>
+      <span>Tries <b id="lives">●●●</b></span>
+      <span>Best <b id="best">–</b></span>
+    </div>
+
+    <div class="stage"><div class="og" id="grid"></div></div>
+    <p class="status" id="status"></p>
+
+    <div class="controls">
+      <button class="btn" id="new">New game</button>
+    </div>
+
+    <details class="howto">
+      <summary>How to play</summary>
+      <h3>Goal</h3>
+      <p>Find the one square whose colour is a little different from all the others. Keep going as the difference gets smaller.</p>
+      <h3>How it works</h3>
+      <ul>
+        <li>All the squares are almost the same shade, but one is slightly lighter or darker. Tap it.</li>
+        <li>Each correct tap takes you up a level: the grid grows and the difference shrinks.</li>
+        <li>You have three tries. A wrong tap costs a try, and the right square is shown.</li>
+        <li>There is no clock. Look as long as you like.</li>
+      </ul>
+      <h3>Tips</h3>
+      <ul>
+        <li>Soften your gaze and look at the whole grid at once instead of one square at a time.</li>
+        <li>Squint a little: small differences in shade show up more clearly.</li>
+        <li>Turn up your screen brightness. Very dim screens hide small differences.</li>
+      </ul>
+    </details>
+    <section class="history" id="history"><h2>The history of Odd One Out</h2>
+      <p>Seeing small differences in colour is a real skill that doctors and designers test. The Japanese ophthalmologist Shinobu Ishihara published his colour-vision plates in 1917, and in 1943 the American Dean Farnsworth devised the 100 Hue Test, in which people arrange coloured caps by shade. Spot-the-difference puzzles like this one are a gentle, everyday cousin of those tests.</p>
+    </section>
+  </main>
+  <script src="../../games.js"></script>
+  <script src="../../progress.js"></script>
+  <script src="../../shell.js"></script>
+  <script src="game.js"></script>
+</body>
+</html>

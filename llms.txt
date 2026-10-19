@@ -1,6 +1,6 @@
 # Mind Games
 
-> A calm collection of 38 free single-player puzzle and mind games from around the world. No sign-up; each game has a How to play guide and a short history of where it comes from. Works in any browser on phones and computers.
+> A calm collection of 45 free single-player puzzle and mind games from around the world. No sign-up; each game has a How to play guide and a short history of where it comes from. Works in any browser on phones and computers.
 
 ## Logic
 
@@ -17,12 +17,14 @@
 - [Eight Queens](https://nishit93.github.io/mind-games/games/eight-queens/): Place queens that never attack. Origin: Germany, 1848. German chess composer Max Bezzel set the puzzle in 1848.
 - [Knight's Tour](https://nishit93.github.io/mind-games/games/knights-tour/): Visit every square with a knight. Origin: India, 800s. The oldest known knight's tour appears in a Sanskrit poem by the Indian poet Rudrata in the 800s, where the knight's path spelled out verses.
 - [Bulls & Cows](https://nishit93.github.io/mind-games/games/bulls-and-cows/): Crack the secret number. Origin: Britain, 1800s. Bulls and Cows is a pencil-and-paper game said to be over a century old, often traced to Britain.
+- [One Stroke](https://nishit93.github.io/mind-games/games/one-stroke/): Draw every line without lifting your pen. Origin: Prussia, 1736. In 1736 the Swiss mathematician Leonhard Euler studied a puzzle from the town of Königsberg in Prussia: could a walker cross each of its seven bridges exactly once?
 
 ## Math & numbers
 
 - [Magic Square](https://nishit93.github.io/mind-games/games/magic-square/): Every line adds to the same total. Origin: China, ancient. According to Chinese legend, around 2000 BC a turtle rose from the Lo river with a pattern of dots on its shell: the 3×3 magic square now called the Lo Shu.
 - [Make 24](https://nishit93.github.io/mind-games/games/make-24/): Four numbers, one target. Origin: China, 1900s. Making 24 from four playing cards is a popular game across China, where it is often called 24 points (èrshísì diǎn) and played in schools to sharpen mental arithmetic.
 - [Target Number](https://nishit93.github.io/mind-games/games/target-number/): Reach the target with six numbers. Origin: France, 1965. This is the numbers round from the French TV game Des chiffres et des lettres, first broadcast in 1965, where it is called Le compte est bon (“the count is right”).
+- [Next in Line](https://nishit93.github.io/mind-games/games/next-in-line/): Spot the rule and pick the next number. Origin: India & Italy, ancient. Number patterns are as old as counting.
 - [Number Pyramid](https://nishit93.github.io/mind-games/games/number-pyramid/): Each brick is the sum of two below. Origin: Germany, school classic. Number pyramids, called Zahlenmauern (“number walls”) in Germany, are a favourite in primary-school maths there and in many other countries.
 - [Cages](https://nishit93.github.io/mind-games/games/cages/): Latin squares with sums and products. Origin: Japan, 2004. Japanese maths teacher Tetsuya Miyamoto invented this kind of puzzle in 2004 to help his students practise arithmetic and logic together.
 - [Water Jugs](https://nishit93.github.io/mind-games/games/water-jugs/): Measure exactly with odd jugs. Origin: Italy, 1500s. Pouring puzzles appear in the work of Italian mathematician Niccolò Tartaglia in the 1500s, who asked how to split 8 measures of wine fairly using jugs of 5 and 3.
@@ -35,6 +37,7 @@
 - [Tower of Hanoi](https://nishit93.github.io/mind-games/games/hanoi/): Move the tower, one disc at a time. Origin: France, 1883. French mathematician Édouard Lucas invented the puzzle in 1883.
 - [Huarong Dao](https://nishit93.github.io/mind-games/games/huarong-dao/): Slide the blocks to free the general. Origin: China, early 1900s. The puzzle retells a story from the Chinese classic Romance of the Three Kingdoms: the warlord Cao Cao, defeated at Red Cliffs, escapes through the narrow Huarong Pass guarded by the general Guan Yu.
 - [Traffic Jam](https://nishit93.github.io/mind-games/games/traffic-jam/): Clear a path for the red car. Origin: Japan, 1970s. Sliding-car puzzles were popularised by Japanese puzzle master Nob Yoshigahara in the 1970s, and became a world-famous boxed puzzle in the 1990s.
+- [Maze](https://nishit93.github.io/mind-games/games/maze/): Find the way out of the maze. Origin: Crete, ancient. Mazes are among the oldest puzzles.
 - [Warehouse](https://nishit93.github.io/mind-games/games/warehouse/): Push every crate onto a spot. Origin: Japan, 1982. Crate-pushing puzzles come from a 1982 Japanese computer game by Hiroyuki Imabayashi, whose name means “warehouse keeper”.
 - [Pentominoes](https://nishit93.github.io/mind-games/games/pentominoes/): Fit twelve shapes into a box. Origin: England & USA, 1900s. English puzzle writer Henry Dudeney used pentomino-shaped pieces in 1907.
 - [Peg Solitaire](https://nishit93.github.io/mind-games/games/peg-solitaire/): Jump pegs until one is left. Origin: France, 1697. The earliest record is a 1697 French engraving showing a princess at the court of Louis XIV playing the game.
@@ -47,6 +50,9 @@
 - [Schulte Table](https://nishit93.github.io/mind-games/games/schulte-table/): Find the numbers in order, fast. Origin: Germany, 1900s. The tables are named after German psychiatrist Walter Schulte, who used them in the early 1900s to study attention.
 - [Grid Recall](https://nishit93.github.io/mind-games/games/grid-recall/): Remember which squares lit up. Origin: Memory science classic. Tasks like this are used by psychologists to measure visual and spatial working memory: how much a person can hold in mind for a few seconds.
 - [Digit Span](https://nishit93.github.io/mind-games/games/digit-span/): Hold a growing number in mind. Origin: Britain, 1887. British teacher Joseph Jacobs measured how many digits his pupils could repeat in 1887, creating one of the first tests of memory.
+- [Odd One Out](https://nishit93.github.io/mind-games/games/odd-one-out/): Find the square with a slightly different shade. Origin: Japan & USA, 1900s. Seeing small differences in colour is a real skill that doctors and designers test.
+- [Colour Word](https://nishit93.github.io/mind-games/games/colour-word/): Name the ink, not the word. Origin: USA, 1935. In 1935 the American psychologist John Ridley Stroop showed that people name the ink colour of a word more slowly when the word spells a different colour.
+- [Word Search](https://nishit93.github.io/mind-games/games/word-search/): Find the hidden words in the grid. Origin: USA, 1968. The first word search is credited to Norman E.
 
 ## Solitaire & tiles
 
@@ -54,3 +60,4 @@
 - [Pyramid](https://nishit93.github.io/mind-games/games/pyramid/): Pair cards that add up to 13. Origin: Europe, 1800s. Pyramid is a patience game that has been played in Europe for well over a century.
 - [Golf](https://nishit93.github.io/mind-games/games/golf/): Clear cards one higher or lower. Origin: Britain, 1900s. Golf is a patience game from the early 1900s, usually traced to Britain, and named for its scoring: like a round of golf, the lower your score, the better.
 - [Mahjong Solitaire](https://nishit93.github.io/mind-games/games/mahjong-solitaire/): Match free tiles in pairs. Origin: USA, 1981. The tiles come from mahjong, a four-player game from China in the 1800s.
+- [Free Cells](https://nishit93.github.io/mind-games/games/free-cells/): All cards face up: plan your way home. Origin: USA, 1978. This game was created in 1978 by Paul Alfille, who wrote it for the PLATO computer system at the University of Illinois.

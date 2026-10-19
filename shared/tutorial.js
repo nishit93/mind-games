@@ -56,6 +56,13 @@
     'pyramid': [tap2('Tap two free cards that add up to 13 to remove them.', '.card|0', '.card|1'), look('A King is 13 on its own. Tap the pile for more cards.')],
     'golf': [tap('Tap the bottom card of a column if it is one higher or lower than the pile.', '.card|mid'), look('Stuck? Tap the stock for a new card. Clear every column.')],
     'mahjong-solitaire': [tap2('Tap two matching free tiles to remove them.', '.tile|0', '.tile|1'), look('A tile is free when nothing is on top and its left or right side is open.')],
+    'maze': [swipe('Swipe across the maze to run along a corridor. You stop at a fork.', [0.2, 0.2], [0.8, 0.2]), tap('Or tap a square right next to your dot to step there.', '.mc|1'), look('Reach the peach square in the far corner.')],
+    'one-stroke': [tap('Tap any point to start, then tap a glowing point to draw a line to it.', '.nd|0'), look('Draw every line once, without lifting your pen. Tap the last point to step back.')],
+    'next-in-line': [tap('Look at how the numbers change, then tap the one that comes next.', '.opt|0'), look('A wrong answer ends the run, so take your time.')],
+    'odd-one-out': [tap('Tap the square whose shade is a little different.', '.sq|1'), look('Each right answer makes the grid bigger and the difference smaller.')],
+    'colour-word': [tap('Tap the colour the word is written in, not the word itself.', '.ckey|1'), look('There is no clock. Ten rounds make a game.')],
+    'word-search': [drag('Press on a word\'s first letter and drag to its last letter.', '.wc|0', '.wc|3'), tap2('Or tap its first letter, then tap its last.', '.wc|8', '.wc|11'), look('Find every word on the list.')],
+    'free-cells': [tap('Tap a card: it goes home, onto a column where it fits, or into a free cell.', '.card|mid'), look('Build down in alternating colours. Move all 52 cards to the home piles.')],
   };
 
   let token = 0;

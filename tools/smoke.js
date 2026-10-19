@@ -133,6 +133,7 @@
         if (!lenient) {
           if (!(w.MGProgress && !w.MGProgress._stub)) problems.push('progress features');
           if (!d.querySelector('.fav-btn')) problems.push('heart');
+          if (d.querySelector('#time') || /\bTime\b/.test((d.querySelector('.stats') || { textContent: '' }).textContent)) problems.push('a clock is still shown');
           const hist = d.querySelector('section.history');
           if (!(hist && hist.querySelector('h2') && hist.querySelector('p') && hist.textContent.trim().length > 80)) problems.push('history section');
           if (!d.querySelector('meta[name="description"]') || !d.querySelector('link[rel="canonical"]')) problems.push('description or canonical address');
@@ -439,6 +440,187 @@
       const t3 = await open('games/sudoku/', 1700);
       check('Tutorial', 'a returning player with scores does not see it', !t3.d.querySelector('.coach'));
       t3.close();
+    }
+
+    // 10. Folded menu, stats page, puzzle of the day, and the new games.
+    if (!lenient) {
+      // the menu keeps categories folded, except the one being played
+      seed({});
+      let m = await open('games/sudoku/', 400);
+      const groups = [...m.d.querySelectorAll('.drawer-group')];
+      check('Menu', 'categories are folded groups, and only the current game\'s category is open', groups.length === SECTIONS.length && groups.filter(g => g.open).length === 1 && groups.find(g => g.open).querySelector('.drawer-item.current'));
+      const ms = m.d.querySelector('.drawer-search'); ms.value = 'tower'; ms.dispatchEvent(new m.w.Event('input')); await sleep(100);
+      const found = groups.filter(g => !g.hidden);
+      check('Menu', 'searching opens the group that holds the match and hides the rest', found.length === 1 && found[0].open && found[0].querySelector('.drawer-item:not([hidden])').textContent.includes('Hanoi'));
+      ms.value = ''; ms.dispatchEvent(new m.w.Event('input')); await sleep(100);
+      check('Menu', 'clearing the search folds them again', groups.filter(g => g.open).length === 1 && groups.every(g => !g.hidden));
+      m.close();
+
+      // stats page
+      seed({ ...LEGACY, 'mg-progress': JSON.stringify({ state: { favourites: {}, bests: { 'sudoku-best-easy': { v: 210000, dir: 'min', t: 5 }, 'hanoi-best-4': { v: 19, dir: 'min', t: 5 }, '2048-best': { v: 2200, dir: 'max', t: 5 } }, stats: { 'plays-dabc123': 3, 'klondike-wins': 2 }, settings: {}, days: ['2026-10-01', '2026-10-02', '2026-10-03', '2026-10-07'] } }) });
+      let h = await open('', 700);
+      h.w.location.hash = '#stats'; await sleep(900);
+      const tiles = [...h.d.querySelectorAll('.stat-tile b')].map(b => b.textContent);
+      check('Stats', 'the stats page shows streak, longest streak, days played and games played', tiles.length >= 4 && tiles[1] === '3' && tiles[2] === '4', tiles.join());
+      check('Stats', 'it shows a calendar of recent days', !!h.d.querySelector('.cal') && h.d.querySelectorAll('.cal i').length > 90);
+      const text = h.d.getElementById('view').textContent;
+      check('Stats', 'best results are shown in plain words: a time, moves, a score and wins', /Sudoku/.test(text) && /3:30/.test(text) && /19 moves/.test(text) && /2200/.test(text) && /Klondike/.test(text) && /2\b/.test(text), text.slice(0, 300));
+      h.close();
+      seed({});
+      h = await open('#stats', 900);
+      check('Stats', 'with nothing played, it says so kindly instead of showing a blank page', /Finish a puzzle/.test(h.d.getElementById('view').textContent));
+      h.close();
+
+      // puzzle of the day
+      const today = dailyDate();
+      seed({});
+      h = await open('', 700);
+      const strip = h.d.querySelector('.daily');
+      check('Puzzle of the day', 'the home page offers today\'s puzzle, with a link that carries the date', strip && strip.getAttribute('href').endsWith('?daily=' + today), strip && strip.getAttribute('href'));
+      const pickId = (strip.getAttribute('href').match(/games\/([a-z0-9-]+)\//) || [])[1];
+      check('Puzzle of the day', 'the menu links to it as well', !!h.d.querySelector('.drawer-daily') && h.d.querySelector('.drawer-daily').getAttribute('href').includes('?daily=' + today));
+      h.close();
+      seed({ 'mg-kidmode': 'on' });
+      h = await open('', 700);
+      const kidPick = (h.d.querySelector('.daily').getAttribute('href').match(/games\/([a-z0-9-]+)\//) || [])[1];
+      check('Puzzle of the day', 'in kid mode the puzzle is always a game for children', !!GAMES.find(g => g.id === kidPick && g.kids), kidPick);
+      h.close();
+
+      const sig = async path => { const f = await open(path, 450); const out = f.d.querySelector('.stage, .board').innerHTML.replace(/\s+/g, ' '); f.close(); return out; };
+      seed({ 'lights-n': '3' });
+      const d1 = await sig('games/lights-off/?daily=' + today), d2 = await sig('games/lights-off/?daily=' + today), p1 = await sig('games/lights-off/'), p2 = await sig('games/lights-off/');
+      check('Puzzle of the day', 'everyone gets the same puzzle on the same day, and normal games stay random', d1 === d2 && p1 !== p2);
+      check('Puzzle of the day', 'it is played on its own level, and the player\'s own saved level is untouched', d1.split('class="light').length - 1 === 25 && localStorage.getItem('lights-n') === '3', localStorage.getItem('lights-n'));
+      seed({});
+      const oldPage = await open('games/lights-off/?daily=2001-01-01', 450);
+      check('Puzzle of the day', 'a daily link for another day is ignored (a normal game opens)', !oldPage.d.querySelector('.dailybar'));
+      oldPage.close();
+
+      // play today's puzzle to the end (a 5x5 Lights Off, solved by "chasing the lights")
+      seed({});
+      const dp = await open('games/lights-off/?daily=' + today, 600);
+      check('Puzzle of the day', 'the page says it is the puzzle of the day', !!dp.d.querySelector('.dailybar') && /Puzzle of the day/.test(dp.d.querySelector('.dailybar').textContent));
+      dp.d.querySelector('#new').click(); await sleep(200);
+      check('Puzzle of the day', 'new-game controls ask before replacing the day\'s puzzle', !!dp.d.querySelector('.sheet-wrap') && /Leave the puzzle of the day/.test(dp.d.querySelector('.sheet-wrap').textContent));
+      dp.d.querySelector('.sheet-wrap button').click(); await sleep(400);
+      const L = [...dp.d.querySelectorAll('.light')], n = 5;
+      const state = L.map(b => (b.classList.contains('on') ? 1 : 0));
+      let plan = null;
+      for (let mask = 0; mask < 32 && !plan; mask++) {
+        const st = state.slice(), presses = [];
+        const flip = i => { const r = Math.floor(i / n), c = i % n; for (const [dr, dc] of [[0, 0], [1, 0], [-1, 0], [0, 1], [0, -1]]) { const rr = r + dr, cc = c + dc; if (rr >= 0 && rr < n && cc >= 0 && cc < n) st[rr * n + cc] ^= 1; } presses.push(i); };
+        for (let c = 0; c < n; c++) if (mask >> c & 1) flip(c);
+        for (let r = 1; r < n; r++) for (let c = 0; c < n; c++) if (st[(r - 1) * n + c]) flip(r * n + c);
+        if (st.every(v => !v)) plan = presses;
+      }
+      if (plan) for (const i of plan) L[i].click();
+      await sleep(1300);
+      check('Puzzle of the day', 'solving it marks the day as done and says so on the win card', !!plan && JSON.parse(dp.w.localStorage.getItem('mg-daily') || '[]').includes(today) && /Puzzle of the day done/.test((dp.d.querySelector('.win .extra') || {}).textContent || ''), (dp.d.querySelector('.win .extra') || {}).textContent);
+      dp.close();
+      h = await open('', 700);
+      check('Puzzle of the day', 'the home page then shows today as done, with a streak', !!h.d.querySelector('.daily.done') && /1-day streak/.test(h.d.querySelector('.daily small').textContent), (h.d.querySelector('.daily') || {}).className);
+      h.close();
+
+      // the new games
+      seed({});
+      const playNew = async (name, path, fn) => {
+        try { const g = await open(path, 500); const text = await fn(g.d, g.w); check('New games', name + ' can be played to the end', text, text || 'no result'); g.close(); }
+        catch (err) { check('New games', name + ' can be played to the end', false, err.message); }
+      };
+      await playNew('Maze', 'games/maze/', async (d, w) => {
+        d.querySelector('#size [data-value="7"]').click(); await sleep(150);
+        const cells = [...d.querySelectorAll('.mc')], N = 7;
+        const open = (i, dir) => { const c = cells[i].classList; const r = Math.floor(i / N), col = i % N; return dir === 'u' ? !c.contains('u') && r > 0 && i - N : dir === 'd' ? !c.contains('d') && r < N - 1 && i + N : dir === 'l' ? !c.contains('l') && col > 0 && i - 1 : !c.contains('r') && col < N - 1 && i + 1; };
+        const prev = new Map([[0, null]]), queue = [0];
+        for (let k = 0; k < queue.length; k++) for (const dir of ['u', 'd', 'l', 'r']) { const nx = open(queue[k], dir); if (nx !== false && nx !== 0 && !prev.has(nx)) { prev.set(nx, [queue[k], dir]); queue.push(nx); } }
+        const path = []; for (let i = N * N - 1; prev.get(i); i = prev.get(i)[0]) path.unshift(prev.get(i)[1]);
+        const keyOf = { u: 'ArrowUp', d: 'ArrowDown', l: 'ArrowLeft', r: 'ArrowRight' };
+        for (const dir of path) d.dispatchEvent(new w.KeyboardEvent('keydown', { key: keyOf[dir], bubbles: true }));
+        await sleep(1100);
+        return d.querySelector('.win.show') && /fewest possible/.test(d.querySelector('.win p').textContent) && +d.querySelector('#moves').textContent === path.length ? 'Solved' : '';
+      });
+      await playNew('One Stroke (every shape has a route that uses each line once)', 'games/one-stroke/', async (d, w) => {
+        const shapes = w.__oneStrokeShapes;
+        for (let lv = 0; lv < shapes.length; lv++) {
+          d.querySelector('#level [data-value="' + lv + '"]').click(); await sleep(150);
+          const { pts, edges } = shapes[lv];
+          // find a route with a depth-first search: use every line exactly once
+          const used = new Set(), key = (a, b) => (a < b ? a + '-' + b : b + '-' + a);
+          const dfs = (cur, trail) => {
+            if (used.size === edges.length) return trail;
+            for (const [a, b] of edges) { const k = key(a, b); if (used.has(k) || (a !== cur && b !== cur)) continue; used.add(k); const r = dfs(a === cur ? b : a, [...trail, a === cur ? b : a]); if (r) return r; used.delete(k); }
+            return null;
+          };
+          let route = null; for (let st = 0; st < pts.length && !route; st++) route = dfs(st, [st]);
+          if (!route) return '';
+          const nodes = [...d.querySelectorAll('.nd')];
+          for (const p of route) { nodes[p].click(); }
+          await sleep(900);
+          if (!(d.querySelector('.win.show') && +d.querySelector('#moves').textContent === edges.length)) return '';
+          d.querySelector('.win .btn').click(); await sleep(200);
+        }
+        return 'Every shape solved';
+      });
+      await playNew('Next in Line', 'games/next-in-line/', async (d, w) => {
+        for (let k = 0; k < 4; k++) {
+          const q = w.__nextInLine();
+          if (!q || q.shown.length !== 5 || !q.options.includes(q.answer) || new Set(q.options).size !== 4) return '';
+          [...d.querySelectorAll('.opt')].find(b => +b.textContent === q.answer).click();
+          await sleep(1700);
+        }
+        if (+d.querySelector('#streak').textContent !== 4) return '';
+        const q = w.__nextInLine();
+        [...d.querySelectorAll('.opt')].find(b => +b.textContent !== q.answer).click();
+        await sleep(1500);
+        return d.querySelector('.win.show h2') && /4 in a row/.test(d.querySelector('.win.show h2').textContent) && w.localStorage.getItem('nextline-best') === '4' ? 'Run ended and saved' : '';
+      });
+      await playNew('Odd One Out', 'games/odd-one-out/', async (d, w) => {
+        for (let k = 0; k < 3; k++) {
+          const sq = [...d.querySelectorAll('.sq')], count = {};
+          sq.forEach(b => { count[b.style.background] = (count[b.style.background] || 0) + 1; });
+          const odd = sq.find(b => count[b.style.background] === 1);
+          if (!odd) return '';
+          odd.click(); await sleep(900);
+        }
+        return +d.querySelector('#level').textContent === 4 && w.localStorage.getItem('oddone-best') === '3' ? 'Three levels' : '';
+      });
+      await playNew('Colour Word', 'games/colour-word/', async (d, w) => {
+        for (let k = 0; k < 10; k++) {
+          const ink = w.getComputedStyle(d.getElementById('word')).color;
+          const key = [...d.querySelectorAll('.ckey')].find(b => w.getComputedStyle(b).backgroundColor === ink);
+          if (!key) return '';
+          key.click(); await sleep(650);
+        }
+        await sleep(600);
+        return d.querySelector('.win.show h2') && /10 of 10/.test(d.querySelector('.win.show h2').textContent) ? 'Ten of ten' : '';
+      });
+      await playNew('Word Search', 'games/word-search/', async (d, w) => {
+        const { n, letters, words } = w.__wordSearch();
+        const cells = [...d.querySelectorAll('.wc')];
+        const press = i => { const r = cells[i].getBoundingClientRect(), o = { bubbles: true, clientX: r.left + r.width / 2, clientY: r.top + r.height / 2, pointerId: 3 }; cells[i].dispatchEvent(new w.PointerEvent('pointerdown', o)); cells[i].dispatchEvent(new w.PointerEvent('pointerup', o)); };
+        for (const word of words) {
+          let spot = null;
+          for (let r = 0; r < n && !spot; r++) for (let c = 0; c < n && !spot; c++) for (const [dr, dc] of [[0, 1], [1, 0], [1, 1], [1, -1], [0, -1], [-1, 0], [-1, -1], [-1, 1]]) {
+            let ok = true; for (let k = 0; k < word.length && ok; k++) { const rr = r + dr * k, cc = c + dc * k; ok = rr >= 0 && rr < n && cc >= 0 && cc < n && letters[rr * n + cc] === word[k]; }
+            if (ok) { spot = [r * n + c, (r + dr * (word.length - 1)) * n + c + dc * (word.length - 1)]; break; }
+          }
+          if (!spot) return '';
+          press(spot[0]); press(spot[1]);
+        }
+        await sleep(1200);
+        return d.querySelector('.win.show') && +d.querySelector('#tries').textContent >= words.length ? 'All words found' : '';
+      });
+      await playNew('Free Cells (a position that only needs the Finish button)', 'games/free-cells/', async (d, w) => {
+        const card = (rank, suit) => ({ id: suit * 13 + rank, rank, suit });
+        const found = [0, 1, 2, 3].map(suit => Array.from({ length: 11 }, (_, i) => card(i + 1, suit)));
+        const tab = [0, 1, 2, 3].map(suit => [card(13, suit), card(12, suit)]).concat([[], [], [], []]);
+        w.__freeCells.load({ cells: [null, null, null, null], found, tab });
+        await sleep(200);
+        const btn = [...d.querySelectorAll('#table .btn')].find(b => b.textContent === 'Finish');
+        if (!btn) return '';
+        btn.click(); await sleep(2200);
+        return d.querySelector('.win.show') && w.localStorage.getItem('freecells-wins') === '1' ? 'Finished' : '';
+      });
     }
   } catch (err) {
     check('Test run', 'finished without crashing', false, err.stack || err.message);

@@ -113,7 +113,7 @@
       done = true;
       const ms = clock.stop();
       render();
-      ov.win('Magic', `Every line makes ${target()}. Solved in ${MG.fmt(ms)}.`, 'New square', () => newGame(), 600);
+      ov.win('Magic', `Every line makes ${target()}.`, 'New square', () => newGame(), 600);
     }
   }
 

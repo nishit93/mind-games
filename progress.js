@@ -22,7 +22,7 @@
 
   const KEY_OK = /^[a-z0-9][a-z0-9:_.-]{0,63}$/;
   // Higher is better for these bests; for every other best, lower (fewer moves, shorter time) is better.
-  const HIGHER_BETTER = /^(2048-best|sequence-best|recall-grid-best|span-best-.+|knight-best-.+)$/;
+  const HIGHER_BETTER = /^(2048-best|sequence-best|recall-grid-best|span-best-.+|knight-best-.+|nextline-best|colourword-best|oddone-best)$/;
 
   function classify(key) {
     if (!KEY_OK.test(key)) return null;

@@ -3,7 +3,6 @@
   const board = document.getElementById('board');
   const winEl = document.getElementById('win');
   const movesEl = document.getElementById('moves');
-  const timeEl = document.getElementById('time');
   const bestEl = document.getElementById('best');
   const sizeBtns = document.querySelectorAll('[data-size]');
 
@@ -98,7 +97,6 @@
     }
     if (!startedAt) {
       startedAt = Date.now();
-      timer = setInterval(tick, 250);
     }
     movesEl.textContent = moves;
     layout();
@@ -106,13 +104,11 @@
   }
 
   let winTimer = 0;
-  function tick() { timeEl.textContent = fmt(Date.now() - startedAt); }
 
   function finish() {
     solved = true;
     clearInterval(timer);
     const ms = Date.now() - startedAt;
-    tick();
     const key = `fifteen-best-${n}`;
     const prev = JSON.parse(store.get(key) || 'null');
     const isBest = !prev || moves < prev.moves || (moves === prev.moves && ms < prev.ms);
@@ -137,7 +133,6 @@
     clearTimeout(winTimer);
     moves = 0; startedAt = 0; solved = false;
     movesEl.textContent = '0';
-    timeEl.textContent = '0:00';
     winEl.classList.remove('show');
     shuffle();
     build();

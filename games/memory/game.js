@@ -76,7 +76,7 @@
     bestEl.textContent = MG.store.get(`memory-best-${size}`);
     const perfect = turns === size / 2;
     ov.win(perfect ? 'Perfect memory' : 'All pairs found',
-      `${turns} turns in ${MG.fmt(ms)}.${!prev || turns < prev ? ' A new best.' : ''}`, 'Play again', () => newGame(), 700);
+      `${turns} turns.${!prev || turns < prev ? ' A new best.' : ''}`, 'Play again', () => newGame(), 700);
   }
 
   document.getElementById('new').addEventListener('click', () => newGame());

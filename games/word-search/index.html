@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Word Search: free to play, rules and history · Mind Games</title>
+  <meta name="theme-color" content="#F0EEE9">
+  <!-- seo:start -->
+  <meta name="description" content="Word Search (USA, 1968): Find the hidden words in the grid. Free to play online, no sign-up, with rules and history.">
+  <link rel="canonical" href="https://nishit93.github.io/mind-games/games/word-search/">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Mind Games">
+  <meta property="og:title" content="Word Search · Mind Games">
+  <meta property="og:description" content="Word Search (USA, 1968): Find the hidden words in the grid. Free to play online, no sign-up, with rules and history.">
+  <meta property="og:url" content="https://nishit93.github.io/mind-games/games/word-search/">
+  <meta property="og:image" content="https://nishit93.github.io/mind-games/icon-512.png">
+  <meta name="twitter:card" content="summary">
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"VideoGame","name":"Word Search","url":"https://nishit93.github.io/mind-games/games/word-search/","description":"Find the hidden words in the grid. The first word search is credited to Norman E.","genre":["Puzzle","Memory & focus"],"applicationCategory":"Game","gamePlatform":"Web browser","operatingSystem":"Any","playMode":"SinglePlayer","inLanguage":"en","isAccessibleForFree":true,"image":"https://nishit93.github.io/mind-games/icon-512.png","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"publisher":{"@type":"Organization","name":"Mind Games","url":"https://nishit93.github.io/mind-games/"},"audience":{"@type":"PeopleAudience","suggestedMinAge":6}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Mind Games","item":"https://nishit93.github.io/mind-games/"},{"@type":"ListItem","position":2,"name":"Memory & focus","item":"https://nishit93.github.io/mind-games/#memory"},{"@type":"ListItem","position":3,"name":"Word Search","item":"https://nishit93.github.io/mind-games/games/word-search/"}]},{"@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How do you play Word Search?","acceptedAnswer":{"@type":"Answer","text":"Find every word on the list hidden in the grid of letters. Words run in a straight line. On the small grid they go right, down or diagonally down. On bigger grids they can also run backwards and upwards. Press on the first letter of a word and drag to its last letter, then let go. Or tap the first letter, then tap the last one. A word you find stays coloured and is crossed off the list. The game counts your tries (every line you check). Try to find every word first time."}},{"@type":"Question","name":"Where does Word Search come from?","acceptedAnswer":{"@type":"Answer","text":"The first word search is credited to Norman E. Gibat, who published one in a small newspaper in Norman, Oklahoma, in 1968. The puzzle spread quickly to newspapers and magazines, and became one of the best-loved pastimes for children and adults alike. It trains the eye to scan for patterns, which is why teachers still use it to practise spelling."}},{"@type":"Question","name":"Is Word Search free to play?","acceptedAnswer":{"@type":"Answer","text":"Yes. Word Search on Mind Games is free, works in any browser on a phone or computer, needs no account and keeps your best scores on your device."}}]}]}</script>
+  <!-- seo:end -->
+  <link rel="manifest" href="../../manifest.webmanifest">
+  <link rel="icon" href="../../icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="../../apple-touch-icon.png">
+  <meta name="apple-mobile-web-app-title" content="Mind Games">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap">
+  <link rel="stylesheet" href="../../styles.css">
+
+  <style>
+    .ws { display: grid; gap: 2px; background: var(--board); border-radius: calc(var(--radius) + 4px); padding: 8px; aspect-ratio: 1; touch-action: none; user-select: none; }
+    .wc { display: grid; place-items: center; border-radius: 8px; background: var(--surface); font-weight: 700; cursor: pointer; transition: background-color .2s ease, color .2s ease; }
+    .wc.sel { background: var(--accent); color: var(--on-accent); }
+    .wc.f { color: #fff; }
+    .wc.f0 { background: #A47864; } .wc.f1 { background: #6667AB; } .wc.f2 { background: #5E8F7A; } .wc.f3 { background: #C8553D; } .wc.f4 { background: #9A7B2E; } .wc.f5 { background: #4F7CAC; }
+    .words { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; margin-top: 14px; }
+    .ww { padding: 3px 11px; border-radius: 999px; background: var(--surface); font-weight: 700; font-size: .82rem; letter-spacing: .05em; box-shadow: var(--shadow); }
+    .ww.got { text-decoration: line-through; opacity: .5; }
+  </style>
+</head>
+<body data-game="word-search">
+  <main class="wrap">
+    <div class="stats">
+      <span>Found <b id="found">0 of 0</b></span>
+      <span>Tries <b id="tries">0</b></span>
+      <span>Best <b id="best">–</b></span>
+    </div>
+
+    <div class="stage"><div class="ws" id="grid"></div></div>
+    <p class="status" id="status"></p>
+    <div class="words" id="words"></div>
+
+    <div class="controls">
+      <div class="seg" id="size" role="group" aria-label="Grid size">
+        <button data-value="8">8×8</button>
+        <button data-value="10">10×10</button>
+        <button data-value="12">12×12</button>
+      </div>
+      <button class="btn" id="new">New puzzle</button>
+    </div>
+
+    <details class="howto">
+      <summary>How to play</summary>
+      <h3>Goal</h3>
+      <p>Find every word on the list hidden in the grid of letters.</p>
+      <h3>How it works</h3>
+      <ul>
+        <li>Words run in a straight line. On the small grid they go right, down or diagonally down. On bigger grids they can also run backwards and upwards.</li>
+        <li>Press on the first letter of a word and drag to its last letter, then let go. Or tap the first letter, then tap the last one.</li>
+        <li>A word you find stays coloured and is crossed off the list.</li>
+        <li>The game counts your tries (every line you check). Try to find every word first time.</li>
+      </ul>
+      <h3>Tips</h3>
+      <ul>
+        <li>Look for the rarest letter of a word (such as Z, K or J) first, then check the letters around it.</li>
+        <li>Words can cross each other and share letters.</li>
+        <li>Scan one row at a time, then one column at a time.</li>
+      </ul>
+    </details>
+    <section class="history" id="history"><h2>The history of Word Search</h2>
+      <p>The first word search is credited to Norman E. Gibat, who published one in a small newspaper in Norman, Oklahoma, in 1968. The puzzle spread quickly to newspapers and magazines, and became one of the best-loved pastimes for children and adults alike. It trains the eye to scan for patterns, which is why teachers still use it to practise spelling.</p>
+    </section>
+  </main>
+  <script src="../../games.js"></script>
+  <script src="../../progress.js"></script>
+  <script src="../../shell.js"></script>
+  <script src="game.js"></script>
+</body>
+</html>
