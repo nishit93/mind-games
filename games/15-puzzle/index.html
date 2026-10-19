@@ -11,16 +11,8 @@
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap">
   <link rel="stylesheet" href="../../styles.css">
 </head>
-<body>
+<body data-game="15-puzzle">
   <main class="wrap">
-    <header class="top">
-      <div>
-        <h1>15-Puzzle</h1>
-        <p class="sub">Slide the tiles back into order.</p>
-      </div>
-      <a class="back" href="../../">← All games</a>
-    </header>
-
     <div class="stats">
       <span>Moves <b id="moves">0</b></span>
       <span>Time <b id="time">0:00</b></span>
@@ -46,11 +38,30 @@
       <button class="btn" id="shuffle">New game</button>
     </div>
 
-    <p class="hint">Tap a tile in the same row or column as the gap. Arrow keys work too.</p>
+    <details class="howto">
+      <summary>How to play</summary>
+      <h3>Goal</h3>
+      <p>Put the numbered tiles back in order, 1 to 15, reading left to right and top to bottom, with the gap in the bottom-right corner.</p>
+      <h3>How it works</h3>
+      <ul>
+        <li>Tap a tile next to the gap to slide it in.</li>
+        <li>Tap any tile in the same row or column as the gap and the whole line slides together.</li>
+        <li>On a keyboard, the arrow keys slide a tile into the gap.</li>
+        <li>A tile turns peach when it is in its correct place.</li>
+        <li>Choose 3×3 for a short puzzle or 5×5 for a long one. Every shuffle can be solved.</li>
+      </ul>
+      <h3>Tips</h3>
+      <ul>
+        <li>Solve the top row first, then the second row. After that, never disturb finished rows.</li>
+        <li>Finish the last two rows column by column, from left to right.</li>
+        <li>Placing the last two tiles of a row is easiest if you park them one below the other first, then rotate them in together.</li>
+      </ul>
+      <h3>A little history</h3>
+      <p>The puzzle swept the United States and Europe in 1880. Puzzle writer Sam Loyd later offered a large prize for swapping the 14 and 15. Nobody won, because exactly half of all arrangements can never be solved.</p>
+    </details>
   </main>
+  <script src="../../games.js"></script>
+  <script src="../../shell.js"></script>
   <script src="game.js"></script>
-  <script>
-    if ('serviceWorker' in navigator) navigator.serviceWorker.register('../../sw.js');
-  </script>
 </body>
 </html>

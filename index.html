@@ -15,39 +15,19 @@
 </head>
 <body>
   <main class="wrap">
-    <header class="top">
-      <div>
-        <h1>Mind Games</h1>
-        <p class="sub">Quiet puzzles from around the world.</p>
-      </div>
-    </header>
-
-    <section class="games">
-      <a class="card" href="games/15-puzzle/">
-        <div class="icon">15</div>
-        <div>
-          <h2>15-Puzzle</h2>
-          <p>USA, 1880s · Slide the tiles back into order.</p>
-        </div>
-      </a>
-      <div class="card soon">
-        <div class="icon">≡</div>
-        <div>
-          <h2>Tower of Hanoi</h2>
-          <p>France, 1883 · Coming soon</p>
-        </div>
-      </div>
-      <div class="card soon">
-        <div class="icon">◐</div>
-        <div>
-          <h2>Lights Out</h2>
-          <p>USA · Coming soon</p>
-        </div>
-      </div>
-    </section>
+    <section class="games" id="games"></section>
   </main>
+  <script src="games.js"></script>
+  <script src="shell.js"></script>
   <script>
-    if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js');
+    document.getElementById('games').innerHTML = GAMES.map(g => `
+      <a class="card" href="games/${g.id}/">
+        <div class="icon${g.icon.length > 2 ? ' small' : ''}">${g.icon}</div>
+        <div>
+          <h2>${g.name}</h2>
+          <p>${g.origin} · ${g.blurb}</p>
+        </div>
+      </a>`).join('');
   </script>
 </body>
 </html>

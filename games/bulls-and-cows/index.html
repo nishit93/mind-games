@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Bulls &amp; Cows · Mind Games</title>
+  <meta name="theme-color" content="#F0EEE9">
+  <link rel="manifest" href="../../manifest.webmanifest">
+  <link rel="icon" href="../../icon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap">
+  <link rel="stylesheet" href="../../styles.css">
+  <style>
+    .panel {
+      background: var(--board);
+      border-radius: calc(var(--radius) + 4px);
+      padding: 14px;
+    }
+    .slots { display: flex; justify-content: center; gap: 8px; }
+    .slot {
+      width: 52px;
+      height: 60px;
+      border-radius: 12px;
+      background: var(--surface);
+      display: grid;
+      place-items: center;
+      font-size: 1.7rem;
+      font-weight: 600;
+      box-shadow: inset 0 0 0 2px transparent;
+      transition: box-shadow .3s ease;
+    }
+    .slot.next { box-shadow: inset 0 0 0 2px var(--accent); }
+    .history {
+      list-style: none;
+      margin: 14px 0 0;
+      padding: 0;
+      max-height: 228px;
+      overflow-y: auto;
+    }
+    .history li {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 8px 10px;
+      border-radius: 10px;
+      font-variant-numeric: tabular-nums;
+    }
+    .history li:nth-child(odd) { background: color-mix(in srgb, var(--surface) 55%, transparent); }
+    .history .n { color: var(--muted); width: 1.6em; text-align: right; font-size: .85rem; }
+    .history .g { font-size: 1.2rem; font-weight: 600; letter-spacing: .3em; flex: 1; }
+    .pips { display: flex; gap: 5px; }
+    .pip { width: 12px; height: 12px; border-radius: 50%; }
+    .pip.bull { background: var(--tile); }
+    .pip.cow { box-shadow: inset 0 0 0 2px var(--tile); }
+    .pip.none { background: var(--muted); opacity: .25; width: 8px; height: 8px; margin: 2px; }
+    .result { color: var(--muted); font-size: .85rem; min-width: 5.5em; text-align: right; }
+    .empty { color: var(--muted); text-align: center; padding: 12px; font-size: .9rem; }
+    .keypad {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 8px;
+      margin-top: 14px;
+    }
+    .key {
+      border: 0;
+      border-radius: 12px;
+      padding: 14px 0;
+      background: var(--surface);
+      color: var(--text);
+      font: inherit;
+      font-size: 1.2rem;
+      font-weight: 600;
+      box-shadow: var(--shadow);
+      cursor: pointer;
+    }
+    .key:disabled { opacity: .35; box-shadow: none; cursor: default; }
+    .key.wide { grid-column: span 2; font-size: 1rem; }
+    .key.go { grid-column: span 3; background: var(--accent); color: var(--on-accent); font-size: 1rem; }
+  </style>
+</head>
+<body data-game="bulls-and-cows">
+  <main class="wrap">
+    <div class="stats">
+      <span>Guesses <b id="count">0</b></span>
+      <span>Best <b id="best">–</b></span>
+    </div>
+
+    <div class="stage">
+      <div class="panel">
+        <div class="slots" id="slots"></div>
+        <ul class="history" id="history"></ul>
+      </div>
+    </div>
+
+    <div class="keypad" id="keypad"></div>
+
+    <div class="controls">
+      <div class="seg" id="size" role="group" aria-label="Number of digits">
+        <button data-value="3" aria-label="3 digits">3</button>
+        <button data-value="4" aria-label="4 digits">4</button>
+      </div>
+      <button class="btn ghost" id="reveal" style="margin-left:auto">Reveal</button>
+      <button class="btn" id="new" style="margin-left:0">New game</button>
+    </div>
+
+    <details class="howto">
+      <summary>How to play</summary>
+      <h3>Goal</h3>
+      <p>Work out the secret number in as few guesses as you can.</p>
+      <h3>How it works</h3>
+      <ul>
+        <li>Choose a 3- or 4-digit secret with the buttons below the keypad. No digit appears twice (for example 4071), and it can start with 0.</li>
+        <li>Type a guess with the keypad (or your keyboard) and press Guess. Your guess must also use different digits.</li>
+        <li>Each guess is scored:
+          <ul>
+            <li><b>Bull</b> (filled dot): a right digit in the right place.</li>
+            <li><b>Cow</b> (ring): a right digit in the wrong place.</li>
+          </ul>
+        </li>
+        <li>The dots don't say <i>which</i> digits scored, only how many. Four bulls means you've cracked it.</li>
+      </ul>
+      <h3>Example</h3>
+      <p>The secret is 4071 and you guess 1074. The 0 and the 7 are in the right places (2 bulls). The 1 and the 4 are in the secret but in the wrong places (2 cows).</p>
+      <h3>Tips</h3>
+      <ul>
+        <li>Start with guesses that share no digits, like 0123 then 4567. Their scores tell you which digits are in the secret.</li>
+        <li>A guess scoring nothing at all is useful: it rules out every one of its digits.</li>
+        <li>Change one or two digits at a time to find out which ones scored.</li>
+      </ul>
+      <h3>A little history</h3>
+      <p>Bulls and Cows is a pencil-and-paper game said to be over a century old, often traced to Britain. It inspired the 1970 board game Mastermind, which uses coloured pegs instead of digits.</p>
+    </details>
+  </main>
+  <script src="../../games.js"></script>
+  <script src="../../shell.js"></script>
+  <script src="game.js"></script>
+</body>
+</html>

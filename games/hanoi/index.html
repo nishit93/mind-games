@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Tower of Hanoi · Mind Games</title>
+  <meta name="theme-color" content="#F0EEE9">
+  <link rel="manifest" href="../../manifest.webmanifest">
+  <link rel="icon" href="../../icon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap">
+  <link rel="stylesheet" href="../../styles.css">
+  <style>
+    .pegs {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      background: var(--board);
+      border-radius: calc(var(--radius) + 4px);
+      padding: 16px 8px 0;
+      height: 300px;
+    }
+    .peg {
+      position: relative;
+      display: flex;
+      flex-direction: column-reverse;
+      align-items: center;
+      gap: 3px;
+      border: 0;
+      border-radius: 14px 14px 0 0;
+      background: transparent;
+      padding: 0 0 10px;
+      cursor: pointer;
+      font: inherit;
+    }
+    .peg::before {
+      content: '';
+      position: absolute;
+      bottom: 10px;
+      left: calc(50% - 4px);
+      width: 8px;
+      height: 85%;
+      border-radius: 4px 4px 0 0;
+      background: var(--muted);
+      opacity: .35;
+    }
+    .peg::after {
+      content: '';
+      position: absolute;
+      bottom: 4px;
+      left: 6%;
+      right: 6%;
+      height: 6px;
+      border-radius: 3px;
+      background: var(--muted);
+      opacity: .35;
+    }
+    .peg.active { background: color-mix(in srgb, var(--surface) 50%, transparent); }
+    .peg:focus-visible { outline: 3px solid var(--accent); outline-offset: -3px; }
+    .disc {
+      position: relative;
+      z-index: 1;
+      height: 24px;
+      border-radius: 12px;
+      box-shadow: 0 2px 5px rgb(74 59 51 / .15);
+      transition: transform .25s cubic-bezier(.3, .7, .3, 1);
+    }
+    .disc.lifted { transform: translateY(-18px); }
+  </style>
+</head>
+<body data-game="hanoi">
+  <main class="wrap">
+    <div class="stats">
+      <span>Moves <b id="moves">0</b></span>
+      <span>Fewest possible <b id="min">15</b></span>
+      <span>Best <b id="best">–</b></span>
+    </div>
+
+    <div class="stage">
+      <div class="pegs" id="pegs">
+        <button class="peg" aria-label="Left peg"></button>
+        <button class="peg" aria-label="Middle peg"></button>
+        <button class="peg" aria-label="Right peg"></button>
+      </div>
+    </div>
+
+    <div class="controls">
+      <div class="seg" id="size" role="group" aria-label="Number of discs">
+        <button data-value="3">3</button>
+        <button data-value="4">4</button>
+        <button data-value="5">5</button>
+        <button data-value="6">6</button>
+        <button data-value="7">7</button>
+      </div>
+      <button class="btn" id="restart">Restart</button>
+    </div>
+
+    <details class="howto">
+      <summary>How to play</summary>
+      <h3>Goal</h3>
+      <p>Move the whole tower from the left peg to the right peg.</p>
+      <h3>Rules</h3>
+      <ul>
+        <li>Move one disc at a time. Only the top disc of a stack can move.</li>
+        <li>A disc can never sit on top of a smaller disc.</li>
+      </ul>
+      <h3>How it works</h3>
+      <ul>
+        <li>Tap a peg to lift its top disc, then tap another peg to drop it there.</li>
+        <li>Tap the same peg again to put the disc back down.</li>
+        <li>On a keyboard, press 1, 2 and 3 for the three pegs.</li>
+        <li>Choose 3 to 7 discs. Each extra disc doubles the work: the fewest possible moves is 2<sup>n</sup> − 1.</li>
+      </ul>
+      <h3>Tips</h3>
+      <ul>
+        <li>The smallest disc moves on every second turn, always circling in the same direction.</li>
+        <li>With an odd number of discs, move the smallest disc to the right first. With an even number, move it to the middle first.</li>
+        <li>On the turns in between, make the only legal move that does not touch the smallest disc.</li>
+      </ul>
+      <h3>A little history</h3>
+      <p>French mathematician Édouard Lucas invented the puzzle in 1883. He sold it with a legend about monks moving 64 golden discs, and said the world would end when they finished. At one move a second, that would take about 585 billion years.</p>
+    </details>
+  </main>
+  <script src="../../games.js"></script>
+  <script src="../../shell.js"></script>
+  <script src="game.js"></script>
+</body>
+</html>

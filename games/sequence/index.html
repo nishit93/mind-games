@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Sequence · Mind Games</title>
+  <meta name="theme-color" content="#F0EEE9">
+  <link rel="manifest" href="../../manifest.webmanifest">
+  <link rel="icon" href="../../icon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap">
+  <link rel="stylesheet" href="../../styles.css">
+  <style>
+    /* Pads: Mocha Mousse (2025), Peach Fuzz (2024), Serenity (2016), Greenery (2017) */
+    .pads {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      background: var(--board);
+      border-radius: 50%;
+      padding: 14%;
+      aspect-ratio: 1;
+      max-width: 420px;
+      margin: 0 auto;
+    }
+    .pad {
+      border: 0;
+      cursor: pointer;
+      opacity: .55;
+      transition: opacity .25s ease, transform .25s ease, box-shadow .25s ease;
+    }
+    .pad:nth-child(1) { background: #A47864; border-radius: 100% 12px 12px 12px; }
+    .pad:nth-child(2) { background: #FFBE98; border-radius: 12px 100% 12px 12px; }
+    .pad:nth-child(3) { background: #88B04B; border-radius: 12px 12px 12px 100%; }
+    .pad:nth-child(4) { background: #92A8D1; border-radius: 12px 12px 100% 12px; }
+    .pad.lit { opacity: 1; transform: scale(1.03); box-shadow: 0 0 28px rgb(255 255 255 / .35); }
+    .pad:disabled { cursor: default; }
+    .pad:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
+  </style>
+</head>
+<body data-game="sequence">
+  <main class="wrap">
+    <div class="stats">
+      <span>Length <b id="len">0</b></span>
+      <span>Best <b id="best">0</b></span>
+    </div>
+
+    <div class="stage">
+      <div class="pads" id="pads">
+        <button class="pad" aria-label="Brown pad"></button>
+        <button class="pad" aria-label="Peach pad"></button>
+        <button class="pad" aria-label="Green pad"></button>
+        <button class="pad" aria-label="Blue pad"></button>
+      </div>
+    </div>
+    <p class="status" id="status">Press Start, then watch.</p>
+
+    <div class="controls">
+      <div class="seg" id="speed" role="group" aria-label="Speed">
+        <button data-value="calm">Calm</button>
+        <button data-value="brisk">Brisk</button>
+      </div>
+      <button class="btn ghost" id="sound" style="margin-left:auto" aria-pressed="true">Sound on</button>
+      <button class="btn" id="start" style="margin-left:0">Start</button>
+    </div>
+
+    <details class="howto">
+      <summary>How to play</summary>
+      <h3>Goal</h3>
+      <p>Repeat a growing pattern of lights and tones for as long as you can.</p>
+      <h3>How it works</h3>
+      <ol>
+        <li>Press <b>Start</b>. One pad lights up with a soft tone.</li>
+        <li>Tap the same pad to repeat it.</li>
+        <li>Each round, the game plays the whole pattern again with one new step added at the end. Repeat all of it, in order.</li>
+        <li>One wrong tap ends the game. Your score is the longest pattern you repeated correctly.</li>
+      </ol>
+      <p><b>Calm</b> plays the pattern slowly. <b>Brisk</b> is faster. On a keyboard, keys 1 to 4 (or Q, W, A, S) press the pads.</p>
+      <h3>Tips</h3>
+      <ul>
+        <li>Listen as well as watch. Each pad has its own note, and the pattern becomes a little melody.</li>
+        <li>Chunk the pattern into groups of three or four, like a phone number.</li>
+        <li>Name the pads (for example “brown, peach, blue”) and say the pattern quietly to yourself.</li>
+      </ul>
+      <h3>A little history</h3>
+      <p>The electronic game Simon, created by Ralph Baer and Howard Morrison, launched in New York in 1978. It was inspired by an Atari arcade game called Touch Me, and the name comes from the children's game “Simon says”. Its four colours and tones made it one of the best-known toys of its time.</p>
+    </details>
+  </main>
+  <script src="../../games.js"></script>
+  <script src="../../shell.js"></script>
+  <script src="game.js"></script>
+</body>
+</html>

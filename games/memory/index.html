@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Shinkei-suijaku · Mind Games</title>
+  <meta name="theme-color" content="#F0EEE9">
+  <link rel="manifest" href="../../manifest.webmanifest">
+  <link rel="icon" href="../../icon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap">
+  <link rel="stylesheet" href="../../styles.css">
+  <style>
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      background: var(--board);
+      border-radius: calc(var(--radius) + 4px);
+      padding: 10px;
+    }
+    .card-m {
+      aspect-ratio: 3 / 4;
+      border: 0;
+      padding: 0;
+      background: transparent;
+      perspective: 600px;
+      cursor: pointer;
+    }
+    .card-m .inner {
+      position: relative;
+      display: block;
+      width: 100%;
+      height: 100%;
+      transform-style: preserve-3d;
+      transition: transform .45s cubic-bezier(.3, .7, .3, 1);
+    }
+    .card-m.up .inner { transform: rotateY(180deg); }
+    .face {
+      position: absolute;
+      inset: 0;
+      border-radius: 12px;
+      backface-visibility: hidden;
+      display: grid;
+      place-items: center;
+    }
+    .back {
+      background: var(--tile);
+      background-image: radial-gradient(circle at 50% 50%, color-mix(in srgb, var(--tile-home) 40%, transparent) 0 18%, transparent 19%);
+      box-shadow: 0 2px 5px rgb(74 59 51 / .15);
+    }
+    .front {
+      background: var(--surface);
+      transform: rotateY(180deg);
+      font-size: clamp(1.5rem, 8vw, 2.3rem);
+    }
+    .card-m.matched .front { background: color-mix(in srgb, var(--tile-home) 45%, var(--surface)); }
+    .card-m:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; border-radius: 12px; }
+    @media (prefers-reduced-motion: reduce) { .card-m .inner { transition: none; } }
+  </style>
+</head>
+<body data-game="memory">
+  <main class="wrap">
+    <div class="stats">
+      <span>Turns <b id="turns">0</b></span>
+      <span>Time <b id="time">0:00</b></span>
+      <span>Best <b id="best">–</b></span>
+    </div>
+
+    <div class="stage"><div class="grid" id="grid"></div></div>
+
+    <div class="controls">
+      <div class="seg" id="size" role="group" aria-label="Number of cards">
+        <button data-value="12">12</button>
+        <button data-value="16">16</button>
+        <button data-value="24">24</button>
+      </div>
+      <button class="btn" id="new">New game</button>
+    </div>
+
+    <details class="howto">
+      <summary>How to play</summary>
+      <h3>Goal</h3>
+      <p>Find every matching pair of cards in as few turns as you can.</p>
+      <h3>How it works</h3>
+      <ul>
+        <li>All cards start face down. Each picture appears on exactly two cards.</li>
+        <li>Each turn, tap two cards to turn them over.</li>
+        <li>If they match, they stay face up. If not, they turn back over after a moment, so try to remember them.</li>
+        <li>The game ends when every pair is found. Choose 12, 16 or 24 cards.</li>
+      </ul>
+      <h3>Tips</h3>
+      <ul>
+        <li>Early on, turn over cards you haven't seen yet. Every new card is information.</li>
+        <li>When your first card matches one you've already seen, go straight for that one.</li>
+        <li>Say the pictures and their positions to yourself, like “moon, top left”. Words are easier to remember than images alone.</li>
+      </ul>
+      <h3>A little history</h3>
+      <p>In Japan this game is called <i>shinkei-suijaku</i>, meaning “nervous breakdown”, a joke about how much it strains your concentration. It grew out of <i>kai-awase</i>, a game from the Heian period (around 1000 years ago) where players matched painted halves of clam shells. In English it is often called Concentration or Pairs.</p>
+    </details>
+  </main>
+  <script src="../../games.js"></script>
+  <script src="../../shell.js"></script>
+  <script src="game.js"></script>
+</body>
+</html>

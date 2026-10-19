@@ -1,8 +1,10 @@
 // Network first so updates show up right away; fall back to cache offline.
-const CACHE = 'mind-games-v1';
+importScripts('games.js');
+
+const CACHE = 'mind-games-v2';
 const SHELL = [
-  './', 'index.html', 'styles.css', 'icon.svg', 'manifest.webmanifest',
-  'games/15-puzzle/', 'games/15-puzzle/index.html', 'games/15-puzzle/game.js',
+  './', 'index.html', 'styles.css', 'games.js', 'shell.js', 'icon.svg', 'manifest.webmanifest',
+  ...GAMES.flatMap(g => [`games/${g.id}/`, `games/${g.id}/game.js`]),
 ];
 
 self.addEventListener('install', e => {

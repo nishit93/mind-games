@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Lights Out · Mind Games</title>
+  <meta name="theme-color" content="#F0EEE9">
+  <link rel="manifest" href="../../manifest.webmanifest">
+  <link rel="icon" href="../../icon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap">
+  <link rel="stylesheet" href="../../styles.css">
+  <style>
+    .grid {
+      display: grid;
+      gap: 8px;
+      background: var(--board);
+      border-radius: calc(var(--radius) + 4px);
+      padding: 10px;
+      aspect-ratio: 1;
+    }
+    .light {
+      border: 0;
+      border-radius: 14px;
+      background: color-mix(in srgb, var(--tile) 35%, var(--board));
+      cursor: pointer;
+      transition: background-color .4s ease, box-shadow .4s ease;
+    }
+    .light.on {
+      background: var(--tile-home);
+      box-shadow: 0 0 18px color-mix(in srgb, var(--tile-home) 70%, transparent);
+    }
+    .light:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+  </style>
+</head>
+<body data-game="lights-out">
+  <main class="wrap">
+    <div class="stats">
+      <span>Moves <b id="moves">0</b></span>
+      <span>Lights on <b id="left">0</b></span>
+      <span>Time <b id="time">0:00</b></span>
+    </div>
+
+    <div class="stage"><div class="grid" id="grid"></div></div>
+
+    <div class="controls">
+      <div class="seg" id="size" role="group" aria-label="Grid size">
+        <button data-value="3">3×3</button>
+        <button data-value="4">4×4</button>
+        <button data-value="5">5×5</button>
+      </div>
+      <button class="btn" id="new">New game</button>
+    </div>
+
+    <details class="howto">
+      <summary>How to play</summary>
+      <h3>Goal</h3>
+      <p>Switch off every light on the grid.</p>
+      <h3>How it works</h3>
+      <ul>
+        <li>Tap a square to flip it and its four neighbours (above, below, left and right). Lit squares go dark and dark squares light up.</li>
+        <li>Squares on the edge have fewer neighbours, so they flip fewer lights.</li>
+        <li>Every puzzle can be solved. Choose 3×3 to learn the idea, 5×5 for the classic game.</li>
+      </ul>
+      <h3>Tips</h3>
+      <ul>
+        <li>The order of taps does not matter, and tapping a square twice undoes it. So a solution never needs the same square twice.</li>
+        <li>Try “chasing the lights”: work down row by row, and for each light still on, tap the square directly below it. That clears every row except the last.</li>
+        <li>The pattern left in the bottom row tells you which squares in the top row to tap before chasing again. Experiment to learn the patterns.</li>
+      </ul>
+      <h3>A little history</h3>
+      <p>Tiger Electronics released Lights Out as a handheld game in 1995. The idea is older: a 1983 game called XL-25 used the same rules, and mathematicians have studied the puzzle using linear algebra.</p>
+    </details>
+  </main>
+  <script src="../../games.js"></script>
+  <script src="../../shell.js"></script>
+  <script src="game.js"></script>
+</body>
+</html>

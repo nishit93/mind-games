@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Sudoku · Mind Games</title>
+  <meta name="theme-color" content="#F0EEE9">
+  <link rel="manifest" href="../../manifest.webmanifest">
+  <link rel="icon" href="../../icon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap">
+  <link rel="stylesheet" href="../../styles.css">
+  <style>
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      grid-template-rows: repeat(3, 1fr);
+      background: var(--board);
+      border-radius: 14px;
+      padding: 4px;
+      gap: 4px;
+      aspect-ratio: 1;
+      user-select: none;
+    }
+    .box {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      grid-template-rows: repeat(3, 1fr);
+      gap: 1px;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .cell {
+      border: 0;
+      padding: 0;
+      background: var(--surface);
+      color: var(--accent);
+      font: inherit;
+      font-size: clamp(1rem, 5.2vw, 1.5rem);
+      font-weight: 600;
+      cursor: pointer;
+      transition: background-color .2s ease;
+    }
+    .cell.given { color: var(--text); font-weight: 700; }
+    .cell.peer { background: color-mix(in srgb, var(--tile-home) 14%, var(--surface)); }
+    .cell.same { background: color-mix(in srgb, var(--tile-home) 38%, var(--surface)); }
+    .cell.sel { background: color-mix(in srgb, var(--tile-home) 70%, var(--surface)); }
+    .cell.clash { color: #C0564B; }
+    .cell:focus-visible { outline: none; }
+    .pad {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 8px;
+      margin-top: 14px;
+    }
+    .key {
+      border: 0;
+      border-radius: 12px;
+      padding: 12px 0;
+      background: var(--surface);
+      color: var(--text);
+      font: inherit;
+      font-size: 1.25rem;
+      font-weight: 600;
+      box-shadow: var(--shadow);
+      cursor: pointer;
+    }
+    .key.full { opacity: .35; box-shadow: none; }
+    .key.erase { font-size: 1rem; }
+  </style>
+</head>
+<body data-game="sudoku">
+  <main class="wrap">
+    <div class="stats">
+      <span>Time <b id="time">0:00</b></span>
+      <span>Best <b id="best">–</b></span>
+    </div>
+
+    <div class="stage"><div class="grid" id="grid"></div></div>
+    <div class="pad" id="pad"></div>
+
+    <div class="controls">
+      <div class="seg" id="level" role="group" aria-label="Difficulty">
+        <button data-value="easy">Easy</button>
+        <button data-value="medium">Medium</button>
+        <button data-value="hard">Hard</button>
+      </div>
+      <button class="btn" id="new">New game</button>
+    </div>
+
+    <details class="howto">
+      <summary>How to play</summary>
+      <h3>Goal</h3>
+      <p>Fill every empty square so that each row, each column and each of the nine 3×3 boxes contains the numbers 1 to 9 exactly once.</p>
+      <h3>How it works</h3>
+      <ul>
+        <li>The darker numbers are given and can't be changed.</li>
+        <li>Tap an empty square, then tap a number below (or type it) to fill it in. Tap ⌫ or press Backspace to clear it.</li>
+        <li>The selected square's row, column and box are shaded, and every copy of the same number is highlighted.</li>
+        <li>A number that repeats in a row, column or box turns red, so you can spot clashes.</li>
+        <li>A number on the keypad fades once all nine of it are placed.</li>
+        <li>Every puzzle has exactly one solution.</li>
+      </ul>
+      <h3>Tips</h3>
+      <ul>
+        <li><b>Scan for a number:</b> pick one number, say 5, and check each box. Often only one square in a box can hold it.</li>
+        <li><b>Look for the last option:</b> find a square where eight of the nine numbers already appear in its row, column and box. Only one number fits.</li>
+        <li>Start with the numbers that already appear most often on the grid.</li>
+        <li>If you're stuck, go row by row and ask “where can the missing numbers go?”</li>
+      </ul>
+      <h3>A little history</h3>
+      <p>The puzzle builds on Latin squares studied by Swiss mathematician Leonhard Euler in the 1700s. The modern form appeared in a US magazine in 1979 as “Number Place”. In 1984 the Japanese publisher Nikoli named it <i>Sudoku</i>, short for “each digit must be single”, and it became a worldwide craze in 2005.</p>
+    </details>
+  </main>
+  <script src="../../games.js"></script>
+  <script src="../../shell.js"></script>
+  <script src="game.js"></script>
+</body>
+</html>
