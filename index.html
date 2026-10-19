@@ -25,6 +25,10 @@
       <h2>Continue playing</h2>
       <div class="tiles" id="recent-tiles"></div>
     </section>
+    <section id="fav-block" class="home-section" hidden>
+      <h2>Your favourites</h2>
+      <div class="tiles" id="fav-tiles"></div>
+    </section>
     <a class="kids-banner" id="kids-banner" href="#kids">
       <span class="kids-star" aria-hidden="true">★</span>
       <span><b>Great for kids</b><small>Gentle games that build counting, memory and logic</small></span>
@@ -42,31 +46,55 @@
     </div>
     <div id="sections"></div>
     <p class="empty" id="empty" hidden>No game matches that search.</p>
+    <section id="progress" class="home-section" hidden>
+      <h2>Your progress</h2>
+      <div class="stat-row">
+        <div><b id="p-streak">0</b><small>day streak</small></div>
+        <div><b id="p-plays">0</b><small>games played</small></div>
+        <div><b id="p-favs">0</b><small>favourites</small></div>
+      </div>
+      <p class="section-blurb" id="p-status"></p>
+      <div class="progress-actions" id="p-actions"></div>
+      <p class="section-blurb" id="p-note" aria-live="polite"></p>
+    </section>
   </main>
   <script src="games.js"></script>
+  <script src="progress.js"></script>
   <script src="shell.js"></script>
   <script>
     (() => {
       const chipsEl = document.getElementById('chips');
       const sectionsEl = document.getElementById('sections');
       const search = document.getElementById('search');
-      const FILTERS = [{ id: 'all', name: 'All' }, { id: 'kids', name: '★ Kids' }, ...SECTIONS];
+      const P = window.MGProgress;
+      const FILTERS = [{ id: 'all', name: 'All' }, { id: 'kids', name: '★ Kids' }, { id: 'favs', name: '♥ Favourites' }, ...SECTIONS];
 
-      const tile = (g, kidsLink) => `
-        <a class="tile-link" href="games/${g.id}/${kidsLink ? '?kids' : ''}" data-name="${g.name.toLowerCase()} ${g.origin.toLowerCase()} ${g.blurb.toLowerCase()}">
-          <span class="mini${g.icon.length > 2 ? ' small' : ''}" aria-hidden="true">${g.icon}</span>
-          <span><b>${g.name}${g.kids && !kidsLink ? ' <i class="kid" title="Great for kids">★</i>' : ''}</b><small>${g.blurb}</small></span>
-        </a>`;
+      const tile = (g, kidsLink) => {
+        const on = P.isFav(g.id);
+        return `
+        <div class="tile-wrap">
+          <a class="tile-link" href="games/${g.id}/${kidsLink ? '?kids' : ''}">
+            <span class="mini${g.icon.length > 2 ? ' small' : ''}" aria-hidden="true">${g.icon}</span>
+            <span><b>${g.name}${g.kids && !kidsLink ? ' <i class="kid" title="Great for kids">★</i>' : ''}</b><small>${g.blurb}</small></span>
+          </a>
+          <button class="heart" data-fav="${g.id}" aria-pressed="${on}" aria-label="${on ? 'Remove ' + g.name + ' from favourites' : 'Add ' + g.name + ' to favourites'}">${on ? '♥' : '♡'}</button>
+        </div>`;
+      };
 
       chipsEl.innerHTML = FILTERS.map(f => `<button class="chip" data-f="${f.id}">${f.name}</button>`).join('');
+      const byId = id => GAMES.find(g => g.id === id);
+      let favSig = '';
 
       function draw() {
         const f = location.hash.slice(1) || 'all';
         const q = search.value.trim().toLowerCase();
         chipsEl.querySelectorAll('.chip').forEach(c => c.setAttribute('aria-pressed', String(c.dataset.f === f)));
+        const favList = P.favs().map(byId).filter(Boolean);
+        favSig = favList.map(g => g.id).join();
 
         let groups;
         if (f === 'kids') groups = [{ id: 'kids', name: 'Great for kids', blurb: 'Each one opens on its easiest setting', games: GAMES.filter(g => g.kids), kidsLink: true }];
+        else if (f === 'favs') groups = [{ id: 'favs', name: 'Your favourites', blurb: 'The games you have hearted', games: favList }];
         else groups = SECTIONS.filter(s => f === 'all' || s.id === f).map(s => ({ ...s, games: GAMES.filter(g => g.sec === s.id) }));
 
         sectionsEl.innerHTML = groups.map(s => {
@@ -78,13 +106,80 @@
               <div class="tiles">${list.map(g => tile(g, s.kidsLink)).join('')}</div>
             </section>`;
         }).join('');
-        document.getElementById('empty').hidden = !!sectionsEl.innerHTML.trim();
+        const empty = document.getElementById('empty');
+        empty.hidden = !!sectionsEl.innerHTML.trim();
+        empty.textContent = f === 'favs' && !q ? 'No favourites yet. Tap the ♡ on any game to keep it here.' : 'No game matches that search.';
         document.getElementById('kids-banner').hidden = f !== 'all' || !!q;
 
-        const recent = (MG.store.json('recent') || []).map(id => GAMES.find(g => g.id === id)).filter(Boolean);
+        const recent = (MG.store.json('recent') || []).map(byId).filter(Boolean);
         document.getElementById('recent').hidden = !recent.length || f !== 'all' || !!q;
         document.getElementById('recent-tiles').innerHTML = recent.slice(0, 4).map(g => tile(g)).join('');
+
+        document.getElementById('fav-block').hidden = !favList.length || f !== 'all' || !!q;
+        document.getElementById('fav-tiles').innerHTML = favList.slice(0, 8).map(g => tile(g)).join('');
+
+        drawProgress(f, q);
       }
+
+      // ---- Your progress ----
+      const when = ms => new Date(ms).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+      function statusText() {
+        if (!P.configured()) return 'Your progress is saved on this device.';
+        if (!P.syncEnabled()) return 'Online backup is off. Your progress is saved on this device.';
+        const s = P.status();
+        return {
+          ok: `Backed up online. Last saved at ${when(s.lastSync)}.`,
+          syncing: 'Saving…',
+          offline: 'You are offline. Saved on this device, and it will back up when you are back online.',
+          error: 'Could not reach the server. Saved on this device. Trying again soon.',
+        }[s.status] || 'Saved on this device. Backing up soon.';
+      }
+      function drawProgress(f = location.hash.slice(1) || 'all', q = search.value.trim()) {
+        const sum = P.summary();
+        document.getElementById('progress').hidden = f !== 'all' || !!q || (!sum.plays && !sum.favourites);
+        document.getElementById('p-streak').textContent = sum.streak;
+        document.getElementById('p-plays').textContent = sum.plays;
+        document.getElementById('p-favs').textContent = sum.favourites;
+        document.getElementById('p-status').textContent = statusText();
+        const actions = document.getElementById('p-actions');
+        if (!P.configured()) { actions.innerHTML = ''; return; }
+        actions.innerHTML = P.syncEnabled()
+          ? '<button class="btn ghost" data-act="copy">Copy progress code</button><button class="btn ghost" data-act="use">Use a code</button><button class="btn ghost" data-act="erase">Erase my online data</button>'
+          : '<button class="btn" data-act="on">Back up my progress online</button><button class="btn ghost" data-act="use">Use a code</button>';
+      }
+      const note = text => { document.getElementById('p-note').textContent = text; };
+
+      document.addEventListener('click', async e => {
+        const heart = e.target.closest('[data-fav]');
+        if (heart) { P.toggleFav(heart.dataset.fav); return; }
+        const btn = e.target.closest('[data-act]');
+        if (!btn) return;
+        const act = btn.dataset.act;
+        if (act === 'on') { P.setSyncEnabled(true); note('Online backup is on.'); }
+        if (act === 'copy') {
+          const code = P.exportCode();
+          if (!code) return note('Play a game first, then there will be something to save.');
+          try { await navigator.clipboard.writeText(code); note('Code copied. Keep it somewhere safe: anyone who has it can see and change your progress.'); }
+          catch { prompt('Copy this progress code and keep it safe:', code); }
+        }
+        if (act === 'use') {
+          const code = prompt('Paste the progress code from your other device:');
+          if (!code) return;
+          note('Checking…');
+          const r = await P.useCode(code);
+          note({ ok: 'Done. Your progress from both devices is now combined.', invalid: 'That does not look like a progress code.', unknown: 'That code was not recognised.' }[r] || 'Could not reach the server. Try again when you are online.');
+        }
+        if (act === 'erase' && confirm('Erase everything stored online?\n\nYour progress on this device stays, but it will no longer be backed up.')) {
+          try { await P.eraseOnline(); note('Your online data was erased and backup is off.'); }
+          catch { note('Could not erase just now. Check your connection and try again.'); }
+        }
+        drawProgress();
+      });
+
+      P.onChange(() => {
+        const sig = P.favs().join();
+        if (sig !== favSig) draw(); else drawProgress();
+      });
 
       chipsEl.addEventListener('click', e => {
         const c = e.target.closest('.chip');
@@ -93,6 +188,7 @@
         draw();
         window.scrollTo({ top: 0, behavior: 'smooth' });
       });
+
       // Install card: the browser's own prompt where available, Share-sheet instructions on iPhone and iPad.
       const install = document.getElementById('install');
       const standalone = matchMedia('(display-mode: standalone)').matches || navigator.standalone;

@@ -14,14 +14,21 @@ A calm website of single-player puzzle and mind games from around the world. Liv
 
 ## Backend
 
-Player progress (favourites, best scores, streaks, settings) is stored by a separate **private** repo, `nishit93/mind-games-api` (folder `D:\MindGamesApi`), hosted on Oracle Cloud Always Free in Mumbai. Players are anonymous guests, with no personal data. Until the server is live, the site keeps working from browser storage alone, and sync must stay optional so the site works offline and without the server.
+Player progress (favourites, best scores, streaks, settings) is stored by a separate **private** repo, `nishit93/mind-games-api` (folder `D:\MindGamesApi`), hosted on Oracle Cloud Always Free in Mumbai. Players are anonymous guests, with no personal data.
+
+- The site works fully from browser storage alone; sync is optional and must never block play. Sync is **off until `MG_CONFIG.api` in `games.js` is set** to the server's HTTPS address. For local testing, `localStorage['mg-api']` overrides it (only https, localhost or 127.0.0.1 are accepted).
+- `progress.js` is the client side. The games keep writing their own localStorage keys through `MG.store.set`, and `progress.js` mirrors the ones that matter (it recognises them by name: `*-best*`, `*-solved`/`*-wins`, and settings ending in `-level`, `-n`, `-size`, `-draw`, `-rows`, `-len`, `-mode`, `-speed`, `-sound`, `-shade`, `-seeds`). **A new game that follows these key names is synced automatically.** Add a rule in `classify()` for any other key, and add `-best` keys where higher is better to `HIGHER_BETTER`.
+- The client does not merge: it sends its whole record and replaces it with the server's merged answer. The merge rules live only in the API repo (`src/merge.js`).
+- A guest is created on the server only after real progress exists (a play, a favourite or a score), not on a plain visit. A "progress code" (id and secret) moves progress to another device; "Erase my online data" calls `DELETE /v1/me`.
+- Not synced on purpose: `recent`, `seen-*`, `install-dismissed`, `queens-found-*` (too large) and `m24-tally`.
 
 ## How the code is organised
 
 - `games.js`: the sections (`SECTIONS`: logic, math, moves, memory, cards) and the list of games (`GAMES`: id, sec, name, origin, icon, blurb, and `kids: true` for games that suit children). The menu, the home page and the offline cache all read it.
 - `shell.js`: shared header, hamburger menu (grouped by section, with search), "More in …" links under each game, recently played, and helpers on `window.MG` (`kids`, `store`, `fmt`, `overlay`, `seg`, `clock`, `wait`, `shuffle`).
 - **Kids:** games opened from the Kids section get `?kids` in the URL, and `MG.kids` is true. Kid-tagged games must then start on their easiest setting.
-- `index.html`: home page with search, filter chips (All, Kids, each section), Continue playing, and the games by section.
+- `progress.js`: favourites, streaks, scores and settings kept on the device and optionally synced (`window.MGProgress`). Load it before `shell.js` on every page.
+- `index.html`: home page with search, filter chips (All, Kids, Favourites, each section), Continue playing, favourites, the games by section, and the Your progress panel.
 - `styles.css`: shared styles and colour tokens.
 - `shared/`: code used by several games: `combine.js` (Make 24, Target Number), `latin.js` (Futoshiki, Skyscrapers), `cards.js` (Klondike, Pyramid, Golf).
 - `sw.js`: offline support (network first, cache as fallback). Bump `CACHE` when the file list changes, and list any new `shared/` file there.

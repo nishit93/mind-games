@@ -6,7 +6,10 @@
 
   const store = {
     get(k) { try { return localStorage.getItem(k); } catch { return null; } },
-    set(k, v) { try { localStorage.setItem(k, v); } catch {} },
+    set(k, v) {
+      try { localStorage.setItem(k, v); } catch {}
+      if (window.MGProgress) MGProgress.mirror(k, v); // scores and settings are also kept in the progress record
+    },
     json(k) { try { return JSON.parse(store.get(k)); } catch { return null; } },
   };
 
@@ -38,8 +41,33 @@
       <h1>${game ? game.name : 'Mind Games'}</h1>
       <p class="sub">${game ? `${game.origin} · <a href="${root}#${section.id}">${section.name}</a>` : 'Quiet puzzles from around the world.'}</p>
     </div>
-    ${game ? '<button class="icon-btn help-btn" aria-label="How to play">?</button>' : ''}`;
+    ${game ? '<button class="icon-btn fav-btn" aria-label="Add to favourites" aria-pressed="false">♡</button><button class="icon-btn help-btn" aria-label="How to play">?</button>' : ''}`;
   main.prepend(header);
+
+  // Heart: favourite this game.
+  if (game && window.MGProgress) {
+    const fav = header.querySelector('.fav-btn');
+    const drawFav = () => {
+      const on = MGProgress.isFav(game.id);
+      fav.textContent = on ? '♥' : '♡';
+      fav.setAttribute('aria-pressed', String(on));
+      fav.setAttribute('aria-label', on ? 'Remove from favourites' : 'Add to favourites');
+    };
+    fav.addEventListener('click', () => MGProgress.toggleFav(game.id));
+    MGProgress.onChange(drawFav);
+    drawFav();
+
+    // Count a play on the first real touch of the game, not on the menu, header or how-to.
+    const onFirstTouch = e => {
+      if (e.target.closest && e.target.closest('header.top, .drawer, .scrim, .howto, .more')) return;
+      if (e.type === 'keydown' && ['Escape', 'Tab', 'Shift', 'Control', 'Alt', 'Meta'].includes(e.key)) return;
+      removeEventListener('pointerdown', onFirstTouch, true);
+      removeEventListener('keydown', onFirstTouch, true);
+      MGProgress.recordPlay();
+    };
+    addEventListener('pointerdown', onFirstTouch, true);
+    addEventListener('keydown', onFirstTouch, true);
+  }
 
   // Games menu: search, then the games grouped by section.
   const scrim = document.createElement('div');
@@ -52,6 +80,7 @@
     <a class="drawer-home" href="${root}">Mind Games</a>
     <input class="search drawer-search" type="search" placeholder="Find a game" aria-label="Find a game">
     <a class="drawer-kids" href="${root}#kids">★ Great for kids</a>
+    <a class="drawer-kids drawer-favs" href="${root}#favs">♥ Your favourites</a>
     ${SECTIONS.map(s => `
       <div class="drawer-group">
         <a class="drawer-heading" href="${root}#${s.id}">${s.name}</a>
@@ -69,7 +98,7 @@
     const q = search.value.trim().toLowerCase();
     drawer.querySelectorAll('.drawer-item').forEach(a => { a.hidden = !!q && !a.dataset.name.includes(q); });
     drawer.querySelectorAll('.drawer-group').forEach(g => { g.hidden = !g.querySelector('.drawer-item:not([hidden])'); });
-    drawer.querySelector('.drawer-kids').hidden = !!q;
+    drawer.querySelectorAll('.drawer-kids').forEach(a => { a.hidden = !!q; });
     drawer.querySelector('.drawer-empty').hidden = !!drawer.querySelector('.drawer-item:not([hidden])');
   });
 

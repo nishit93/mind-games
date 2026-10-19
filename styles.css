@@ -480,3 +480,37 @@ h1 {
 .install-actions { display: flex; align-items: center; gap: 6px; }
 .install-actions .btn { margin: 0; padding: 8px 14px; }
 .install-close { border: 0; background: transparent; color: var(--muted); font-size: 1rem; cursor: pointer; padding: 6px; }
+
+/* Favourites and progress */
+.tile-wrap { position: relative; display: flex; min-width: 0; }
+.tile-wrap .tile-link { flex: 1; padding-right: 40px; }
+.heart {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 32px;
+  height: 32px;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--muted);
+  font: inherit;
+  font-size: 1.15rem;
+  line-height: 1;
+  cursor: pointer;
+}
+.heart:hover, .heart:focus-visible { background: var(--board); outline: none; }
+.heart[aria-pressed="true"], .fav-btn[aria-pressed="true"] { color: #D9776A; }
+.stat-row { display: flex; gap: 10px; margin-top: 12px; }
+.stat-row > div { flex: 1; background: var(--surface); border-radius: 16px; padding: 12px 8px; text-align: center; box-shadow: var(--shadow); }
+.stat-row b { display: block; font-size: 1.5rem; font-weight: 700; line-height: 1.1; }
+.stat-row small { color: var(--muted); font-size: .78rem; }
+.progress-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+.progress-actions .btn { margin: 0; padding: 8px 14px; font-size: .88rem; }
+
+/* Keep long game names on one line next to the three header buttons */
+@media (max-width: 420px) {
+  header.top { gap: 10px; }
+  header.top .icon-btn { width: 40px; height: 40px; }
+  header.top h1 { font-size: 1.4rem; }
+}

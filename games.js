@@ -1,4 +1,7 @@
 // The game list. kids: true marks games that suit children (they also open on their easiest setting from the Kids section).
+// Address of the Mind Games API (leave empty until the server is live). Without it, progress stays on the device.
+var MG_CONFIG = { api: '' };
+
 var SECTIONS = [
   { id: 'logic', name: 'Logic', blurb: 'Grids and rules to reason through' },
   { id: 'math', name: 'Math & numbers', blurb: 'Sums, targets and number tricks' },

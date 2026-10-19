@@ -12,10 +12,7 @@
   let tiles = new Map(); // tile number -> element
   let moves = 0, startedAt = 0, timer = 0, solved = false;
 
-  const store = {
-    get(k) { try { return localStorage.getItem(k); } catch { return null; } },
-    set(k, v) { try { localStorage.setItem(k, v); } catch {} },
-  };
+  const store = MG.store;
 
   const fmt = ms => {
     const s = Math.floor(ms / 1000);
