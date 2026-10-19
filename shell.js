@@ -35,7 +35,7 @@
   // Opened from the Kids section: games start on their easiest setting.
   const kids = new URLSearchParams(location.search).has('kids');
   const href = (g, kidsLink = false) => `${root}games/${g.id}/${kidsLink && g.kids ? '?kids' : ''}`;
-  const icon = g => `<span class="mini${g.icon.length > 2 ? ' small' : ''}" aria-hidden="true">${g.icon}</span>`;
+  const icon = g => `<span class="mini sec-${g.sec}${g.icon.length > 2 ? ' small' : ''}" aria-hidden="true">${g.icon}</span>`;
 
   // Remember recently played games for the home page.
   if (game) {

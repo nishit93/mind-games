@@ -20,34 +20,20 @@
 <body>
   <main class="wrap home">
     <input class="search" id="search" type="search" placeholder="Find a game" aria-label="Find a game">
-    <div class="chips" id="chips" role="group" aria-label="Show"></div>
-    <section id="recent" class="home-section" hidden>
-      <h2>Continue playing</h2>
-      <div class="tiles" id="recent-tiles"></div>
-    </section>
-    <section id="fav-block" class="home-section" hidden>
-      <h2>Your favourites</h2>
-      <div class="tiles" id="fav-tiles"></div>
-    </section>
-    <a class="kids-banner" id="kids-banner" href="#kids">
-      <span class="kids-star" aria-hidden="true">★</span>
-      <span><b>Great for kids</b><small>Gentle games that build counting, memory and logic</small></span>
-    </a>
+    <div id="view"></div>
     <div class="install" id="install" hidden>
-      <img src="icon-192.png" alt="" width="44" height="44">
+      <img src="icon-192.png" alt="" width="36" height="36">
       <div>
-        <b>Keep Mind Games on your phone</b>
-        <small id="install-text">Add it to your home screen to play like an app, even offline.</small>
+        <b>Install Mind Games</b>
+        <small id="install-text">Play like an app, even offline.</small>
       </div>
       <div class="install-actions">
         <button class="btn" id="install-btn" hidden>Install</button>
         <button class="install-close" id="install-close" aria-label="Not now">✕</button>
       </div>
     </div>
-    <div id="sections"></div>
-    <p class="empty" id="empty" hidden>No game matches that search.</p>
-    <section id="progress" class="home-section" hidden>
-      <h2>Your progress</h2>
+    <details id="progress" class="howto" hidden>
+      <summary>Your progress and backup</summary>
       <div class="stat-row">
         <div><b id="p-streak">0</b><small>day streak</small></div>
         <div><b id="p-plays">0</b><small>games played</small></div>
@@ -56,82 +42,110 @@
       <p class="section-blurb" id="p-status"></p>
       <div class="progress-actions" id="p-actions"></div>
       <p class="section-blurb" id="p-note" aria-live="polite"></p>
-    </section>
+    </details>
   </main>
   <script src="games.js"></script>
   <script src="progress.js"></script>
   <script src="shell.js"></script>
   <script>
     (() => {
-      const chipsEl = document.getElementById('chips');
-      const sectionsEl = document.getElementById('sections');
+      const view = document.getElementById('view');
       const search = document.getElementById('search');
-      const P = window.MGProgress;
-      const FILTERS = [{ id: 'all', name: 'All' }, { id: 'kids', name: '★ Kids' }, { id: 'favs', name: '♥ Favourites' }, ...SECTIONS];
+      // The home page must draw even if progress tracking is missing (for example an old cached shell.js plus a failed progress.js).
+      const P = window.MGProgress || {
+        _stub: true, onChange() {}, isFav: () => false, favs: () => [], configured: () => false, syncEnabled: () => false,
+        summary: () => ({ streak: 0, plays: 0, favourites: 0, days: 0 }), status: () => ({ status: 'off', lastSync: 0, hasPlayer: false }),
+      };
+      const byId = id => GAMES.find(g => g.id === id);
+      const secName = g => SECTIONS.find(s => s.id === g.sec).name;
+      const iconClass = g => ` sec-${g.sec}${g.icon.length > 2 ? ' small' : ''}`;
 
-      const tile = (g, kidsLink) => {
+      // ---- Pieces: hero, shelves of icon cards, and list rows ----
+      const card = (g, kidsLink) => `
+        <a class="gcard" href="games/${g.id}/${kidsLink ? '?kids' : ''}" role="listitem">
+          <span class="gicon${iconClass(g)}" aria-hidden="true">${g.icon}</span>
+          <span class="gname">${g.name}</span>
+        </a>`;
+
+      const shelf = (id, title, games, kidsLink) => `
+        <section class="shelf" data-shelf="${id}">
+          <div class="shelf-head"><h2>${title}</h2><a class="see-all" href="#${id}">See all ${games.length} ›</a></div>
+          <div class="rail" role="list">${games.map(g => card(g, kidsLink)).join('')}</div>
+        </section>`;
+
+      const row = (g, kidsLink) => {
         const on = P.isFav(g.id);
         return `
-        <div class="tile-wrap">
-          <a class="tile-link" href="games/${g.id}/${kidsLink ? '?kids' : ''}">
-            <span class="mini${g.icon.length > 2 ? ' small' : ''}" aria-hidden="true">${g.icon}</span>
-            <span><b>${g.name}${g.kids && !kidsLink ? ' <i class="kid" title="Great for kids">★</i>' : ''}</b><small>${g.blurb}</small></span>
+        <div class="item">
+          <a class="item-link" href="games/${g.id}/${kidsLink ? '?kids' : ''}">
+            <span class="mini${iconClass(g)}" aria-hidden="true">${g.icon}</span>
+            <span class="item-text"><b>${g.name}${g.kids && !kidsLink ? ' <i class="kid" title="Great for kids">★</i>' : ''}</b><small>${g.blurb}</small></span>
           </a>
           ${P._stub ? '' : `<button class="heart" data-fav="${g.id}" aria-pressed="${on}" aria-label="${on ? 'Remove ' + g.name + ' from favourites' : 'Add ' + g.name + ' to favourites'}">${on ? '♥' : '♡'}</button>`}
         </div>`;
       };
 
-      chipsEl.innerHTML = FILTERS.map(f => `<button class="chip" data-f="${f.id}">${f.name}</button>`).join('');
-      const byId = id => GAMES.find(g => g.id === id);
+      // One big, obvious thing to do: carry on where you left off, or try something new.
+      function hero() {
+        const last = (MG.store.json('recent') || []).map(byId).find(Boolean);
+        const g = last || GAMES[Math.floor(Date.now() / 86400000) % GAMES.length];
+        return `
+        <a class="hero" href="games/${g.id}/">
+          <span class="gicon${iconClass(g)}" aria-hidden="true">${g.icon}</span>
+          <span class="hero-text">
+            <span class="hero-label">${last ? 'Continue playing' : 'Today’s pick'}</span>
+            <b>${g.name}</b>
+            <small>${g.blurb}</small>
+          </span>
+          <span class="play" aria-hidden="true">▶</span>
+        </a>`;
+      }
+
       let favSig = '';
 
+      // ---- The views ----
       function draw() {
         const f = location.hash.slice(1) || 'all';
         const q = search.value.trim().toLowerCase();
-        chipsEl.querySelectorAll('.chip').forEach(c => c.setAttribute('aria-pressed', String(c.dataset.f === f)));
         const favList = P.favs().map(byId).filter(Boolean);
         favSig = favList.map(g => g.id).join();
+        let html;
 
-        let groups;
-        if (f === 'kids') groups = [{ id: 'kids', name: 'Great for kids', blurb: 'Each one opens on its easiest setting', games: GAMES.filter(g => g.kids), kidsLink: true }];
-        else if (f === 'favs') groups = [{ id: 'favs', name: 'Your favourites', blurb: 'The games you have hearted', games: favList }];
-        else groups = SECTIONS.filter(s => f === 'all' || s.id === f).map(s => ({ ...s, games: GAMES.filter(g => g.sec === s.id) }));
-
-        sectionsEl.innerHTML = groups.map(s => {
-          const list = s.games.filter(g => !q || `${g.name} ${g.origin} ${g.blurb} ${SECTIONS.find(x => x.id === g.sec).name}`.toLowerCase().includes(q));
-          if (!list.length) return '';
-          return `<section class="home-section">
-              <h2>${s.name} <small>${list.length}</small></h2>
-              <p class="section-blurb">${s.blurb}</p>
-              <div class="tiles">${list.map(g => tile(g, s.kidsLink)).join('')}</div>
-            </section>`;
-        }).join('');
-        const empty = document.getElementById('empty');
-        empty.hidden = !!sectionsEl.innerHTML.trim();
-        empty.textContent = f === 'favs' && !q ? 'No favourites yet. Tap the ♡ on any game to keep it here.' : 'No game matches that search.';
-        document.getElementById('kids-banner').hidden = f !== 'all' || !!q;
-
-        const recent = (MG.store.json('recent') || []).map(byId).filter(Boolean);
-        document.getElementById('recent').hidden = !recent.length || f !== 'all' || !!q;
-        document.getElementById('recent-tiles').innerHTML = recent.slice(0, 4).map(g => tile(g)).join('');
-
-        document.getElementById('fav-block').hidden = !favList.length || f !== 'all' || !!q;
-        document.getElementById('fav-tiles').innerHTML = favList.slice(0, 8).map(g => tile(g)).join('');
-
-        drawProgress(f, q);
+        if (q) {
+          const found = GAMES.filter(g => `${g.name} ${g.origin} ${g.blurb} ${secName(g)}`.toLowerCase().includes(q));
+          html = found.length
+            ? `<div class="list">${found.map(g => row(g)).join('')}</div>`
+            : '<p class="empty">No game matches that search.</p>';
+        } else if (f === 'all' || !(f === 'kids' || f === 'favs' || SECTIONS.some(s => s.id === f))) {
+          html = hero()
+            + (favList.length ? shelf('favs', '♥ Your favourites', favList) : '')
+            + shelf('kids', '★ Great for kids', GAMES.filter(g => g.kids), true)
+            + SECTIONS.map(s => shelf(s.id, s.name, GAMES.filter(g => g.sec === s.id))).join('');
+        } else {
+          const info = f === 'kids' ? { name: 'Great for kids', blurb: 'Each one opens on its easiest setting', games: GAMES.filter(g => g.kids), kids: true }
+            : f === 'favs' ? { name: 'Your favourites', blurb: 'The games you have hearted', games: favList }
+            : { ...SECTIONS.find(s => s.id === f), games: GAMES.filter(g => g.sec === f) };
+          html = `
+            <div class="topbar"><a class="back" href="#all">‹ All games</a></div>
+            <h2 class="view-title">${info.name} <small>${info.games.length}</small></h2>
+            <p class="section-blurb">${info.blurb}</p>
+            ${info.games.length ? `<div class="list">${info.games.map(g => row(g, info.kids)).join('')}</div>` : '<p class="empty">No favourites yet. Tap the ♡ on any game to keep it here.</p>'}`;
+        }
+        view.innerHTML = html;
+        drawProgress();
       }
 
       // Last resort: a plain list of every game, so the home page can never be empty.
       function fallback() {
-        sectionsEl.innerHTML = SECTIONS.map(s => `<section class="home-section"><h2>${s.name}</h2><div class="tiles">${
-          GAMES.filter(g => g.sec === s.id).map(g => `<div class="tile-wrap"><a class="tile-link" href="games/${g.id}/"><span class="mini${g.icon.length > 2 ? ' small' : ''}" aria-hidden="true">${g.icon}</span><span><b>${g.name}</b><small>${g.blurb}</small></span></a></div>`).join('')
+        view.innerHTML = SECTIONS.map(s => `<section class="shelf"><h2>${s.name}</h2><div class="list">${
+          GAMES.filter(g => g.sec === s.id).map(g => `<div class="item"><a class="item-link" href="games/${g.id}/"><span class="mini${iconClass(g)}" aria-hidden="true">${g.icon}</span><span class="item-text"><b>${g.name}</b><small>${g.blurb}</small></span></a></div>`).join('')
         }</div></section>`).join('');
       }
       function safeDraw() {
         try { draw(); } catch (err) { console.error('Home page drawing failed, showing the plain list:', err); try { fallback(); } catch {} }
       }
 
-      // ---- Your progress ----
+      // ---- Streak line, and the folded away progress and backup section ----
       const when = ms => new Date(ms).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
       function statusText() {
         if (!P.configured()) return 'Your progress is saved on this device.';
@@ -144,9 +158,15 @@
           error: 'Could not reach the server. Saved on this device. Trying again soon.',
         }[s.status] || 'Saved on this device. Backing up soon.';
       }
-      function drawProgress(f = location.hash.slice(1) || 'all', q = search.value.trim()) {
+      function drawProgress() {
         const sum = P.summary();
-        document.getElementById('progress').hidden = f !== 'all' || !!q || (!sum.plays && !sum.favourites);
+        const has = sum.plays > 0 || sum.favourites > 0;
+        // One quiet line under the title instead of a big panel.
+        const sub = document.querySelector('header.top .sub');
+        if (sub) sub.textContent = sum.plays > 0
+          ? [sum.streak > 0 ? `${sum.streak}-day streak` : '', `${sum.plays} game${sum.plays === 1 ? '' : 's'} played`].filter(Boolean).join(' · ')
+          : 'Quiet puzzles from around the world.';
+        document.getElementById('progress').hidden = !has;
         document.getElementById('p-streak').textContent = sum.streak;
         document.getElementById('p-plays').textContent = sum.plays;
         document.getElementById('p-favs').textContent = sum.favourites;
@@ -191,15 +211,7 @@
         try { if (sig !== favSig) draw(); else drawProgress(); } catch (err) { console.error(err); }
       });
 
-      chipsEl.addEventListener('click', e => {
-        const c = e.target.closest('.chip');
-        if (!c) return;
-        history.replaceState(null, '', c.dataset.f === 'all' ? location.pathname : `#${c.dataset.f}`);
-        safeDraw();
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-      });
-
-      // Install card: the browser's own prompt where available, Share-sheet instructions on iPhone and iPad.
+      // Install: a slim strip, using the browser's own prompt where there is one, and Share-sheet steps on iPhone and iPad.
       const install = document.getElementById('install');
       const standalone = matchMedia('(display-mode: standalone)').matches || navigator.standalone;
       const ios = /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
@@ -226,7 +238,7 @@
       window.addEventListener('appinstalled', () => { install.hidden = true; });
 
       search.addEventListener('input', safeDraw);
-      window.addEventListener('hashchange', safeDraw);
+      window.addEventListener('hashchange', () => { search.value = ''; safeDraw(); window.scrollTo(0, 0); });
       safeDraw();
     })();
   </script>

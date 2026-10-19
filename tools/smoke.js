@@ -66,12 +66,18 @@
     for (const [label, data] of Object.entries(STATES)) {
       seed(data);
       const { d, w, close } = await open('', 700);
-      const tiles = d.querySelectorAll('#sections .tile-link').length;
-      check('Home page', `${label}: shows all ${GAMES.length} games`, tiles === GAMES.length, `${tiles} shown`);
-      check('Home page', `${label}: has search and filters`, d.querySelectorAll('.chip').length >= 7 && !!d.getElementById('search'));
+      // Every game must be reachable from the home page itself (the menu is not counted).
+      const reachable = new Set([...d.querySelectorAll('main a[href*="games/"]')].map(a => (a.getAttribute('href').match(/games\/([a-z0-9-]+)\//) || [])[1]).filter(Boolean));
+      check('Home page', `${label}: shows all ${GAMES.length} games`, reachable.size === GAMES.length, `${reachable.size} shown`);
+      check('Home page', `${label}: has search`, !!d.getElementById('search'));
       if (!lenient) {
         check('Home page', `${label}: progress features are running`, w.MGProgress && !w.MGProgress._stub, `MGProgress is ${typeof w.MGProgress}${w.MGProgress && w.MGProgress._stub ? ' (fallback)' : ''}`);
-        check('Home page', `${label}: every game has a heart`, d.querySelectorAll('#sections .heart').length === GAMES.length);
+        const shelves = [...d.querySelectorAll('.shelf[data-shelf]')].map(s => s.dataset.shelf);
+        check('Home page', `${label}: one big pick plus a shelf for every section`, !!d.querySelector('.hero') && SECTIONS.every(s => shelves.includes(s.id)) && shelves.includes('kids'), `shelves: ${shelves.join(', ')}`);
+        const height = d.documentElement.scrollHeight;
+        check('Home page', `${label}: stays compact (under 2.6 phone screens)`, height <= 2.6 * 812, `${height}px tall`);
+        if (label.startsWith('returning')) check('Home page', 'the hero continues the last game played', d.querySelector('.hero b') && d.querySelector('.hero b').textContent === 'Sudoku' && /Continue/.test(d.querySelector('.hero-label').textContent));
+        if (label === 'new visitor') check('Home page', 'a new visitor gets a pick for today', d.querySelector('.hero-label') && /pick/i.test(d.querySelector('.hero-label').textContent));
       }
       if (!lenient && label.startsWith('returning')) {
         const st = w.MGProgress && w.MGProgress._state();
@@ -83,18 +89,25 @@
     // 3. Home page features (favourites, filters, search).
     if (!lenient) {
       seed({});
-      const { d, w, close } = await open('', 600);
-      const heart = d.querySelector('#sections .heart[data-fav="hanoi"]');
-      heart && heart.click();
-      await sleep(100);
-      check('Home features', 'hearting a game adds it to Your favourites', w.MGProgress.isFav('hanoi') && [...d.querySelectorAll('#fav-tiles .tile-link b')].some(b => /Hanoi/.test(b.textContent)));
-      d.querySelector('.chip[data-f="favs"]').click(); await sleep(100);
-      check('Home features', 'Favourites filter lists it', [...d.querySelectorAll('#sections .tile-link b')].some(b => /Hanoi/.test(b.textContent)));
-      d.querySelector('.chip[data-f="kids"]').click(); await sleep(100);
-      check('Home features', 'Kids filter lists the kids games', d.querySelectorAll('#sections .tile-link').length === GAMES.filter(g => g.kids).length);
-      d.querySelector('.chip[data-f="all"]').click();
-      const s = d.getElementById('search'); s.value = 'solitaire'; s.dispatchEvent(new Event('input')); await sleep(100);
-      check('Home features', 'search finds games', d.querySelectorAll('#sections .tile-link').length >= 3);
+      const { d, w, close } = await open('#logic', 700);
+      const logic = GAMES.filter(g => g.sec === 'logic');
+      check('Home features', 'See all lists a whole section, with a heart on every row', d.querySelectorAll('.item').length === logic.length && d.querySelectorAll('.heart').length === logic.length, `${d.querySelectorAll('.item').length} rows, ${d.querySelectorAll('.heart').length} hearts`);
+      check('Home features', 'See all has a way back', !!d.querySelector('.back'));
+      d.querySelector('.heart[data-fav="sudoku"]').click(); await sleep(100);
+      check('Home features', 'hearting a game remembers it', w.MGProgress.isFav('sudoku'));
+      w.location.hash = '#all'; await sleep(300);
+      check('Home features', 'the home page then shows a Your favourites shelf', !!d.querySelector('.shelf[data-shelf="favs"] .gcard'));
+      w.location.hash = '#favs'; await sleep(300);
+      check('Home features', 'the Favourites list shows it', /Sudoku/.test((d.querySelector('.list') || {}).textContent || ''));
+      w.location.hash = '#kids'; await sleep(300);
+      check('Home features', 'the Kids list shows every kids game', d.querySelectorAll('.item').length === GAMES.filter(g => g.kids).length);
+      w.location.hash = '#math'; await sleep(300);
+      check('Home features', 'every section opens its own list', d.querySelectorAll('.item').length === GAMES.filter(g => g.sec === 'math').length);
+      w.location.hash = '#all'; await sleep(300);
+      const s = d.getElementById('search'); s.value = 'solitaire'; s.dispatchEvent(new Event('input')); await sleep(150);
+      check('Home features', 'search finds games', d.querySelectorAll('.item').length >= 3);
+      s.value = 'zzzz'; s.dispatchEvent(new Event('input')); await sleep(100);
+      check('Home features', 'search says so when nothing matches', !!d.querySelector('.empty'));
       close();
     }
 
