@@ -104,7 +104,7 @@
       d.querySelector('.heart[data-fav="sudoku"]').click(); await sleep(100);
       check('Home features', 'hearting a game remembers it', w.MGProgress.isFav('sudoku'));
       w.location.hash = '#all'; await sleep(300);
-      check('Home features', 'the home page then shows a Your favourites shelf', !!d.querySelector('.shelf[data-shelf="favs"] .gcard'));
+      check('Home features', 'the home page then shows a Your favourites shelf', !!d.querySelector('.lists-shelf .chip[data-chip="favs"]') && !!d.querySelector('.lists-shelf .gcard'));
       w.location.hash = '#favs'; await sleep(300);
       check('Home features', 'the Favourites list shows it', /Sudoku/.test((d.querySelector('.list') || {}).textContent || ''));
       w.location.hash = '#kids'; await sleep(300);
@@ -329,7 +329,7 @@
       const game = await open('games/golf/', 500);
       game.d.querySelector('.fav-btn').click();
       await sleep(400);
-      check('Back button', 'a favourite chosen on a game page shows on the open home page without a refresh', !!home.d.querySelector('.shelf[data-shelf="favs"]'));
+      check('Back button', 'a favourite chosen on a game page shows on the open home page without a refresh', !!home.d.querySelector('.lists-shelf .chip[data-chip="favs"]'));
       home.w.localStorage.setItem('recent', '["golf"]');
       home.w.dispatchEvent(new PageTransitionEvent('pageshow', { persisted: true }));
       await sleep(200);
@@ -389,7 +389,7 @@
 
       const listId = made[0].id;
       h = await open('', 700);
-      check('Game lists', 'the home page shows the list next to Favourites', !!h.d.querySelector('.shelf[data-shelf="favs"]') && !!h.d.querySelector('.shelf[data-shelf="l-' + listId + '"] .gcard'));
+      check('Game lists', 'the home page shows Favourites and the list as chips in one row, and the chosen list games below', (() => { const row = h.d.querySelector('.lists-shelf .chips'); const chips = row ? [...row.querySelectorAll('.chip[data-chip]')].map(c => c.dataset.chip) : []; return chips.join() === 'favs,' + listId; })() && (() => { h.d.querySelector('.chip[data-chip="' + listId + '"]').click(); return !!h.d.querySelector('.lists-shelf .gcard') && h.d.querySelector('.chip[aria-pressed="true"]').dataset.chip === listId; })());
       h.w.location.hash = '#lists'; await sleep(400);
       check('Game lists', 'Your lists shows Favourites and the new list', h.d.querySelectorAll('.item').length === 2 && !!h.d.querySelector('[data-newlist]'));
       h.w.location.hash = '#l-' + listId; await sleep(400);

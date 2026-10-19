@@ -62,8 +62,9 @@
       len++;
       lives = 2;
       draw();
+      const r1 = round;
       await MG.wait(1300);
-      play();
+      if (r1 === round) play();
       return;
     }
     lives--;
@@ -73,8 +74,9 @@
       (bestThisGame ? ov.win : ov.show)(bestThisGame ? `${bestThisGame} digits` : 'Keep practising', bestThisGame ? `You held ${bestThisGame} digits ${mode === 'forward' ? 'forwards' : 'backwards'}.` : 'Try grouping the digits in pairs as they appear.', 'Play again', start, 900);
       return;
     }
+    const r2 = round;
     await MG.wait(1800);
-    play();
+    if (r2 === round) play();
   }
 
   function start() {

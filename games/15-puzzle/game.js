@@ -105,6 +105,7 @@
     if (isSolved()) finish();
   }
 
+  let winTimer = 0;
   function tick() { timeEl.textContent = fmt(Date.now() - startedAt); }
 
   function finish() {
@@ -119,7 +120,8 @@
     document.getElementById('win-text').textContent =
       `${moves} moves in ${fmt(ms)}${isBest ? ' · a new best' : ''}`;
     showBest();
-    setTimeout(() => winEl.classList.add('show'), 500);
+    clearTimeout(winTimer);
+    winTimer = setTimeout(() => winEl.classList.add('show'), 500);
   }
 
   function showBest() {
@@ -132,6 +134,7 @@
     store.set('fifteen-size', n);
     sizeBtns.forEach(b => b.setAttribute('aria-pressed', String(+b.dataset.size === n)));
     clearInterval(timer);
+    clearTimeout(winTimer);
     moves = 0; startedAt = 0; solved = false;
     movesEl.textContent = '0';
     timeEl.textContent = '0:00';

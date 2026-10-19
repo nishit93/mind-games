@@ -75,7 +75,7 @@
 
   function start({ force = false } = {}) {
     const game = window.MG && MG.game;
-    const stage = document.querySelector('.stage');
+    const stage = document.querySelector('.stage, .board');
     const steps = game && STEPS[game.id];
     if (!steps || !stage) return false;
     token++;

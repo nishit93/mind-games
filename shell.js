@@ -27,7 +27,22 @@
     json(k) { try { return JSON.parse(store.get(k)); } catch { return null; } },
   };
 
+  // Saved scores that are not plain numbers (damaged by an old version, a bug or hand editing) would show as "NaN" or
+  // as raw text. Drop them before any game reads them, so the game simply starts with no best score.
+  try {
+    for (const k of Object.keys(localStorage)) {
+      if (/^fifteen-best-\d+$/.test(k)) {
+        let ok = false;
+        try { const b = JSON.parse(localStorage.getItem(k)); ok = b && Number.isFinite(b.moves) && b.moves >= 0 && (b.ms === undefined || Number.isFinite(b.ms)); } catch {}
+        if (!ok) localStorage.removeItem(k);
+      } else if (/-best(-|$)/.test(k) || /-(solved|wins)$/.test(k)) {
+        if (!/^\d{1,12}(\.\d+)?$/.test(String(localStorage.getItem(k)))) localStorage.removeItem(k);
+      }
+    }
+  } catch {}
+
   const fmt = ms => {
+    if (!Number.isFinite(+ms) || ms < 0) return '–'; // a damaged saved time must not show as NaN
     const s = Math.floor(ms / 1000);
     return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
   };
@@ -332,6 +347,14 @@
     const b = lvButtons().find(x => x.getAttribute('aria-pressed') === 'true' || x.classList.contains('on') || x.classList.contains('active'));
     return b ? String(lvBtnValue(b)) : (LV && store.get(LV[0]) != null ? String(store.get(LV[0])) : null);
   };
+  // A saved level that is not one of this game's buttons (damaged data, or a level removed in an update) would crash some games: forget it.
+  if (LV) {
+    try {
+      const values = lvButtons().map(b => String(lvBtnValue(b)));
+      const cur = localStorage.getItem(LV[0]);
+      if (cur !== null && values.length && !values.includes(cur)) localStorage.removeItem(LV[0]);
+    } catch {}
+  }
   if (LV && !kids) {
     try {
       const order = lvButtons().map(b => String(lvBtnValue(b)));
@@ -443,5 +466,6 @@
   // Show the gesture tutorial on arrival, until a level of this game has been won.
   if (game && !tutorialDone()) setTimeout(() => loadTutorial(false), 200);
 
-  if ('serviceWorker' in navigator) navigator.serviceWorker.register(`${root}sw.js`);
+  // Offline support is a bonus: if it cannot start (private browsing, an old browser, a blocked file) nothing else may notice.
+  try { if ('serviceWorker' in navigator) navigator.serviceWorker.register(`${root}sw.js`).catch(() => {}); } catch {}
 })();

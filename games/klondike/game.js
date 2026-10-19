@@ -97,7 +97,8 @@
     if (finishing) return;
     finishing = true;
     snapshot();
-    while (!s.found.every(f => f.length === 13)) {
+    const mine = s;
+    while (s === mine && !s.found.every(f => f.length === 13)) {
       let movedOne = false;
       for (const col of s.tab) {
         const t = top(col);
@@ -108,7 +109,7 @@
       await MG.wait(60);
     }
     finishing = false;
-    check();
+    if (s === mine) check();
   }
 
   function render() {

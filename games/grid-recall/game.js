@@ -64,8 +64,9 @@
         MG.store.set('recall-grid-best', best);
         status.textContent = 'All found. One more next time.';
         level++;
+        const r1 = round;
         await MG.wait(700);
-        play();
+        if (r1 === round) play();
       }
       return;
     }
@@ -82,8 +83,9 @@
       return;
     }
     status.textContent = `That square wasn't lit. The ringed squares were. ${lives} ${lives === 1 ? 'try' : 'tries'} left.`;
+    const r2 = round;
     await MG.wait(1600);
-    play();
+    if (r2 === round) play();
   }
 
   function start() {

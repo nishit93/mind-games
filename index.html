@@ -166,6 +166,26 @@
         </div>`;
       };
 
+      // Favourites and every list of the player's, side by side as chips; the games of the chosen chip are on the shelf below.
+      let chosen = MG.store.get('mg-chip') || 'favs';
+      function listsShelf(cols, km) {
+        const custom = cols.filter(c => !c.fav);
+        if (!custom.length && !gamesOf(cols[0] || { games: [] }).length) return '';   // nothing saved yet: keep the home page short
+        const cur = cols.find(c => c.id === chosen) || cols[0];
+        const games = gamesOf(cur);
+        return `
+        <section class="shelf lists-shelf" data-shelf="mylists">
+          <div class="chips" role="group" aria-label="Your lists">
+            ${cols.map(c => `<button class="chip" data-chip="${c.id}" aria-pressed="${c.id === cur.id}">${c.fav ? '♥ ' : ''}${esc(c.name)} <small>${gamesOf(c).length}</small></button>`).join('')}
+            ${P._stub ? '' : '<a class="chip chip-add" href="#lists">＋ New list</a>'}
+          </div>
+          <div class="shelf-head"><h2>${cur.fav ? '♥ ' : ''}${esc(cur.name)}</h2><a class="see-all" href="#${hashFor(cur)}">See all ${games.length} ›</a></div>
+          ${games.length
+            ? `<div class="rail" role="list">${games.map(g => card(g, km)).join('')}</div>`
+            : `<p class="empty-rail">${cur.fav ? 'Tap the ♡ on any game to keep it here.' : 'Nothing here yet. Tap the ＋ on any game to add it.'}</p>`}
+        </section>`;
+      }
+
       // One big, obvious thing to do: carry on where you left off, or try something new.
       function hero() {
         const pool = GAMES.filter(vis);
@@ -223,9 +243,8 @@
             ${current.fav ? '' : '<div class="list-actions"><button class="btn ghost" data-act="rename-list" data-list="' + current.id + '">Rename</button><button class="btn ghost" data-act="delete-list" data-list="' + current.id + '">Delete list</button></div>'}
             ${games.length ? `<div class="list">${games.map(g => row(g, km, current.fav ? '' : current.id)).join('')}</div>` : `<p class="empty">${current.fav ? 'No favourites yet. Tap the ♡ on any game to keep it here.' : 'Nothing here yet. Tap the ＋ on any game to add it.'}</p>`}`;
         } else if (f === 'all' || !(f === 'kids' || SECTIONS.some(s => s.id === f))) {
-          const listShelves = cols.filter(c => gamesOf(c).length).map(c => shelf(hashFor(c), `${c.fav ? '♥ ' : ''}${esc(c.name)}`, gamesOf(c), km));
           html = hero()
-            + listShelves.join('')
+            + listsShelf(cols, km)
             + (km ? '' : shelf('kids', `${M.FACE || ''} Great for kids`, GAMES.filter(g => g.kids), true))
             + SECTIONS.map(s => ({ s, games: GAMES.filter(g => g.sec === s.id && vis(g)) })).filter(x => x.games.length).map(x => shelf(x.s.id, x.s.name, x.games, km)).join('')
             + (P._stub ? '' : '<p class="lists-link"><a href="#lists">Your lists and favourites ›</a></p>');
@@ -287,6 +306,8 @@
       const note = text => { document.getElementById('p-note').textContent = text; };
 
       document.addEventListener('click', async e => {
+        const chip = e.target.closest('[data-chip]');
+        if (chip) { chosen = chip.dataset.chip; MG.store.set('mg-chip', chosen); safeDraw(); return; }
         const heart = e.target.closest('[data-fav]');
         if (heart) { P.toggleFav(heart.dataset.fav); return; }
         const add = e.target.closest('[data-addlist]');

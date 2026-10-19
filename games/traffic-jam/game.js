@@ -103,7 +103,7 @@
 
   function attach(car) {
     let start = null;
-    car.el.addEventListener('pointerdown', e => { start = { x: e.clientX, y: e.clientY }; car.el.setPointerCapture?.(e.pointerId); });
+    car.el.addEventListener('pointerdown', e => { start = { x: e.clientX, y: e.clientY }; try { car.el.setPointerCapture?.(e.pointerId); } catch {} });
     car.el.addEventListener('pointerup', e => {
       if (!start) return;
       const delta = car.h ? e.clientX - start.x : e.clientY - start.y;

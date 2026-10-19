@@ -9,10 +9,11 @@
   if (!ov.win) ov.win = ov.show; // an older shell.js has no celebration: show the plain message
 
   let size = MG.kids ? 12 : +MG.store.get('memory-size') || 16;
-  let deck, cards, open, matched, turns, lock;
+  let deck, cards, open, matched, turns, lock, gen = 0;
 
   function newGame(n = size) {
     size = n;
+    gen++;
     MG.store.set('memory-size', size);
     const kinds = MG.shuffle([...PICTURES.keys()]).slice(0, size / 2);
     deck = MG.shuffle([...kinds, ...kinds]);
@@ -42,7 +43,7 @@
   }
 
   async function flip(i) {
-    if (lock || matched.has(i) || open.includes(i)) return;
+    if (lock || matched.has(i) || open.includes(i) || !cards[i]) return;
     clock.start();
     show(i, true);
     open.push(i);
@@ -59,7 +60,9 @@
       if (matched.size === deck.length) finish();
     } else {
       lock = true;
+      const mine = gen;
       await MG.wait(900);
+      if (mine !== gen) return; // a new game began meanwhile
       show(a, false);
       show(b, false);
       lock = false;

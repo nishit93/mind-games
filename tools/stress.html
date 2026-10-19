@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex">
+  <title>Stress test · Mind Games</title>
+  <style>
+    body { font: 15px/1.5 system-ui, sans-serif; margin: 16px auto; max-width: 860px; padding: 0 16px; color: #3b312b; background: #f0eee9; }
+    h1 { font-size: 1.3rem; margin: 0 0 4px; }
+    .note { color: #7d7470; margin: 0 0 14px; font-size: .9rem; }
+    .row { padding: 5px 10px; border-radius: 8px; margin: 2px 0; background: #f8f6f2; font-size: .9rem; }
+    .row.fail { background: #f6d9d4; }
+    .row small { color: #7d7470; display: block; word-break: break-word; }
+    h2 { font-size: 1rem; margin: 18px 0 4px; }
+    #title.pass { color: #3d7a4a; } #title.fail { color: #b0463b; }
+  </style>
+</head>
+<body>
+  <h1 id="title">Stress test running…</h1>
+  <p class="note">Hammers every game, every flow and every kind of saved data with random taps, keys, swipes, odd saved values and odd list names,
+    and fails on any error, "NaN"/"undefined" on screen, overflow on a narrow phone, or unnamed button.
+    Options: <code>?run=games,flows,states,tutorial,layout</code> (default all), <code>?from=0&amp;to=38</code> to test some games only, <code>?taps=60</code>.
+    It borrows this browser's saved data for a moment and puts it back afterwards. It never talks to the real server.</p>
+  <div id="out"></div>
+  <script src="../games.js"></script>
+  <script src="stress.js"></script>
+</body>
+</html>

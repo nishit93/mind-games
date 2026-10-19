@@ -103,7 +103,7 @@
     let start = null;
     p.el.addEventListener('pointerdown', e => {
       start = { x: e.clientX, y: e.clientY };
-      p.el.setPointerCapture?.(e.pointerId);
+      try { p.el.setPointerCapture?.(e.pointerId); } catch {}
     });
     p.el.addEventListener('pointerup', e => {
       if (!start) return;
