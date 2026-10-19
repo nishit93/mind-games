@@ -5,7 +5,7 @@
   const clock = MG.clock(document.getElementById('time'));
   const ov = MG.overlay(document.querySelector('.stage'));
 
-  let n = +MG.store.get('lights-n') || 5;
+  let n = MG.kids ? 3 : +MG.store.get('lights-n') || 5;
   let on, cells, moves, done;
 
   function flip(i) {

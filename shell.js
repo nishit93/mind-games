@@ -56,7 +56,7 @@
       <div class="drawer-group">
         <a class="drawer-heading" href="${root}#${s.id}">${s.name}</a>
         ${GAMES.filter(g => g.sec === s.id).map(g => `
-          <a class="drawer-item${g === game ? ' current' : ''}" href="${href(g)}" data-name="${g.name.toLowerCase()} ${g.origin.toLowerCase()}"${g === game ? ' aria-current="page"' : ''}>
+          <a class="drawer-item${g === game ? ' current' : ''}" href="${href(g)}" data-name="${g.name.toLowerCase()} ${g.origin.toLowerCase()} ${s.name.toLowerCase()}"${g === game ? ' aria-current="page"' : ''}>
             ${icon(g)}
             <span><b>${g.name}${g.kids ? ' <i class="kid" title="Great for kids">★</i>' : ''}</b><small>${g.origin}</small></span>
           </a>`).join('')}

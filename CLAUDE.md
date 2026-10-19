@@ -14,12 +14,16 @@ A calm website of single-player puzzle and mind games from around the world. Liv
 
 ## How the code is organised
 
-- `games.js`: the list of games (id, name, origin, icon, blurb). The menu, the home page and the offline cache all read it.
-- `shell.js`: shared header, hamburger games menu, How to play toggle, and helpers on `window.MG` (`store`, `fmt`, `overlay`, `seg`, `clock`, `wait`, `shuffle`).
+- `games.js`: the sections (`SECTIONS`: logic, math, moves, memory, cards) and the list of games (`GAMES`: id, sec, name, origin, icon, blurb, and `kids: true` for games that suit children). The menu, the home page and the offline cache all read it.
+- `shell.js`: shared header, hamburger menu (grouped by section, with search), "More in …" links under each game, recently played, and helpers on `window.MG` (`kids`, `store`, `fmt`, `overlay`, `seg`, `clock`, `wait`, `shuffle`).
+- **Kids:** games opened from the Kids section get `?kids` in the URL, and `MG.kids` is true. Kid-tagged games must then start on their easiest setting.
+- `index.html`: home page with search, filter chips (All, Kids, each section), Continue playing, and the games by section.
 - `styles.css`: shared styles and colour tokens.
-- `sw.js`: offline support (network first, cache as fallback). Bump `CACHE` when the file list changes.
+- `shared/`: code used by several games: `combine.js` (Make 24, Target Number), `latin.js` (Futoshiki, Skyscrapers), `cards.js` (Klondike, Pyramid, Golf).
+- `sw.js`: offline support (network first, cache as fallback). Bump `CACHE` when the file list changes, and list any new `shared/` file there.
 - `games/<id>/index.html` holds the page and its How to play text; `games/<id>/game.js` holds the game logic.
-- To add a game, copy an existing game folder's structure and add one entry to `games.js`.
+- To add a game, copy an existing game folder's structure and add one entry to `games.js` with its section.
+- Puzzles that promise one solution or a "fewest possible" number must be checked with a solver (in the game, or offline when levels are fixed).
 
 ## Local preview
 

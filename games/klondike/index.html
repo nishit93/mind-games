@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Klondike · Mind Games</title>
+  <meta name="theme-color" content="#F0EEE9">
+  <link rel="manifest" href="../../manifest.webmanifest">
+  <link rel="icon" href="../../icon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap">
+  <link rel="stylesheet" href="../../styles.css">
+  <link rel="stylesheet" href="../../shared/cards.css">
+</head>
+<body data-game="klondike">
+  <main class="wrap">
+    <div class="stats">
+      <span>Moves <b id="moves">0</b></span>
+      <span>Time <b id="time">0:00</b></span>
+      <span>Wins <b id="wins">0</b></span>
+    </div>
+
+    <div class="stage"><div class="table" id="table"></div></div>
+    <p class="status" id="status"></p>
+
+    <div class="controls">
+      <div class="seg" id="draw" role="group" aria-label="Cards drawn">
+        <button data-value="1">Draw 1</button>
+        <button data-value="3">Draw 3</button>
+      </div>
+      <div class="actions">
+        <button class="btn ghost" id="undo">Undo</button>
+        <button class="btn" id="new">New deal</button>
+      </div>
+    </div>
+
+    <details class="howto">
+      <summary>How to play</summary>
+      <h3>Goal</h3>
+      <p>Move all 52 cards onto the four foundation piles at the top right, one pile per suit, from Ace up to King.</p>
+      <h3>The layout</h3>
+      <ul>
+        <li><b>Tableau:</b> seven columns below. Only the bottom card of each is face up at the start.</li>
+        <li><b>Stock:</b> the face-down pile at the top left. Tap it to turn cards onto the waste pile beside it.</li>
+        <li><b>Foundations:</b> four spaces at the top right, built up by suit from Ace to King.</li>
+      </ul>
+      <h3>How it works</h3>
+      <ul>
+        <li>In the columns, build downwards in alternating colours: a red 7 on a black 8, then a black 6 on that, and so on.</li>
+        <li>Tap a card to move it. It goes to a foundation if it can, otherwise to the best column. Tapping a card in the middle of a column moves it together with the cards on top of it.</li>
+        <li>Only a King (or a run starting with a King) can move into an empty column.</li>
+        <li>When a face-down card is uncovered, it turns over by itself.</li>
+        <li>When the stock runs out, tap its space to turn the waste pile back over. You can go through it as often as you like.</li>
+        <li><b>Draw 1</b> turns one card at a time and is easier. <b>Draw 3</b> turns three, and only the top one can be played.</li>
+        <li>When every card is face up, a Finish button sends the rest home for you. Undo works at any time.</li>
+      </ul>
+      <h3>Tips</h3>
+      <ul>
+        <li>Uncover face-down cards whenever you can, starting with the longest columns.</li>
+        <li>Don't rush cards to the foundations: a low card in a column can be a useful place to build.</li>
+        <li>Only empty a column if you have a King ready to move into it.</li>
+      </ul>
+      <h3>A little history</h3>
+      <p>Klondike is thought to be named after the Klondike Gold Rush in Canada in the 1890s, where prospectors are said to have played it. It became the world's best-known patience game when it came free with home computers in the 1990s.</p>
+    </details>
+  </main>
+  <script src="../../games.js"></script>
+  <script src="../../shell.js"></script>
+  <script src="../../shared/cards.js"></script>
+  <script src="game.js"></script>
+</body>
+</html>

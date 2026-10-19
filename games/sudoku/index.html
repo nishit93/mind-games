@@ -47,6 +47,8 @@
     .cell.sel { background: color-mix(in srgb, var(--tile-home) 70%, var(--surface)); }
     .cell.clash { color: #C0564B; }
     .cell:focus-visible { outline: none; }
+    .mini .cell { font-size: clamp(1.6rem, 9vw, 2.4rem); }
+    .mini { gap: 6px; padding: 6px; }
     .pad {
       display: grid;
       grid-template-columns: repeat(5, 1fr);
@@ -81,6 +83,7 @@
 
     <div class="controls">
       <div class="seg" id="level" role="group" aria-label="Difficulty">
+        <button data-value="mini">Mini</button>
         <button data-value="easy">Easy</button>
         <button data-value="medium">Medium</button>
         <button data-value="hard">Hard</button>
@@ -100,6 +103,7 @@
         <li>A number that repeats in a row, column or box turns red, so you can spot clashes.</li>
         <li>A number on the keypad fades once all nine of it are placed.</li>
         <li>Every puzzle has exactly one solution.</li>
+        <li><b>Mini</b> is a 4×4 grid with 2×2 boxes and only the numbers 1 to 4. It is the perfect first Sudoku, especially for children.</li>
       </ul>
       <h3>Tips</h3>
       <ul>

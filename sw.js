@@ -1,9 +1,10 @@
 // Network first so updates show up right away; fall back to cache offline.
 importScripts('games.js');
 
-const CACHE = 'mind-games-v3';
+const CACHE = 'mind-games-v4';
 const SHELL = [
   './', 'index.html', 'styles.css', 'games.js', 'shell.js', 'icon.svg', 'manifest.webmanifest',
+  'shared/combine.js', 'shared/combine.css', 'shared/latin.js', 'shared/latin.css', 'shared/cards.js', 'shared/cards.css',
   ...GAMES.flatMap(g => [`games/${g.id}/`, `games/${g.id}/game.js`]),
 ];
 

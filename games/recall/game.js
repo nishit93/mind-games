@@ -8,7 +8,7 @@
   const soundBtn = document.getElementById('sound');
   const ov = MG.overlay(document.querySelector('.stage'));
 
-  let speed = MG.store.get('sequence-speed') || 'calm';
+  let speed = MG.kids ? 'calm' : MG.store.get('sequence-speed') || 'calm';
   let soundOn = MG.store.get('sequence-sound') !== 'off';
   let seq = [], pos = 0, listening = false, game = 0;
   let audio;

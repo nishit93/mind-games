@@ -160,5 +160,5 @@
   document.getElementById('again').addEventListener('click', () => newGame());
   new ResizeObserver(layout).observe(board);
 
-  newGame(+store.get('fifteen-size') || 4);
+  newGame(MG.kids ? 3 : +store.get('fifteen-size') || 4);
 })();

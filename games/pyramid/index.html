@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Pyramid · Mind Games</title>
+  <meta name="theme-color" content="#F0EEE9">
+  <link rel="manifest" href="../../manifest.webmanifest">
+  <link rel="icon" href="../../icon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap">
+  <link rel="stylesheet" href="../../styles.css">
+  <link rel="stylesheet" href="../../shared/cards.css">
+</head>
+<body data-game="pyramid">
+  <main class="wrap">
+    <div class="stats">
+      <span>Pyramid left <b id="left">28</b></span>
+      <span>Passes left <b id="passes">2</b></span>
+      <span>Wins <b id="wins">0</b></span>
+    </div>
+
+    <div class="stage"><div class="table" id="table"></div></div>
+    <p class="status" id="status"></p>
+
+    <div class="controls">
+      <div class="actions">
+        <button class="btn ghost" id="undo">Undo</button>
+        <button class="btn" id="new">New deal</button>
+      </div>
+    </div>
+
+    <details class="howto">
+      <summary>How to play</summary>
+      <h3>Goal</h3>
+      <p>Clear all 28 cards of the pyramid by removing pairs that add up to 13.</p>
+      <h3>Card values</h3>
+      <p>Ace is 1, number cards are their number, Jack is 11, Queen is 12 and King is 13. The small number on picture cards shows their value.</p>
+      <h3>How it works</h3>
+      <ul>
+        <li>A card can be used once no card overlaps it from the row below. Covered cards look dimmer.</li>
+        <li>Tap two free cards that add up to 13 to remove them: Ace + Queen, 2 + Jack, 3 + 10, 4 + 9, 5 + 8 or 6 + 7.</li>
+        <li>A King is 13 on its own: tap it to remove it.</li>
+        <li>Tap the stock (bottom left) to turn a card onto the waste pile. The top waste card can be paired with any free pyramid card.</li>
+        <li>When the stock runs out you may turn the waste over and go through it again, twice.</li>
+      </ul>
+      <h3>Tips</h3>
+      <ul>
+        <li>Before pairing, check which cards it will uncover. Free the cards that are blocking the most.</li>
+        <li>If there are two ways to make a pair, choose the one that clears the pyramid rather than the waste.</li>
+        <li>This game is great for practising number bonds to 13.</li>
+      </ul>
+      <h3>A little history</h3>
+      <p>Pyramid is a patience game that has been played in Europe for well over a century. It became widely known through computer solitaire collections, and is loved because it mixes luck with quick arithmetic.</p>
+    </details>
+  </main>
+  <script src="../../games.js"></script>
+  <script src="../../shell.js"></script>
+  <script src="../../shared/cards.js"></script>
+  <script src="game.js"></script>
+</body>
+</html>

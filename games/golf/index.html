@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Golf · Mind Games</title>
+  <meta name="theme-color" content="#F0EEE9">
+  <link rel="manifest" href="../../manifest.webmanifest">
+  <link rel="icon" href="../../icon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap">
+  <link rel="stylesheet" href="../../styles.css">
+  <link rel="stylesheet" href="../../shared/cards.css">
+</head>
+<body data-game="golf">
+  <main class="wrap">
+    <div class="stats">
+      <span>Cards left <b id="left">35</b></span>
+      <span>Stock <b id="stock">16</b></span>
+      <span>Best <b id="best">–</b></span>
+    </div>
+
+    <div class="stage"><div class="table" id="table"></div></div>
+    <p class="status" id="status"></p>
+
+    <div class="controls">
+      <div class="actions">
+        <button class="btn ghost" id="undo">Undo</button>
+        <button class="btn" id="new">New deal</button>
+      </div>
+    </div>
+
+    <details class="howto">
+      <summary>How to play</summary>
+      <h3>Goal</h3>
+      <p>Clear all seven columns by moving their cards onto the pile at the bottom.</p>
+      <h3>How it works</h3>
+      <ul>
+        <li>Tap the bottom card of any column to move it onto the pile, if it is <b>one higher or one lower</b> than the pile's top card. Suits don't matter.</li>
+        <li>So on a 7 you can play a 6 or an 8. Then on that 8, a 7 or a 9, and so on.</li>
+        <li>Aces and Kings don't wrap round: only a 2 goes on an Ace, and only a Queen goes on a King.</li>
+        <li>When you're stuck, tap the stock to turn a new card onto the pile.</li>
+        <li>The game ends when the columns are clear (you win) or the stock is empty with no moves left. Like golf, a lower score is better: your score is the cards left in the columns.</li>
+      </ul>
+      <h3>Tips</h3>
+      <ul>
+        <li>Look ahead for long runs: 5, 6, 7, 6, 5 clears five cards from one stock card.</li>
+        <li>When you have a choice, play the card that uncovers something useful in its column.</li>
+        <li>Save the stock: every card you draw is one less chance later.</li>
+      </ul>
+      <h3>A little history</h3>
+      <p>Golf is a patience game from the early 1900s, usually traced to Britain, and named for its scoring: like a round of golf, the lower your score, the better.</p>
+    </details>
+  </main>
+  <script src="../../games.js"></script>
+  <script src="../../shell.js"></script>
+  <script src="../../shared/cards.js"></script>
+  <script src="game.js"></script>
+</body>
+</html>

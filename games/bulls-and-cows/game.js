@@ -6,7 +6,7 @@
   const bestEl = document.getElementById('best');
   const ov = MG.overlay(document.querySelector('.stage'));
 
-  let len = +MG.store.get('bulls-len') || 4;
+  let len = MG.kids ? 3 : +MG.store.get('bulls-len') || 4;
   let secret, guess, guesses, done;
 
   keypad.innerHTML = [1, 2, 3, 4, 5, 6, 7, 8, 9, 0].map(d => `<button class="key" data-d="${d}">${d}</button>`).join('')

@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Mahjong Solitaire · Mind Games</title>
+  <meta name="theme-color" content="#F0EEE9">
+  <link rel="manifest" href="../../manifest.webmanifest">
+  <link rel="icon" href="../../icon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap">
+  <link rel="stylesheet" href="../../styles.css">
+  <style>
+    .mj {
+      position: relative;
+      background: color-mix(in srgb, #88B04B 18%, var(--board));
+      border-radius: calc(var(--radius) + 4px);
+      user-select: none;
+    }
+    .tile {
+      position: absolute;
+      border: 0;
+      padding: 0;
+      border-radius: 6px;
+      background: #FBF8F4;
+      box-shadow: 2px 3px 0 #D9C9B8, 3px 5px 6px rgb(74 59 51 / .25);
+      font-family: "Noto Serif SC", "Noto Serif CJK SC", "SimSun", "Songti SC", serif;
+      font-weight: 700;
+      display: grid;
+      place-items: center;
+      cursor: pointer;
+      transition: transform .15s ease, box-shadow .15s ease, filter .2s ease;
+    }
+    .tile.blocked { filter: brightness(.88) saturate(.8); cursor: default; }
+    .tile.sel { transform: translateY(-3px); box-shadow: 0 0 0 3px var(--accent), 3px 6px 8px rgb(74 59 51 / .3); }
+    .tile.hint { box-shadow: 0 0 0 3px #D9905F, 3px 5px 6px rgb(74 59 51 / .25); }
+  </style>
+</head>
+<body data-game="mahjong-solitaire">
+  <main class="wrap">
+    <div class="stats">
+      <span>Tiles <b id="left">0</b></span>
+      <span>Free pairs <b id="pairs">0</b></span>
+      <span>Time <b id="time">0:00</b></span>
+    </div>
+
+    <div class="stage"><div class="mj" id="board"></div></div>
+    <p class="status" id="status"></p>
+
+    <div class="controls">
+      <button class="btn ghost" id="hint" style="margin-left:0">Hint</button>
+      <div class="actions">
+        <button class="btn ghost" id="undo">Undo</button>
+        <button class="btn" id="new">New deal</button>
+      </div>
+    </div>
+
+    <details class="howto">
+      <summary>How to play</summary>
+      <h3>Goal</h3>
+      <p>Clear the board by removing matching tiles in pairs.</p>
+      <h3>How it works</h3>
+      <ul>
+        <li>Tap two identical tiles to remove them. Only <b>free</b> tiles can be picked.</li>
+        <li>A tile is free when no tile lies on top of it, and its left or right side is open (no tile right next to it on that side, on the same layer).</li>
+        <li>Blocked tiles look slightly dimmer.</li>
+        <li>Hint shows a free pair. Undo takes back your last pair. If no free pair is left, the tiles are reshuffled for you so you can keep going.</li>
+        <li>Every deal can be cleared.</li>
+      </ul>
+      <h3>The tiles</h3>
+      <p>Numbers 一 to 九 (one to nine), the winds 東 南 西 北 (east, south, west, north), the dragons 中 發 白, the seasons 春 夏 秋 冬, and the flowers 梅 蘭 竹 菊 (plum, orchid, bamboo, chrysanthemum).</p>
+      <h3>Tips</h3>
+      <ul>
+        <li>Work from the top down and from the ends inwards: tiles on top and at the ends of long rows block the most.</li>
+        <li>When several pairs are free, pick the one that frees the most new tiles.</li>
+        <li>If all four tiles of a kind are free at once, you can clear them in any order.</li>
+      </ul>
+      <h3>A little history</h3>
+      <p>The tiles come from mahjong, a four-player game from China in the 1800s. The one-player matching game was created in the United States in 1981 by Brodie Lockard, and is now one of the world's most popular solitaire games.</p>
+    </details>
+  </main>
+  <script src="../../games.js"></script>
+  <script src="../../shell.js"></script>
+  <script src="game.js"></script>
+</body>
+</html>

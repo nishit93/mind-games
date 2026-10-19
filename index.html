@@ -55,7 +55,7 @@
         else groups = SECTIONS.filter(s => f === 'all' || s.id === f).map(s => ({ ...s, games: GAMES.filter(g => g.sec === s.id) }));
 
         sectionsEl.innerHTML = groups.map(s => {
-          const list = s.games.filter(g => !q || `${g.name} ${g.origin} ${g.blurb}`.toLowerCase().includes(q));
+          const list = s.games.filter(g => !q || `${g.name} ${g.origin} ${g.blurb} ${SECTIONS.find(x => x.id === g.sec).name}`.toLowerCase().includes(q));
           if (!list.length) return '';
           return `<section class="home-section">
               <h2>${s.name} <small>${list.length}</small></h2>

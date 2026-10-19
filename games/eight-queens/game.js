@@ -9,7 +9,7 @@
   const shadeBtn = document.getElementById('shade');
   const ov = MG.overlay(document.querySelector('.stage'));
 
-  let n = +MG.store.get('queens-n') || 8;
+  let n = MG.kids ? 5 : +MG.store.get('queens-n') || 8;
   let shade = MG.store.get('queens-shade') !== 'off';
   let queens, cells, solved;
 

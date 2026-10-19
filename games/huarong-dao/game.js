@@ -14,7 +14,7 @@
   const bestEl = document.getElementById('best');
   const ov = MG.overlay(document.querySelector('.stage'));
 
-  let level = +MG.store.get('huarong-level') || 0;
+  let level = MG.kids ? 0 : +MG.store.get('huarong-level') || 0;
   let pieces, moves, done;
 
   function parse(rows) {

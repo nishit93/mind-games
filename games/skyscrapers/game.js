@@ -78,6 +78,12 @@
       const i = free[Math.floor(Math.random() * free.length)];
       given[i] = solution[i];
     }
+    // Drop any given square the clues don't actually need.
+    for (const i of MG.shuffle([...Array(n * n).keys()])) {
+      if (!given[i]) continue;
+      given[i] = 0;
+      if (count(clues, given, 2) !== 1) given[i] = solution[i];
+    }
     // Hide clues while the city stays unique, keeping at least half of them for a gentler puzzle.
     const slots = MG.shuffle(['top', 'bottom', 'left', 'right'].flatMap(s => [...Array(n).keys()].map(k => [s, k])));
     let shown = 4 * n;

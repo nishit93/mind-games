@@ -5,7 +5,7 @@
   const bestEl = document.getElementById('best');
   const ov = MG.overlay(document.querySelector('.stage'));
 
-  let n = +MG.store.get('hanoi-n') || 4;
+  let n = MG.kids ? 3 : +MG.store.get('hanoi-n') || 4;
   let pegs, held, moves, done;
 
   function newGame(size = n) {

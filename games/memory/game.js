@@ -7,7 +7,7 @@
   const clock = MG.clock(document.getElementById('time'));
   const ov = MG.overlay(document.querySelector('.stage'));
 
-  let size = +MG.store.get('memory-size') || 16;
+  let size = MG.kids ? 12 : +MG.store.get('memory-size') || 16;
   let deck, cards, open, matched, turns, lock;
 
   function newGame(n = size) {

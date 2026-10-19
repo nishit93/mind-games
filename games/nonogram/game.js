@@ -4,7 +4,7 @@
   const clock = MG.clock(document.getElementById('time'));
   const ov = MG.overlay(document.querySelector('.stage'));
 
-  let n = +MG.store.get('nonogram-n') || 5;
+  let n = MG.kids ? 5 : +MG.store.get('nonogram-n') || 5;
   let mode = 'fill';
   let target, state, rowClues, colClues, cells, rowEls, colEls, done;
 
