@@ -29,6 +29,17 @@ code=$(get -o /dev/null -w '%{http_code}' "${SITE}games/sudoku/")
 body=$(get "$API/v1/health")
 case "$body" in *'"ok":true'*) fine "progress server health" ;; *) problem "progress server health said: ${body:-nothing}" ;; esac
 
+# 3b. Backups keep happening: the newest local backup and the last off-server upload must be under 36 hours old.
+# (An older server that does not report ages, or off-server backup not set up yet, is noted but is not a problem.)
+age_of() { echo "$body" | sed -n "s/.*\"$1\":\([0-9.]*\).*/\1/p"; }
+for field in backupAgeHours offsiteAgeHours; do
+  label="nightly backup"; [ "$field" = offsiteAgeHours ] && label="off-server backup"
+  age=$(age_of "$field")
+  if [ -z "$age" ]; then echo "note: no $label reported yet"
+  elif awk "BEGIN{exit !($age < 36)}"; then fine "$label is $age hours old"
+  else problem "$label is $age hours old (should be under 36)"; fi
+done
+
 # 4. The website is allowed to talk to the server (browser access rules).
 code=$(get -o /dev/null -w '%{http_code}' -X OPTIONS -H "Origin: $ORIGIN" -H "Access-Control-Request-Method: POST" "$API/v1/sync")
 [ "$code" = 204 ] && fine "website may call the server" || problem "browser access check answered HTTP $code (expected 204)"
