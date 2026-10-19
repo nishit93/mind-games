@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Knight's Tour · Mind Games</title>
+  <meta name="theme-color" content="#F0EEE9">
+  <link rel="manifest" href="../../manifest.webmanifest">
+  <link rel="icon" href="../../icon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap">
+  <link rel="stylesheet" href="../../styles.css">
+  <style>
+    .grid {
+      display: grid;
+      gap: 3px;
+      background: var(--board);
+      border-radius: calc(var(--radius) + 4px);
+      padding: 8px;
+      aspect-ratio: 1;
+    }
+    .sq {
+      position: relative;
+      border: 0;
+      padding: 0;
+      border-radius: 8px;
+      background: var(--surface);
+      color: var(--tile-text);
+      font: inherit;
+      font-weight: 700;
+      font-size: clamp(.75rem, 3.6vw, 1.05rem);
+      cursor: pointer;
+      transition: background-color .3s ease;
+    }
+    .sq.dark { background: color-mix(in srgb, var(--board) 60%, var(--surface)); }
+    .sq.visited { background: color-mix(in srgb, var(--tile) 70%, var(--surface)); }
+    .sq.knight { background: var(--tile); font-size: clamp(1.2rem, 6vw, 1.9rem); }
+    .sq.next::after {
+      content: '';
+      position: absolute;
+      inset: 28%;
+      border-radius: 50%;
+      box-shadow: inset 0 0 0 3px var(--accent);
+    }
+    .sq:focus-visible { outline: 3px solid var(--accent); outline-offset: 1px; }
+  </style>
+</head>
+<body data-game="knights-tour">
+  <main class="wrap">
+    <div class="stats">
+      <span>Visited <b id="count">0</b> of <b id="total">25</b></span>
+      <span>Best <b id="best">–</b></span>
+    </div>
+
+    <div class="stage"><div class="grid" id="grid"></div></div>
+    <p class="status" id="status">Tap any square to place the knight.</p>
+
+    <div class="controls">
+      <div class="seg" id="size" role="group" aria-label="Board size">
+        <button data-value="5">5×5</button>
+        <button data-value="6">6×6</button>
+        <button data-value="8">8×8</button>
+      </div>
+      <div class="actions">
+        <button class="btn ghost" id="undo">Undo</button>
+        <button class="btn" id="new">Restart</button>
+      </div>
+    </div>
+
+    <details class="howto">
+      <summary>How to play</summary>
+      <h3>Goal</h3>
+      <p>Move a chess knight so it lands on every square of the board exactly once.</p>
+      <h3>How it works</h3>
+      <ul>
+        <li>Tap any square to place the knight there. That is square 1.</li>
+        <li>The knight moves in an L-shape: two squares in one direction, then one square to the side.</li>
+        <li>The squares you can move to are shown with rings. Tap one to jump. Each square you visit gets its number.</li>
+        <li>You can't land on a square twice. If no ring is left, you're stuck. Use Undo to step back and try another path.</li>
+        <li>Choose 5×5 to learn, 6×6 for a challenge, or the full 8×8 chessboard.</li>
+      </ul>
+      <h3>Tips</h3>
+      <ul>
+        <li><b>Warnsdorff's rule:</b> always jump to the square that has the fewest onward moves of its own. Squares near edges and corners are easy to strand, so visit them early. This simple rule finds a full tour almost every time.</li>
+        <li>On the 5×5 board, start in a corner or on a square of the same shade as the corners. From the other squares a full tour is impossible.</li>
+        <li>Keep the centre for last: it has the most ways out, so it's the safest place to be late in the tour.</li>
+      </ul>
+      <h3>A little history</h3>
+      <p>The oldest known knight's tour appears in a Sanskrit poem by the Indian poet Rudrata in the 800s, where the knight's path spelled out verses. Mathematicians such as Leonhard Euler later studied it, and H. C. von Warnsdorff published his famous rule in 1823.</p>
+    </details>
+  </main>
+  <script src="../../games.js"></script>
+  <script src="../../shell.js"></script>
+  <script src="game.js"></script>
+</body>
+</html>

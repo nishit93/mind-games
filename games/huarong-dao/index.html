@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Huarong Dao · Mind Games</title>
+  <meta name="theme-color" content="#F0EEE9">
+  <link rel="manifest" href="../../manifest.webmanifest">
+  <link rel="icon" href="../../icon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap">
+  <link rel="stylesheet" href="../../styles.css">
+  <style>
+    .frame {
+      background: var(--board);
+      border-radius: calc(var(--radius) + 4px);
+      padding: 8px 8px 0;
+      max-width: 380px;
+      margin: 0 auto;
+    }
+    .tray {
+      position: relative;
+      aspect-ratio: 4 / 5;
+      touch-action: none;
+      user-select: none;
+    }
+    .exit {
+      height: 8px;
+      margin: 6px 25% 0;
+      border-radius: 4px 4px 0 0;
+      background: var(--tile-home);
+      opacity: .7;
+    }
+    .piece {
+      position: absolute;
+      border: 0;
+      padding: 0;
+      border-radius: 12px;
+      background: var(--tile);
+      color: var(--tile-text);
+      font: inherit;
+      font-weight: 600;
+      font-size: .8rem;
+      box-shadow: 0 2px 6px rgb(74 59 51 / .18), inset 0 -3px 0 rgb(0 0 0 / .08);
+      cursor: grab;
+      transition: left .2s cubic-bezier(.3, .7, .3, 1), top .2s cubic-bezier(.3, .7, .3, 1);
+      display: grid;
+      place-items: center;
+    }
+    .piece.general { background: var(--tile-home); color: var(--tile-home-text); font-size: 1rem; }
+    .piece.small { background: color-mix(in srgb, var(--tile) 55%, var(--surface)); }
+    .piece:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+  </style>
+</head>
+<body data-game="huarong-dao">
+  <main class="wrap">
+    <div class="stats">
+      <span>Moves <b id="moves">0</b></span>
+      <span>Fewest possible <b id="min">19</b></span>
+      <span>Best <b id="best">–</b></span>
+    </div>
+
+    <div class="stage">
+      <div class="frame">
+        <div class="tray" id="tray"></div>
+        <div class="exit" aria-hidden="true"></div>
+      </div>
+    </div>
+
+    <div class="controls">
+      <div class="seg" id="level" role="group" aria-label="Level">
+        <button data-value="0" aria-label="Level 1">1</button>
+        <button data-value="1" aria-label="Level 2">2</button>
+        <button data-value="2" aria-label="Level 3">3</button>
+        <button data-value="3" aria-label="Level 4">4</button>
+        <button data-value="4" aria-label="Level 5, the classic">5</button>
+      </div>
+      <button class="btn" id="restart">Restart</button>
+    </div>
+
+    <details class="howto">
+      <summary>How to play</summary>
+      <h3>Goal</h3>
+      <p>Slide the blocks around until the big peach block, the general, reaches the exit at the bottom of the board.</p>
+      <h3>How it works</h3>
+      <ul>
+        <li>Blocks slide up, down, left or right into empty space. They can't be lifted or turned.</li>
+        <li>Swipe a block in the direction you want it to go. Swipe further to slide it two squares if there is room.</li>
+        <li>Or simply tap a block: if it can only move one way, it moves there.</li>
+        <li>Each slide counts as one move. Try to get close to the fewest possible.</li>
+        <li>Levels 1 to 5 get harder. Level 5 is the classic starting position, which takes 90 moves at best.</li>
+      </ul>
+      <h3>Tips</h3>
+      <ul>
+        <li>The general needs a 2×2 hole to move into. Look for ways to gather the two empty spaces side by side.</li>
+        <li>The small square blocks are your most flexible pieces. Use them to shuffle space around.</li>
+        <li>The wide horizontal block is often the main obstacle. Plan early how to get it out of the general's way.</li>
+        <li>If you go round in circles, restart and try moving a different block first.</li>
+      </ul>
+      <h3>A little history</h3>
+      <p>The puzzle retells a story from the Chinese classic <i>Romance of the Three Kingdoms</i>: the warlord Cao Cao, defeated at Red Cliffs, escapes through the narrow Huarong Pass guarded by the general Guan Yu. Sliding-block puzzles like it spread worldwide in the early 1900s, and in China it remains one of the best-loved traditional puzzles.</p>
+    </details>
+  </main>
+  <script src="../../games.js"></script>
+  <script src="../../shell.js"></script>
+  <script src="game.js"></script>
+</body>
+</html>

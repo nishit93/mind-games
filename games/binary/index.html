@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Binary · Mind Games</title>
+  <meta name="theme-color" content="#F0EEE9">
+  <link rel="manifest" href="../../manifest.webmanifest">
+  <link rel="icon" href="../../icon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap">
+  <link rel="stylesheet" href="../../styles.css">
+  <style>
+    .grid {
+      display: grid;
+      gap: 5px;
+      background: var(--board);
+      border-radius: calc(var(--radius) + 4px);
+      padding: 10px;
+      aspect-ratio: 1;
+    }
+    .b {
+      position: relative;
+      border: 0;
+      padding: 0;
+      border-radius: 50%;
+      background: var(--surface);
+      cursor: pointer;
+      transition: background-color .25s ease, box-shadow .25s ease;
+    }
+    .b.v0 { background: var(--tile); }
+    .b.v1 { background: var(--tile-home); }
+    .b.given { cursor: default; }
+    .b.given::after {
+      content: '';
+      position: absolute;
+      inset: 40%;
+      border-radius: 50%;
+      background: rgb(255 255 255 / .55);
+    }
+    .b.bad { box-shadow: 0 0 0 3px #C0564B; }
+    .solved .b { box-shadow: none; }
+    .b:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+    .legend { display: inline-block; width: .9em; height: .9em; border-radius: 50%; vertical-align: -.1em; }
+    .legend.v0 { background: var(--tile); }
+    .legend.v1 { background: var(--tile-home); }
+  </style>
+</head>
+<body data-game="binary">
+  <main class="wrap">
+    <div class="stats">
+      <span>Time <b id="time">0:00</b></span>
+      <span>Best <b id="best">–</b></span>
+    </div>
+
+    <div class="stage"><div class="grid" id="grid"></div></div>
+    <p class="status" id="status"></p>
+
+    <div class="controls">
+      <div class="seg" id="size" role="group" aria-label="Grid size">
+        <button data-value="6">6×6</button>
+        <button data-value="8">8×8</button>
+      </div>
+      <button class="btn" id="new">New puzzle</button>
+    </div>
+
+    <details class="howto">
+      <summary>How to play</summary>
+      <h3>Goal</h3>
+      <p>Fill every circle with one of two colours, <span class="legend v0"></span> brown or <span class="legend v1"></span> peach, so that all three rules are met.</p>
+      <h3>The rules</h3>
+      <ol>
+        <li><b>No three in a row.</b> Never more than two circles of the same colour next to each other, across or down.</li>
+        <li><b>Half and half.</b> Every row and every column has as many brown circles as peach ones.</li>
+        <li><b>No twins.</b> No two rows are exactly the same, and no two columns are exactly the same.</li>
+      </ol>
+      <h3>How it works</h3>
+      <ul>
+        <li>Tap an empty circle to make it brown, tap again for peach, and once more to empty it.</li>
+        <li>Circles with a small white dot are given and can't be changed.</li>
+        <li>A red ring warns you about a broken rule: three in a row, or too many of one colour in a line.</li>
+        <li>Every puzzle has exactly one solution.</li>
+      </ul>
+      <h3>Tips</h3>
+      <ul>
+        <li><b>Pairs:</b> two of the same colour side by side must have the other colour on both ends.</li>
+        <li><b>Gaps:</b> two of the same colour with one space between them must have the other colour in the gap.</li>
+        <li><b>Counting:</b> once a row has its half of one colour, every empty circle in it takes the other colour.</li>
+        <li>Use the twins rule last, when a row is nearly full and looks like a finished one.</li>
+      </ul>
+      <h3>A little history</h3>
+      <p>Belgian puzzle makers Peter De Schepper and Frank Coussement created this puzzle in 2009, using 0s and 1s, which is why it is often called a binary puzzle. It is also known as Takuzu and Binairo, and it is popular in newspapers across the Netherlands and Belgium.</p>
+    </details>
+  </main>
+  <script src="../../games.js"></script>
+  <script src="../../shell.js"></script>
+  <script src="game.js"></script>
+</body>
+</html>

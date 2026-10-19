@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Eight Queens · Mind Games</title>
+  <meta name="theme-color" content="#F0EEE9">
+  <link rel="manifest" href="../../manifest.webmanifest">
+  <link rel="icon" href="../../icon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap">
+  <link rel="stylesheet" href="../../styles.css">
+  <style>
+    .grid {
+      display: grid;
+      gap: 3px;
+      background: var(--board);
+      border-radius: calc(var(--radius) + 4px);
+      padding: 8px;
+      aspect-ratio: 1;
+    }
+    .sq {
+      border: 0;
+      padding: 0;
+      border-radius: 8px;
+      background: var(--surface);
+      color: var(--tile);
+      font: inherit;
+      font-size: clamp(1.3rem, 7vw, 2.2rem);
+      line-height: 1;
+      cursor: pointer;
+      transition: background-color .3s ease;
+    }
+    .sq.dark { background: color-mix(in srgb, var(--board) 60%, var(--surface)); }
+    .sq.attacked { background: color-mix(in srgb, var(--tile-home) 28%, var(--surface)); }
+    .sq.queen { background: color-mix(in srgb, var(--tile-home) 55%, var(--surface)); }
+    .sq.clash { background: color-mix(in srgb, #C0564B 30%, var(--surface)); color: #A2463C; }
+    .solved .sq.queen { background: var(--tile-home); }
+    .sq:focus-visible { outline: 3px solid var(--accent); outline-offset: 1px; }
+    .found { text-align: center; color: var(--muted); font-size: .9rem; margin-top: 6px; }
+  </style>
+</head>
+<body data-game="eight-queens">
+  <main class="wrap">
+    <div class="stats">
+      <span>Queens <b id="placed">0</b> of <b id="need">8</b></span>
+      <span>Solutions found <b id="found">0</b> of <b id="all">92</b></span>
+    </div>
+
+    <div class="stage"><div class="grid" id="grid"></div></div>
+    <p class="status" id="status">Place a queen on every row, with none attacking another.</p>
+
+    <div class="controls">
+      <div class="seg" id="size" role="group" aria-label="Board size">
+        <button data-value="5">5×5</button>
+        <button data-value="6">6×6</button>
+        <button data-value="8">8×8</button>
+      </div>
+      <div class="actions">
+        <button class="btn ghost" id="shade" aria-pressed="true">Shading on</button>
+        <button class="btn" id="clear">Clear</button>
+      </div>
+    </div>
+
+    <details class="howto">
+      <summary>How to play</summary>
+      <h3>Goal</h3>
+      <p>Place one queen for each row of the board (8 on the 8×8 board) so that no queen can attack another.</p>
+      <h3>How a queen attacks</h3>
+      <p>A chess queen attacks any distance in a straight line: along its row, its column, and both diagonals. So no two queens may share a row, a column or a diagonal.</p>
+      <h3>How it works</h3>
+      <ul>
+        <li>Tap a square to place a queen. Tap it again to remove it.</li>
+        <li>Squares a queen attacks are lightly shaded, so you can see where the next queen can go. Turn the shading off for a harder game.</li>
+        <li>Queens that attack each other turn red.</li>
+        <li>Each board has several different solutions. The game counts how many different ones you have found: 10 on 5×5, 4 on 6×6, and 92 on 8×8.</li>
+      </ul>
+      <h3>Tips</h3>
+      <ul>
+        <li>Work row by row. Place a queen in the first row, then find a safe square in the next row, and so on.</li>
+        <li>When a row has no safe square left, move the queen in the row above to its next safe square and continue. This is called backtracking.</li>
+        <li>Corners are rarely good starts on 8×8. Try the second or third square of the first row.</li>
+        <li>Once you find a solution, try mirroring or rotating it. That often gives a new one.</li>
+      </ul>
+      <h3>A little history</h3>
+      <p>German chess composer Max Bezzel set the puzzle in 1848. Mathematician Carl Friedrich Gauss worked on it, and in 1850 Franz Nauck published all 92 solutions. Today it is a classic first exercise for computer programmers.</p>
+    </details>
+  </main>
+  <script src="../../games.js"></script>
+  <script src="../../shell.js"></script>
+  <script src="game.js"></script>
+</body>
+</html>
