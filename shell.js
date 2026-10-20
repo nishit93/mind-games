@@ -99,10 +99,15 @@
   const kids = new URLSearchParams(location.search).has('kids') || kidMode;
   document.body.classList.toggle('kidmode', kidMode);
   const href = (g, kidsLink = false) => `${root}games/${g.id}/${kidsLink && g.kids ? '?kids' : ''}`;
-  const icon = g => `<span class="mini sec-${g.sec}${g.icon.length > 2 ? ' small' : ''}" aria-hidden="true">${g.icon}</span>`;
+  const HUES = { logic: 352, math: 262, moves: 20, memory: 172, cards: 214 };
+  const hueOf = g => { const same = GAMES.filter(x => x.sec === g.sec); return (HUES[g.sec] || 200) + [-10, 4, -4, 10, 0][Math.max(same.indexOf(g), 0) % 5]; };
+  // On a game page, the pieces take the colour of the game's section.
+  if (game) document.body.style.setProperty('--sec-h', HUES[game.sec] || 200);
+  const iconAttrs = g => `style="--hh:${hueOf(g)}" data-g="${esc(g.icon)}"`;
+  const icon = g => `<span class="mini sec-${g.sec}${g.icon.length > 2 ? ' small' : ''}" ${iconAttrs(g)} aria-hidden="true"><span class="gglyph">${g.icon}</span></span>`;
 
   // The kids badge: a small smiling face and the age range, so it is clear which games are meant for children.
-  const FACE = '<svg class="face" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="7"/><circle cx="5.6" cy="6.7" r="1"/><circle cx="10.4" cy="6.7" r="1"/><path d="M4.9 9.7c.9 1.7 5.3 1.7 6.2 0"/></svg>';
+  const FACE = '<svg class="kface" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="7"/><circle cx="5.6" cy="6.7" r="1"/><circle cx="10.4" cy="6.7" r="1"/><path d="M4.9 9.7c.9 1.7 5.3 1.7 6.2 0"/></svg>';
   const ageText = g => (g && g.ages ? `${g.ages[0]}–${g.ages[1]}` : '');
   const badge = (g, short = false) => g && g.kids
     ? `<span class="kidbadge${short ? ' sm' : ''}" title="Made for children aged ${g.ages ? `${g.ages[0]} to ${g.ages[1]}` : '6 to 11'}">${FACE}<span>${ageText(g) ? `${short ? '' : 'Ages '}${ageText(g)}` : 'Kids'}</span></span>`
@@ -123,7 +128,7 @@
       <span></span><span></span><span></span>
     </button>
     <div class="title">
-      <h1>${game ? game.name : 'Mind Games'}</h1>
+      <h1>${game ? game.name : '<span class="brand-mark" aria-hidden="true"></span>Mind Games'}</h1>
       <p class="sub">${game ? `${game.origin} · <a href="${root}#${section.id}">${section.name}</a>${game.kids ? ` ${badge(game)}` : ''}` : 'Quiet puzzles from around the world.'}</p>
     </div>
     ${game
@@ -299,6 +304,37 @@
     });
   }
   fillDrawer();
+
+  // Bottom tabs (home page only): Explore, Lists, Today's puzzle, Stats and the full menu.
+  if (!game) {
+    const todayHref = () => { try { const p = dailyPick(isKidMode()); return `${root}games/${p.id}/?daily=${p.date}`; } catch { return root; } };
+    const I = {
+      explore: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5L21 21"/></svg>',
+      lists: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20.5s-7.5-4.6-7.5-10A4.3 4.3 0 0 1 12 7.8a4.3 4.3 0 0 1 7.5 2.7c0 5.4-7.5 10-7.5 10z"/></svg>',
+      today: '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="5.5" width="16" height="14.5" rx="3"/><path d="M4 10h16M8.5 3.5v4M15.5 3.5v4"/></svg>',
+      stats: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 20V11M12 20V5M19 20v-6"/></svg>',
+      menu: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>',
+    };
+    const tabs = document.createElement('nav');
+    tabs.className = 'tabbar';
+    tabs.setAttribute('aria-label', 'Main');
+    tabs.innerHTML = `
+      <a class="tab" data-tab="explore" href="#all">${I.explore}<span>Explore</span></a>
+      <a class="tab" data-tab="lists" href="#lists">${I.lists}<span>Lists</span></a>
+      <a class="tab" data-tab="today" href="${todayHref()}">${I.today}<span>Today</span></a>
+      <a class="tab" data-tab="stats" href="#stats">${I.stats}<span>Stats</span></a>
+      <button class="tab" data-tab="menu" type="button" aria-controls="drawer">${I.menu}<span>Menu</span></button>`;
+    document.body.append(tabs);
+    const mark = () => {
+      const f = location.hash.slice(1) || 'all';
+      const on = f === 'lists' || f === 'favs' || f.startsWith('l-') ? 'lists' : f === 'stats' ? 'stats' : 'explore';
+      tabs.querySelectorAll('.tab').forEach(t => { if (t.dataset.tab === on) t.setAttribute('aria-current', 'page'); else t.removeAttribute('aria-current'); });
+    };
+    mark();
+    addEventListener('hashchange', mark);
+    document.addEventListener('mg-kidmode', () => { tabs.querySelector('[data-tab="today"]').href = todayHref(); });
+    tabs.querySelector('[data-tab="menu"]').addEventListener('click', () => setOpen(true));
+  }
 
   const menuBtn = header.querySelector('.menu-btn');
   const setOpen = open => {
@@ -540,7 +576,7 @@
     return a;
   };
 
-  window.MG = { root, game, kids, store, fmt, overlay, seg, clock, wait, shuffle, esc, badge, ageText, isKidMode, setKidMode, saveSheet, daily, dailyDone, dailyStreak, demo: () => loadTutorial(true), FACE };
+  window.MG = { root, game, kids, store, fmt, overlay, seg, clock, wait, shuffle, esc, badge, ageText, iconAttrs, hueOf, isKidMode, setKidMode, saveSheet, daily, dailyDone, dailyStreak, demo: () => loadTutorial(true), FACE };
 
   // Show the gesture tutorial on arrival, until a level of this game has been won.
   if (game && !tutorialDone()) setTimeout(() => loadTutorial(false), 200);

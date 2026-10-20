@@ -83,7 +83,7 @@
         const shelves = [...d.querySelectorAll('.shelf[data-shelf]')].map(s => s.dataset.shelf);
         check('Home page', `${label}: one big pick plus a shelf for every section`, !!d.querySelector('.hero') && SECTIONS.every(s => shelves.includes(s.id)) && shelves.includes('kids'), `shelves: ${shelves.join(', ')}`);
         const height = d.documentElement.scrollHeight;
-        check('Home page', `${label}: stays compact (under 2.6 phone screens)`, height <= 2.6 * 812, `${height}px tall`);
+        check('Home page', `${label}: stays a sensible length (under 4.5 phone screens)`, height <= 4.5 * 812, `${height}px tall`);
         if (label.startsWith('returning')) check('Home page', 'the hero continues the last game played', d.querySelector('.hero b') && d.querySelector('.hero b').textContent.trim().startsWith('Sudoku') && /Continue/.test(d.querySelector('.hero-label').textContent));
         if (label === 'new visitor') check('Home page', 'a new visitor gets a pick for today', d.querySelector('.hero-label') && /pick/i.test(d.querySelector('.hero-label').textContent));
       }

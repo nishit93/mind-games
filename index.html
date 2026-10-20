@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>Mind Games</title>
-  <meta name="theme-color" content="#F0EEE9">
+  <meta name="theme-color" content="#FFFFFF">
   <!-- seo:start -->
   <meta name="description" content="Mind Games is a calm collection of 45 free single-player puzzle and mind games from around the world: Sudoku, Tower of Hanoi, Nonogram, solitaire and more. No sign-up, plays in your browser.">
   <link rel="canonical" href="https://nishit93.github.io/mind-games/">
@@ -25,7 +25,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -95,7 +95,8 @@
       </ul>
     </noscript>
     <!-- seo-list:end -->
-    <input class="search" id="search" type="search" placeholder="Find a game" aria-label="Find a game">
+    <div class="searchbar"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5L21 21"/></svg><input class="search" id="search" type="search" placeholder="Find a game" aria-label="Find a game"></div>
+    <nav class="cats" id="cats" aria-label="Categories"></nav>
     <div id="view"></div>
     <div class="install" id="install" hidden>
       <img src="icon-192.png" alt="" width="36" height="36">
@@ -145,17 +146,27 @@
       const gamesOf = c => c.games.map(byId).filter(g => g && vis(g));
       const hashFor = c => (c.fav ? 'favs' : `l-${c.id}`);
 
-      // ---- Pieces: hero, shelves of icon cards, and list rows ----
+      // ---- Pieces: cards with artwork, shelves, and list rows ----
+      const art = g => (M.iconAttrs ? M.iconAttrs(g) : '');
+      const heartOf = g => {
+        const on = P.isFav(g.id);
+        return P._stub ? '' : `<button class="heart" data-fav="${g.id}" aria-pressed="${on}" aria-label="${on ? 'Remove ' + g.name + ' from favourites' : 'Add ' + g.name + ' to favourites'}">♥</button>`;
+      };
       const card = (g, kidsLink) => `
-        <a class="gcard" href="games/${g.id}/${kidsLink ? '?kids' : ''}" role="listitem">
-          <span class="gicon${iconClass(g)}" aria-hidden="true">${g.icon}</span>
-          ${g.kids ? badge(g, true) : ''}
-          <span class="gname">${g.name}</span>
-        </a>`;
+        <div class="gwrap" role="listitem">
+          <a class="gcard" href="games/${g.id}/${kidsLink ? '?kids' : ''}">
+            <span class="gicon${iconClass(g)}" ${art(g)} aria-hidden="true"><span class="gglyph">${g.icon}</span></span>
+            ${g.kids ? badge(g, true) : ''}
+            <span class="gname">${g.name}</span>
+            <span class="gmeta">${g.origin}</span>
+          </a>
+          ${heartOf(g)}
+        </div>`;
 
+      const ARROW = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>';
       const shelf = (id, title, games, kidsLink) => `
         <section class="shelf" data-shelf="${id}">
-          <div class="shelf-head"><h2>${title}</h2><a class="see-all" href="#${id}">See all ${games.length} ›</a></div>
+          <div class="shelf-head"><h2>${title}</h2><a class="see-all" href="#${id}" aria-label="See all ${games.length}" title="See all ${games.length}">${ARROW}</a></div>
           <div class="rail" role="list">${games.map(g => card(g, kidsLink)).join('')}</div>
         </section>`;
 
@@ -164,7 +175,7 @@
         return `
         <div class="item">
           <a class="item-link" href="games/${g.id}/${kidsLink ? '?kids' : ''}">
-            <span class="mini${iconClass(g)}" aria-hidden="true">${g.icon}</span>
+            <span class="mini${iconClass(g)}" ${art(g)} aria-hidden="true"><span class="gglyph">${g.icon}</span></span>
             <span class="item-text"><b>${g.name}${g.kids ? ` ${badge(g)}` : ''}</b><small>${g.blurb}</small></span>
           </a>
           ${P._stub ? '' : `<button class="rowbtn addlist" data-addlist="${g.id}" aria-label="Save ${g.name} to a list" title="Save to a list">＋</button>`}
@@ -186,25 +197,29 @@
             ${cols.map(c => `<button class="chip" data-chip="${c.id}" aria-pressed="${c.id === cur.id}">${c.fav ? '♥ ' : ''}${esc(c.name)} <small>${gamesOf(c).length}</small></button>`).join('')}
             ${P._stub ? '' : '<a class="chip chip-add" href="#lists">＋ New list</a>'}
           </div>
-          <div class="shelf-head"><h2>${cur.fav ? '♥ ' : ''}${esc(cur.name)}</h2><a class="see-all" href="#${hashFor(cur)}">See all ${games.length} ›</a></div>
+          <div class="shelf-head"><h2>${cur.fav ? '♥ ' : ''}${esc(cur.name)}</h2><a class="see-all" href="#${hashFor(cur)}" aria-label="See all ${games.length}" title="See all ${games.length}">${ARROW}</a></div>
           ${games.length
             ? `<div class="rail" role="list">${games.map(g => card(g, km)).join('')}</div>`
             : `<p class="empty-rail">${cur.fav ? 'Tap the ♡ on any game to keep it here.' : 'Nothing here yet. Tap the ＋ on any game to add it.'}</p>`}
         </section>`;
       }
 
-      // The puzzle of the day: one slim strip above the main pick.
+      // The puzzle of the day: a card with a little calendar, like a trip you are about to take.
       function dailyStrip() {
         try {
           const pick = dailyPick(kidMode()), g = byId(pick.id);
           if (!g) return '';
           const done = (M.dailyDone ? M.dailyDone() : []).includes(pick.date);
           const streak = M.dailyStreak ? M.dailyStreak() : 0;
+          const now = new Date();
           return `
           <a class="daily${done ? ' done' : ''}" href="games/${g.id}/?daily=${pick.date}">
-            <span class="gicon${iconClass(g)}" aria-hidden="true">${g.icon}</span>
-            <span class="daily-text"><small>Puzzle of the day${streak ? ' · ' + streak + '-day streak' : ''}</small><b>${g.name} · ${pick.label || pick.level}</b></span>
-            <span class="daily-state">${done ? '✓ Done' : 'Play ▶'}</span>
+            <span class="daily-text">
+              <small>Puzzle of the day${streak ? ' · ' + streak + '-day streak' : ''}</small>
+              <b>${g.name} · ${pick.label || pick.level}</b>
+              <span class="daily-go">${done ? '✓ Done for today' : 'Play now ›'}</span>
+            </span>
+            <span class="calart" aria-hidden="true"><i>${now.toLocaleDateString([], { month: 'short' })}</i><b>${now.getDate()}</b></span>
           </a>`;
         } catch { return ''; }
       }
@@ -227,14 +242,29 @@
         const g = last || pool[Math.floor(Date.now() / 86400000) % pool.length];
         return `
         <a class="hero" href="games/${g.id}/">
-          <span class="gicon${iconClass(g)}" aria-hidden="true">${g.icon}</span>
           <span class="hero-text">
             <span class="hero-label">${last ? 'Continue playing' : 'Today’s pick'}</span>
-            <b>${g.name}${g.kids ? ` ${badge(g)}` : ''}</b>
+            <b>${g.name}</b>
             <small>${g.blurb}</small>
+            <span class="hero-link">${g.kids ? badge(g) : g.origin}</span>
           </span>
-          <span class="play" aria-hidden="true">▶</span>
+          <span class="gicon hero-art${iconClass(g)}" ${art(g)} aria-hidden="true"><span class="gglyph">${g.icon}</span></span>
         </a>`;
+      }
+
+      // The category chips under the search: All, Kids and one for each section.
+      const CATS = [{ id: 'all', label: 'All', glyph: '✦', hue: 350 }, { id: 'kids', label: 'Kids', glyph: '☺', hue: 38 }]
+        .concat(SECTIONS.map(s => ({ id: s.id, label: s.name.replace(' & numbers', '').replace('Sliding & shapes', 'Sliding').replace('Memory & focus', 'Memory').replace('Solitaire & tiles', 'Cards'), glyph: { logic: '▦', math: '∑', moves: '▣', memory: '◉', cards: '♠' }[s.id] || '•', hue: { logic: 352, math: 262, moves: 20, memory: 172, cards: 214 }[s.id] || 200 })));
+      function drawCats(f, searching) {
+        const nav = document.getElementById('cats');
+        if (!nav) return;
+        const shows = !searching && (f === 'all' || f === 'kids' || SECTIONS.some(s => s.id === f) || !(f === 'stats' || f === 'lists' || f === 'favs' || f.startsWith('l-')));
+        nav.hidden = !shows;
+        if (!shows) return;
+        const here = (f === 'kids' || SECTIONS.some(s => s.id === f)) ? f : 'all';
+        nav.innerHTML = CATS.filter(c => c.id !== 'kids' || !kidMode()).map(c => `<a class="cat" href="#${c.id}"${c.id === here ? ' aria-current="page"' : ''}><i class="cat-ic" style="--hh:${c.hue}" aria-hidden="true">${c.glyph}</i><span>${c.label}</span></a>`).join('');
+        const cur = nav.querySelector('[aria-current]');
+        if (cur) { try { nav.scrollLeft = Math.max(0, cur.getBoundingClientRect().left - nav.getBoundingClientRect().left + nav.scrollLeft - 16); } catch {} }
       }
 
       // Changes whenever a list, its name or its games change, so the page knows when to redraw.
@@ -245,6 +275,7 @@
       function draw() {
         const f = location.hash.slice(1) || 'all';
         const q = search.value.trim().toLowerCase();
+        drawCats(f, !!q);
         const cols = collections();
         favSig = signature();
         const km = kidMode();
