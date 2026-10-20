@@ -576,7 +576,7 @@
   // Game art: a flat tonal plate with a simple drawing for each game (see the design language, "Icons and imagery").
   // The plate replaces the old text glyph; if anything here fails, the glyph simply stays.
   const plates = (() => {
-    const T = (h) => ({ bg: `hsl(${h} 40% 92%)`, D: `hsl(${h} 42% 24%)`, M: `hsl(${h} 30% 52%)`, L: `hsl(${h} 34% 80%)`, W: '#FCFBF8' });
+        const T = (h) => ({ bg: `hsl(${h},40%,92%)`, D: `hsl(${h},42%,24%)`, M: `hsl(${h},30%,52%)`, L: `hsl(${h},34%,80%)`, W: "#FCFBF8" });
     const sty = (k, C) => k === 'O' ? `fill="${C.W}" stroke="${C.D}" stroke-width="4"` : `fill="${C[k]}"`;
     const r = (x, y, w, h, k, C, rx = 6) => `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${rx}" ${sty(k, C)}/>`;
     const c = (x, y, R, k, C) => `<circle cx="${x}" cy="${y}" r="${R}" ${sty(k, C)}/>`;
