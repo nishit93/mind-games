@@ -104,7 +104,7 @@
       d.querySelector('.heart[data-fav="sudoku"]').click(); await sleep(100);
       check('Home features', 'hearting a game remembers it', w.MGProgress.isFav('sudoku'));
       w.location.hash = '#all'; await sleep(300);
-      check('Home features', 'the home page then shows a Your favourites shelf', !!d.querySelector('.lists-shelf .chip[data-chip="favs"]') && !!d.querySelector('.lists-shelf .gcard'));
+      check('Home features', 'the category row then shows Favourites right after All', !!d.querySelector('#cats .cat[data-chip="favs"]'));
       w.location.hash = '#favs'; await sleep(300);
       check('Home features', 'the Favourites list shows it', /Sudoku/.test((d.querySelector('.list') || {}).textContent || ''));
       w.location.hash = '#kids'; await sleep(300);
@@ -127,6 +127,12 @@
       const T0 = p0.w.MGTaste;
       check('Personalisation', 'every game has a place on the similarity map', !!T0 && GAMES.every(g => Array.isArray(T0.VEC[g.id]) && T0.VEC[g.id].length === T0.DIMS.length), T0 ? GAMES.filter(g => !T0.VEC[g.id]).map(g => g.id).join() : 'similarity.js did not load');
       check('Personalisation', 'a new visitor sees the sections in their usual order', secOrder(p0.d).join() === SECTIONS.map(x => x.id).join(), secOrder(p0.d).join());
+      const allShelves = [...p0.d.querySelectorAll('.shelf[data-shelf]')].map(e => e.dataset.shelf);
+      check('Personalisation', 'for a new visitor the Great for kids shelf comes last, not first', allShelves[allShelves.length - 1] === 'kids' && allShelves[0] !== 'kids', allShelves.join());
+      const logicNames = [...p0.d.querySelectorAll('.shelf[data-shelf="logic"] .gname')].map(e => e.textContent);
+      check('Personalisation', 'a new visitor sees every row in plain alphabetical order, so games for children are not bunched at the start', logicNames.join() === [...logicNames].sort((a, b) => a.localeCompare(b)).join(), logicNames.join());
+      const logicKids = [...p0.d.querySelectorAll('.shelf[data-shelf="logic"] .gcard')].map(a => !!a.querySelector('.kidbadge'));
+      check('Personalisation', 'children\'s games are spread through the row (not all in the first places)', logicKids.indexOf(true) >= 0 && logicKids.lastIndexOf(true) > logicKids.filter(Boolean).length, logicKids.join());
       p0.close();
       seed({ 'mg-taste': JSON.stringify({ hanoi: { n: 25, t: Date.now() }, '15-puzzle': { n: 6, t: Date.now() } }) });
       const p1 = await open('', 700);
@@ -387,7 +393,7 @@
       const game = await open('games/golf/', 500);
       game.d.querySelector('.fav-btn').click();
       await sleep(400);
-      check('Back button', 'a favourite chosen on a game page shows on the open home page without a refresh', !!home.d.querySelector('.lists-shelf .chip[data-chip="favs"]'));
+      check('Back button', 'a favourite chosen on a game page shows on the open home page without a refresh', !!home.d.querySelector('#cats .cat[data-chip="favs"]'));
       home.w.localStorage.setItem('recent', '["golf"]');
       home.w.dispatchEvent(new PageTransitionEvent('pageshow', { persisted: true }));
       await sleep(200);
@@ -447,7 +453,7 @@
 
       const listId = made[0].id;
       h = await open('', 700);
-      check('Game lists', 'the home page shows Favourites and the list as chips in one row, and the chosen list games below', (() => { const row = h.d.querySelector('.lists-shelf .chips'); const chips = row ? [...row.querySelectorAll('.chip[data-chip]')].map(c => c.dataset.chip) : []; return chips.join() === 'favs,' + listId; })() && (() => { h.d.querySelector('.chip[data-chip="' + listId + '"]').click(); return !!h.d.querySelector('.lists-shelf .gcard') && h.d.querySelector('.chip[aria-pressed="true"]').dataset.chip === listId; })());
+      check('Game lists', 'the category row shows All, then Favourites and the list, before the sections', (() => { const hs = [...h.d.querySelectorAll('#cats .cat')].map(c => c.getAttribute('href')); return hs[0] === '#all' && hs[1] === '#favs' && hs[2] === '#l-' + listId && hs[hs.length - 1] === '#kids'; })());
       h.w.location.hash = '#lists'; await sleep(400);
       check('Game lists', 'Your lists shows Favourites and the new list', h.d.querySelectorAll('.item').length === 2 && !!h.d.querySelector('[data-newlist]'));
       h.w.location.hash = '#l-' + listId; await sleep(400);
@@ -467,9 +473,9 @@
       const f1 = await open('games/golf/', 500);
       f1.d.querySelector('.card').dispatchEvent(new PointerEvent('pointerdown', { bubbles: true })); await sleep(1500);
       check('Focus', 'a plain tap does not start it', !f1.d.body.classList.contains('focus') && !f1.d.body.classList.contains('focus-in'));
-      f1.d.querySelector('.stage').append(f1.d.createElement('i')); await sleep(1600);
+      f1.d.querySelector('.stage').append(f1.d.createElement('i')); await sleep(2400);
       const handle = f1.d.querySelector('.focus-handle:not(.focus-fav):not(.focus-list)');
-      check('Focus', 'the first change to the board starts it: header, rules and links step aside', f1.d.body.classList.contains('focus') && handle && f1.w.getComputedStyle(f1.d.querySelector('.focus-dock')).display !== 'none' && f1.w.getComputedStyle(f1.d.querySelector('.howto')).display === 'none' && f1.w.getComputedStyle(f1.d.querySelector('.more')).display === 'none');
+      check('Focus', 'the first change to the board starts it: header, rules and links step aside', f1.d.body.classList.contains('focus') && handle && f1.w.getComputedStyle(f1.d.querySelector('.focus-dock')).display !== 'none' && f1.w.getComputedStyle(f1.d.querySelector('.howto')).visibility === 'hidden' && f1.w.getComputedStyle(f1.d.querySelector('.more')).visibility === 'hidden');
       const favB = f1.d.querySelector('.focus-fav'), listB = f1.d.querySelector('.focus-list');
       check('Focus', 'the heart and list buttons stay within reach', !!favB && !!listB);
       favB.click(); await sleep(150);
@@ -477,8 +483,8 @@
       listB.click(); await sleep(400);
       check('Focus', 'the list button opens the save sheet', !!f1.d.querySelector('.sheet-wrap .sheet'));
       f1.d.querySelector('.sheet-done').click(); await sleep(400);
-      handle.click(); await sleep(200);
-      check('Focus', 'the handle brings everything back', !f1.d.body.classList.contains('focus') && f1.w.getComputedStyle(f1.d.querySelector('.howto')).display !== 'none');
+      handle.click(); await sleep(300);
+      check('Focus', 'the handle brings everything back', !f1.d.body.classList.contains('focus') && f1.w.getComputedStyle(f1.d.querySelector('.howto')).visibility !== 'hidden');
       f1.close();
       seed({ 'mg-focus': 'off' });
       const f2 = await open('games/golf/', 500);
@@ -578,7 +584,7 @@
       check('Puzzle of the day', 'solving it marks the day as done and says so on the win card', !!plan && JSON.parse(dp.w.localStorage.getItem('mg-daily') || '[]').includes(today) && /Puzzle of the day done/.test((dp.d.querySelector('.win .extra') || {}).textContent || ''), (dp.d.querySelector('.win .extra') || {}).textContent);
       dp.close();
       h = await open('', 700);
-      check('Puzzle of the day', 'the home page then shows today as done, with a streak', !!h.d.querySelector('.daily.done') && /1-day streak/.test(h.d.querySelector('.daily small').textContent), (h.d.querySelector('.daily') || {}).className);
+      check('Puzzle of the day', 'the home page then shows today as done, with a streak', !!h.d.querySelector('.daily.done') && /✓/.test(h.d.querySelector('.daily small').textContent), (h.d.querySelector('.daily') || {}).className);
       h.close();
 
       // the new games

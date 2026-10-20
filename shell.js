@@ -251,7 +251,7 @@
     if (on) {
       document.body.classList.add('focus-in');
       dock.hidden = false;
-      focusTimer = setTimeout(() => { if (focusing) document.body.classList.add('focus'); }, 460);
+      focusTimer = setTimeout(() => { if (focusing) document.body.classList.add('focus'); }, 1150);
     } else {
       document.body.classList.remove('focus-in', 'focus');
       dock.hidden = true;

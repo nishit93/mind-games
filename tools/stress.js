@@ -217,11 +217,12 @@
       check('Lists', 'the Your lists page shows odd names as plain text (no injected elements)', !h.d.querySelector('#view script, #view img') && h.d.querySelectorAll('#view .item').length === MGP.lists().length + 1);
       for (const l of MGP.lists().slice(0, 6)) { h.w.location.hash = '#l-' + l.id; await sleep(250); if (!h.d.querySelector('#view .view-title')) check('Lists', 'a list page does not open: ' + l.name, false); }
       h.w.location.hash = '#all'; await sleep(300);
-      check('Lists', 'the home chip row shows Favourites first, then every list', (() => { const c = [...h.d.querySelectorAll('.lists-shelf .chip[data-chip]')].map(x => x.dataset.chip); return c[0] === 'favs' && c.length === MGP.lists().length + 1; })());
-      for (const c of [...h.d.querySelectorAll('.lists-shelf .chip[data-chip]')].slice(0, 8)) { c.click(); await sleep(60); }
+      check('Lists', 'the home chip row shows Favourites first, then every list', (() => { const c = [...h.d.querySelectorAll('#cats .cat[data-chip]')].map(x => x.dataset.chip); return c[0] === 'favs' && c.length === MGP.lists().length + 1; })());
+      for (const c of [...h.d.querySelectorAll('#cats .cat[data-chip]')].slice(0, 8)) { h.w.location.hash = c.getAttribute('href'); await sleep(80); }   // the chips are links; in this test frame a click would load the whole page, so move by hash
       for (const l of MGP.lists()) MGP.deleteList(l.id);
       await sleep(200);
-      check('Lists', 'deleting every list leaves none and the home page still draws', MGP.lists().length === 0 && h.d.querySelectorAll('#view .shelf').length > 3 && !h.d.querySelector('.lists-shelf [data-chip]:not([data-chip="favs"])'));
+      h.w.location.hash = '#all'; await sleep(900);   // the chips are links now: clicking them moved us to a list page
+      check('Lists', 'deleting every list leaves none and the home page still draws', MGP.lists().length === 0 && h.d.querySelectorAll('#view .shelf').length > 3 && !h.d.querySelector('#cats .cat[data-chip]:not([data-chip="favs"])'), `lists ${MGP.lists().length}, shelves ${h.d.querySelectorAll('#view .shelf').length}, chips ${[...h.d.querySelectorAll('#cats .cat[data-chip]')].map(c => c.dataset.chip).join()}, hash ${h.w.location.hash}, view: ${(h.d.querySelector('#view') || {innerHTML: 'none'}).innerHTML.replace(/s+/g, ' ').slice(0, 240)}, kidmode ${h.d.body.classList.contains('kidmode')}`);
       check('Lists', 'no errors in any of that', !errsSince(e0).length, errsSince(e0).join(' | '));
       h.close();
 
@@ -277,7 +278,7 @@ const KIDS = GAMES.filter(g => g.kids).length, ALL = GAMES.length, third = x => 
       const e4 = window.__errs.length;
       g.d.querySelector('.light').dispatchEvent(new g.w.PointerEvent('pointerdown', { bubbles: true })); await sleep(1200);
       const notYet = !g.d.body.classList.contains('focus');   // a plain touch does not start it: the first real move does
-      g.d.querySelector('.light').click(); await sleep(1500);
+      g.d.querySelector('.light').click(); await sleep(2400);
       const entered = notYet && g.d.body.classList.contains('focus');
       g.d.dispatchEvent(new g.w.KeyboardEvent('keydown', { key: 'Escape', bubbles: true })); await sleep(150);
       const left = !g.d.body.classList.contains('focus');
@@ -301,7 +302,7 @@ const KIDS = GAMES.filter(g => g.kids).length, ALL = GAMES.length, third = x => 
       const e5 = window.__errs.length;
       h.w.localStorage.setItem('mg-progress', JSON.stringify({ state: { favourites: { golf: { on: true, t: Date.now() } }, bests: {}, stats: {}, settings: {}, days: [], lists: { lab1: { name: 'Away', games: ['hanoi'], on: true, t: Date.now() } } } }));
       h.w.dispatchEvent(new h.w.PageTransitionEvent('pageshow', { persisted: true })); await sleep(300);
-      const chips = [...h.d.querySelectorAll('.lists-shelf .chip[data-chip]')].map(c => c.dataset.chip).join();
+      const chips = [...h.d.querySelectorAll('#cats .cat[data-chip]')].map(c => c.dataset.chip).join();
       check('Back button', 'a page restored from memory picks up a favourite and a list changed in the meantime', chips === 'favs,lab1' && !errsSince(e5).length, chips + ' ' + errsSince(e5).join(' | '));
       h.close();
     }

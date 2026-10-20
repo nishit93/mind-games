@@ -841,13 +841,13 @@ h1 {
 .kidbar .btn { margin: 0; padding: 7px 14px; font-size: .85rem; text-decoration: none; }
 
 /* ---- Focus: while playing, only the game ---- */
-main.wrap { transition: padding-top .5s cubic-bezier(.2, .7, .3, 1); }
-header.top { max-height: 200px; transition: max-height .5s cubic-bezier(.2, .7, .3, 1), opacity .35s ease, margin .5s ease; }
-body.focus-in header.top, body.focus header.top { max-height: 0; opacity: 0; overflow: hidden; margin-top: 0; margin-bottom: 0; padding-top: 0; padding-bottom: 0; pointer-events: none; }
-body.focus-in .wrap, body.focus .wrap { padding-top: 12vh; }
-body.focus-in .howto, body.focus-in .more, body.focus-in .history, body.focus-in .kidbar { opacity: 0; transform: translateY(10px); pointer-events: none; transition: opacity .4s ease, transform .4s ease; }
-body.focus .howto, body.focus .more, body.focus .history, body.focus .kidbar { display: none; }
-.focus-dock { position: fixed; bottom: calc(env(safe-area-inset-bottom) + 14px); right: 14px; z-index: 40; display: flex; gap: 8px; animation: mg-rise .5s .15s both; }
+/* Entering focus is slow and soft: the header and the rules, history and links fade out first (nothing below the board is removed or
+   moved, so the board never jumps), then the header's space closes gently. Leaving reverses it. */
+header.top { max-height: 200px; transition: opacity .7s cubic-bezier(.4, 0, .2, 1), transform .7s cubic-bezier(.4, 0, .2, 1), max-height 1s cubic-bezier(.45, 0, .2, 1) .15s, margin 1s cubic-bezier(.45, 0, .2, 1) .15s, padding 1s cubic-bezier(.45, 0, .2, 1) .15s; }
+.howto, .more, .history, .kidbar { transition: opacity .9s cubic-bezier(.4, 0, .2, 1), transform .9s cubic-bezier(.4, 0, .2, 1), visibility 0s linear 0s; }
+body.focus-in header.top, body.focus header.top { max-height: 0; opacity: 0; transform: translateY(-8px); overflow: hidden; margin-top: 0; margin-bottom: 0; padding-top: 0; padding-bottom: 0; pointer-events: none; }
+body.focus-in .howto, body.focus-in .more, body.focus-in .history, body.focus-in .kidbar { opacity: 0; transform: translateY(8px); pointer-events: none; visibility: hidden; transition: opacity .9s cubic-bezier(.4, 0, .2, 1) .1s, transform .9s cubic-bezier(.4, 0, .2, 1) .1s, visibility 0s linear 1s; }
+.focus-dock { position: fixed; bottom: calc(env(safe-area-inset-bottom) + 14px); right: 14px; z-index: 40; display: flex; gap: 8px; animation: mg-rise .9s .6s cubic-bezier(.2, .7, .3, 1) both; }
 .focus-dock[hidden] { display: none; }
 .focus-handle {
   width: 44px; height: 44px; padding: 0; display: grid; place-items: center;
@@ -856,7 +856,7 @@ body.focus .howto, body.focus .more, body.focus .history, body.focus .kidbar { d
 }
 .focus-handle:hover, .focus-handle:focus-visible { opacity: 1; }
 .focus-fav[aria-pressed="true"] { color: var(--clay); opacity: 1; }
-@media (prefers-reduced-motion: reduce) { .focus-dock { animation: none; } body.focus-in .howto, body.focus-in .more, body.focus-in .history, body.focus-in .kidbar { transition: none; } }
+@media (prefers-reduced-motion: reduce) { .focus-dock { animation: none; } header.top, .howto, .more, .history, .kidbar, body.focus-in .howto, body.focus-in .more, body.focus-in .history, body.focus-in .kidbar { transition: none !important; } }
 
 /* ---- Gesture tutorial ---- */
 .coach { position: fixed; inset: 0; z-index: 50; pointer-events: none; transition: opacity .3s ease; }
@@ -1345,3 +1345,22 @@ h1 { font-size: 1.4rem; }
 .duo > :only-child { grid-column: 1 / -1; flex-direction: row; align-items: center; }
 .duo > :only-child .hero-text small { display: block; }
 @media (max-width: 420px) { .home h1 { font-size: 1.15rem; } .home .kidswitch { padding: 6px 10px; font-size: .78rem; gap: 6px; } .home header.top { gap: 8px; } }
+
+/* The two home cards match: same art size, centred, name only */
+.duo > .daily, .duo > .hero { align-items: center; justify-content: center; text-align: center; gap: 10px; padding: 16px 12px; }
+.duo > .daily .calart, .duo > .hero .gicon.hero-art { order: -1; width: 60px; height: 60px; border-radius: 16px; flex: none; }
+.duo > .daily .calart i { padding: 5px 0 4px; font-size: .56rem; }
+.duo > .daily .calart b { font-size: 1.45rem; }
+.duo > .daily .daily-text, .duo > .hero .hero-text { text-align: center; }
+.duo .hero-text b, .duo .daily-text b { font-size: 1.02rem; margin-top: 4px; -webkit-line-clamp: 2; }
+.duo .daily-go { display: none; }
+.duo > :only-child { grid-column: 1 / -1; }
+@media (max-width: 420px) {
+  /* Make room for the full title: the Kid mode label stays for screen readers, the face and the switch remain */
+  .home .kidswitch { position: relative; }
+  .home .kidswitch span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  .home h1 { font-size: 1.3rem; }
+}
+/* Once the fade has finished the final state is set outright (no transition), so nothing depends on animations running. */
+body.focus header.top, body.focus .howto, body.focus .more, body.focus .history, body.focus .kidbar { transition: none; }
+body.focus .howto, body.focus .more, body.focus .history, body.focus .kidbar { opacity: 0; visibility: hidden; pointer-events: none; }

@@ -34,8 +34,10 @@
   const cos = (a, b) => dot(norm(a), norm(b));
   const vec = id => VEC[id] || NEUTRAL;
 
+  // 'kids' is a shelf of its own: the games made for children, from any section.
+  const members = secId => (typeof GAMES === 'object' ? GAMES : []).filter(g => (secId === 'kids' ? g.kids : g.sec === secId));
   const secVec = secId => {
-    const ids = (typeof GAMES === 'object' ? GAMES : []).filter(g => g.sec === secId).map(g => vec(g.id));
+    const ids = members(secId).map(g => vec(g.id));
     return ids.length ? DIMS.map((_, i) => ids.reduce((s, v) => s + v[i], 0) / ids.length) : NEUTRAL;
   };
 
@@ -94,9 +96,10 @@
       if (!(tot > 0)) return sections;
       const p = profile(w);
       return rank(sections, s => {
-        const ids = (typeof GAMES === 'object' ? GAMES : []).filter(g => g.sec === s.id).map(g => g.id);
+        const ids = members(s.id).map(g => g.id);
         const share = ids.reduce((sum, id) => sum + (w[id] || 0), 0) / tot;
-        return 0.5 * cos(p, secVec(s.id)) + 0.5 * share;
+        // The Great for kids shelf is a mix of everything, so it would otherwise score well for everyone: it is damped so it only rises when play really leans that way.
+        return 0.5 * cos(p, secVec(s.id)) * (s.id === 'kids' ? 0.8 : 1) + 0.5 * share;
       });
     } catch { return sections; }
   }

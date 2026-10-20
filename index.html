@@ -146,7 +146,9 @@
       const vis = g => !kidMode() || !!g.kids;
       // Quiet personalisation: sections and games lean towards what this player plays (default order if similarity.js is missing).
       const rankSecs = list => (window.MGTaste ? MGTaste.rankSections(list) : list);
-      const rankGs = list => (window.MGTaste ? MGTaste.rankGames(list) : list);
+      // The default order inside every shelf and list is alphabetical (games.js lists the games for children first, which would bias every row).
+      const neutral = list => [...list].sort((a, b) => a.name.localeCompare(b.name));
+      const rankGs = list => (window.MGTaste ? MGTaste.rankGames(neutral(list)) : neutral(list));
       // Favourites and the player's own lists, as [{id, name, games, fav}]. An older progress.js has only favourites.
       const collections = () => (P.collections ? P.collections() : [{ id: 'favs', name: 'Favourites', games: P.favs(), fav: true }]);
       const byId = id => GAMES.find(g => g.id === id);
@@ -224,9 +226,8 @@
           return `
           <a class="daily${done ? ' done' : ''}" href="games/${g.id}/?daily=${pick.date}">
             <span class="daily-text">
-              <small>Puzzle of the day${streak ? ' · ' + streak + '-day streak' : ''}</small>
-              <b>${g.name} · ${pick.label || pick.level}</b>
-              <span class="daily-go">${done ? '✓ Done for today' : 'Play now ›'}</span>
+              <small>${done ? '✓ ' : ''}Puzzle of the day</small>
+              <b>${g.name}</b>
             </span>
             <span class="calart" aria-hidden="true"><i>${now.toLocaleDateString([], { month: 'short' })}</i><b>${now.getDate()}</b></span>
           </a>`;
@@ -262,16 +263,34 @@
       }
 
       // The category chips under the search: All, Kids and one for each section.
-      const CATS = [{ id: 'all', label: 'All', glyph: '✦', hue: 28 }, { id: 'kids', label: 'Kids', glyph: '☺', hue: 28 }]
-        .concat(SECTIONS.map(s => ({ id: s.id, label: s.name.replace(' & numbers', '').replace('Sliding & shapes', 'Sliding').replace('Memory & focus', 'Memory').replace('Solitaire & tiles', 'Cards'), glyph: { logic: '▦', math: '∑', moves: '▣', memory: '◉', seek: '◎', cards: '♠' }[s.id] || '•', hue: { logic: 352, math: 262, moves: 20, memory: 172, seek: 190, cards: 214 }[s.id] || 200 })));
+      const SEC_LABEL = s => s.name.replace(' & numbers', '').replace('Sliding & shapes', 'Sliding').replace('Memory & focus', 'Memory').replace('Solitaire & tiles', 'Cards');
+      const SEC_GLYPH = { logic: '▦', math: '∑', moves: '▣', memory: '◉', seek: '◎', cards: '♠' };
+      const SEC_HUE = { logic: 352, math: 262, moves: 20, memory: 172, seek: 190, cards: 214 };
+      // All, then Favourites and the player's own lists, then the sections, then Kids (kept low: the Kid mode switch is the way to see only those).
+      function catsList() {
+        const out = [{ id: 'all', label: 'All', glyph: '✦', hue: 28 }];
+        const cols = collections();
+        const custom = cols.filter(c => !c.fav);
+        const fav = cols.find(c => c.fav);
+        const haveFav = fav && gamesOf(fav).length > 0;
+        if (haveFav || custom.length) {
+          if (fav) out.push({ id: 'favs', chip: 'favs', label: 'Favourites', glyph: '♥', hue: 8 });
+          custom.forEach(c => out.push({ id: 'l-' + c.id, chip: c.id, label: c.name, glyph: '☰', hue: 200 }));
+          if (!P._stub) out.push({ id: 'lists', label: '＋', glyph: '', hue: 200, add: true });
+        }
+        SECTIONS.forEach(s => out.push({ id: s.id, label: SEC_LABEL(s), glyph: SEC_GLYPH[s.id] || '•', hue: SEC_HUE[s.id] || 200 }));
+        if (!kidMode()) out.push({ id: 'kids', label: 'Kids', glyph: '☺', hue: 28 });
+        return out;
+      }
       function drawCats(f, searching) {
         const nav = document.getElementById('cats');
         if (!nav) return;
-        const shows = !searching && (f === 'all' || f === 'kids' || SECTIONS.some(s => s.id === f) || !(f === 'stats' || f === 'lists' || f === 'favs' || f === 'foryou' || f.startsWith('l-')));
+        const shows = !searching && !(f === 'stats' || f === 'lists' || f === 'foryou');
         nav.hidden = !shows;
         if (!shows) return;
-        const here = (f === 'kids' || SECTIONS.some(s => s.id === f)) ? f : 'all';
-        nav.innerHTML = CATS.filter(c => c.id !== 'kids' || !kidMode()).map(c => `<a class="cat" href="#${c.id}"${c.id === here ? ' aria-current="page"' : ''}><i class="cat-ic" style="--hh:${c.hue}" aria-hidden="true">${c.glyph}</i><span>${c.label}</span></a>`).join('');
+        const known = f === 'all' || f === 'kids' || f === 'favs' || f.startsWith('l-') || SECTIONS.some(s => s.id === f);
+        const here = known ? f : 'all';
+        nav.innerHTML = catsList().map(c => '<a class="cat' + (c.add ? ' cat-add' : '') + '" href="#' + c.id + '"' + (c.chip !== undefined ? ' data-chip="' + esc(c.chip) + '"' : '') + (c.id === here ? ' aria-current="page"' : '') + (c.add ? ' aria-label="New list" title="New list"' : '') + '>' + (c.glyph ? '<i class="cat-ic" style="--hh:' + c.hue + '" aria-hidden="true">' + c.glyph + '</i>' : '') + '<span>' + esc(c.label) + '</span></a>').join('');
         const cur = nav.querySelector('[aria-current]');
         if (cur) { try { nav.scrollLeft = Math.max(0, cur.getBoundingClientRect().left - nav.getBoundingClientRect().left + nav.scrollLeft - 16); } catch {} }
       }
@@ -285,7 +304,7 @@
         const f = location.hash.slice(1) || 'all';
         const q = search.value.trim().toLowerCase();
         drawCats(f, !!q);
-        document.body.dataset.view = q ? 'search' : (f === 'stats' || f === 'lists' || f === 'favs' || f === 'foryou' || f.startsWith('l-')) ? 'sub' : 'browse';
+        document.body.dataset.view = q ? 'search' : (f === 'stats' || f === 'lists' || f === 'foryou') ? 'sub' : 'browse';
         const cols = collections();
         favSig = signature();
         const km = kidMode();
@@ -329,9 +348,10 @@
             ${games.length ? `<div class="list">${games.map(g => row(g, km, current.fav ? '' : current.id)).join('')}</div>` : `<p class="empty">${current.fav ? 'No favourites yet. Tap the ♡ on any game to keep it here.' : 'Nothing here yet. Tap the ＋ on any game to add it.'}</p>`}`;
         } else if (f === 'all' || !(f === 'kids' || SECTIONS.some(s => s.id === f))) {
           html = `<div class="duo">${dailyStrip()}${hero()}</div>`
-            + listsShelf(cols, km)
-            + (km ? '' : shelf('kids', `${M.FACE || ''} Great for kids`, rankGs(GAMES.filter(g => g.kids)), true))
-            + rankSecs(SECTIONS).map(s => ({ s, games: rankGs(GAMES.filter(g => g.sec === s.id && vis(g))) })).filter(x => x.games.length).map(x => shelf(x.s.id, x.s.name, x.games, km)).join('');
+            // Sections, and Great for kids as one more shelf that starts last and rises only if what you play is close to it.
+            + rankSecs(SECTIONS.concat(km ? [] : [{ id: 'kids', name: 'Great for kids' }])).map(s => s.id === 'kids'
+              ? { s: { id: 'kids', name: `${M.FACE || ''} Great for kids` }, games: rankGs(GAMES.filter(g => g.kids)), kidsLink: true }
+              : { s, games: rankGs(GAMES.filter(g => g.sec === s.id && vis(g))), kidsLink: km }).filter(x => x.games.length).map(x => shelf(x.s.id, x.s.name, x.games, x.kidsLink)).join('');
         } else {
           const info = f === 'kids' ? { name: 'Great for kids', blurb: 'Made for children up to 11. Each one opens on its easiest setting.', games: rankGs(GAMES.filter(g => g.kids)), kids: true }
             : { ...SECTIONS.find(s => s.id === f), games: rankGs(GAMES.filter(g => g.sec === f && vis(g))), kids: km };
