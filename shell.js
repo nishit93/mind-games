@@ -128,7 +128,7 @@
       <span></span><span></span><span></span>
     </button>
     <div class="title">
-      <h1>${game ? game.name : '<span class="brand-mark" aria-hidden="true"></span>Mind Games'}</h1>
+      <h1>${game ? game.name : '<span class="brand-mark" aria-hidden="true"></span>Quiet Board'}</h1>
       <p class="sub">${game ? `${game.origin} · <a href="${root}#${section.id}">${section.name}</a>${game.kids ? ` ${badge(game)}` : ''}` : 'Quiet puzzles from around the world.'}</p>
     </div>
     ${game
@@ -238,6 +238,14 @@
       removeEventListener('pointerdown', onFirstTouch, true);
       removeEventListener('keydown', onFirstTouch, true);
       try { MGProgress.recordPlay(); } catch (err) { console.error(err); }
+      // Taste for the quiet personalisation layer (see similarity.js): plays per game, kept on this device only.
+      try {
+        let o = JSON.parse(localStorage.getItem('mg-taste'));
+        if (!o || typeof o !== 'object' || Array.isArray(o)) o = {};
+        const c = o[game.id] && typeof o[game.id] === 'object' ? o[game.id] : {};
+        o[game.id] = { n: (+c.n > 0 ? +c.n : 0) + 1, t: Date.now() };
+        localStorage.setItem('mg-taste', JSON.stringify(o));
+      } catch { /* personalisation is optional */ }
       if (focusOn() && !focusLeft) setTimeout(() => { if (!focusLeft) setFocus(true); }, 900);
     };
     addEventListener('pointerdown', onFirstTouch, true);
@@ -256,7 +264,7 @@
   function fillDrawer() {
     const km = isKidMode();
     drawer.innerHTML = `
-    <a class="drawer-home" href="${root}">Mind Games</a>
+    <a class="drawer-home" href="${root}">Quiet Board</a>
     <div class="drawer-switches">
       <button class="switch" role="switch" data-sw="kid" aria-checked="${km}"><span>Kid mode<small>Only games for children up to 11</small></span><i class="knob" aria-hidden="true"></i></button>
       ${game ? `<button class="switch" role="switch" data-sw="focus" aria-checked="${focusOn()}"><span>Focus while playing<small>Hide everything else once you start</small></span><i class="knob" aria-hidden="true"></i></button>` : ''}
@@ -527,6 +535,8 @@
         if (daily && lastDailyStreak) bits.push(lastDailyStreak > 1 ? `Puzzle of the day done · ${lastDailyStreak}-day streak` : 'Puzzle of the day done');
         else if (nextBtn) bits.push('Next step unlocked');
         if (streak >= 2 && !daily) bits.push(`${streak}-day streak`);
+        const quips = ['Quite a board, that was.', 'Not so bored now?', 'Quietly brilliant.', 'Quite good. Quite quiet.', 'Bored? Not anymore.'];
+        bits.push(quips[Math.floor(Math.random() * quips.length)]);
         extra.textContent = bits.join(' · ');
         if (nextBtn && !daily) { next.textContent = `Try ${nextBtn.textContent.trim()}`; next.hidden = false; }
         reward.innerHTML = '<svg viewBox="0 0 52 52" class="badge"><circle cx="26" cy="26" r="23"/><path d="M15 27l8 8 14-17"/></svg>'

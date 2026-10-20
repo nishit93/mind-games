@@ -119,6 +119,39 @@
       close();
     }
 
+    // 3b. Quiet personalisation: every game has a place on the similarity map, and play shapes the order of the home page.
+    if (!lenient) {
+      const secOrder = d => [...d.querySelectorAll('.shelf[data-shelf]')].map(e => e.dataset.shelf).filter(id => SECTIONS.some(x => x.id === id));
+      seed({});
+      const p0 = await open('', 700);
+      const T0 = p0.w.MGTaste;
+      check('Personalisation', 'every game has a place on the similarity map', !!T0 && GAMES.every(g => Array.isArray(T0.VEC[g.id]) && T0.VEC[g.id].length === T0.DIMS.length), T0 ? GAMES.filter(g => !T0.VEC[g.id]).map(g => g.id).join() : 'similarity.js did not load');
+      check('Personalisation', 'a new visitor sees the sections in their usual order', secOrder(p0.d).join() === SECTIONS.map(x => x.id).join(), secOrder(p0.d).join());
+      p0.close();
+      seed({ 'mg-taste': JSON.stringify({ hanoi: { n: 25, t: Date.now() }, '15-puzzle': { n: 6, t: Date.now() } }) });
+      const p1 = await open('', 700);
+      const order1 = secOrder(p1.d);
+      check('Personalisation', 'a player who plays Hanoi a lot sees the sliding section first', order1[0] === 'moves' && order1.length === SECTIONS.length, order1.join());
+      const movesCards = [...p1.d.querySelectorAll('.shelf[data-shelf="moves"] .gcard')].map(a => a.getAttribute('href'));
+      check('Personalisation', 'and Hanoi leads that section', /hanoi/.test(movesCards[0] || ''), movesCards.slice(0, 3).join());
+      check('Personalisation', 'every game is still shown once', p1.d.querySelectorAll('.shelf[data-shelf="moves"] .gcard').length === GAMES.filter(g => g.sec === 'moves').length);
+      p1.close();
+      for (const bad of ['{oops', '[1,2]', '"x"', JSON.stringify({ hanoi: 'many', sudoku: { n: 'x' }, nothing: { n: 5 } })]) {
+        seed({ 'mg-taste': bad });
+        const pb = await open('', 600);
+        check('Personalisation', 'damaged taste data (' + bad.slice(0, 12) + ') changes nothing and breaks nothing', pb.d.querySelectorAll('.gcard').length >= GAMES.filter(g => g.kids).length && secOrder(pb.d).length === SECTIONS.length);
+        pb.close();
+      }
+      seed({});
+      const pg = await open('games/hanoi/', 500);
+      pg.d.querySelector('.menu-btn').dispatchEvent(new PointerEvent('pointerdown', { bubbles: true }));
+      const before = pg.w.localStorage.getItem('mg-taste');
+      pg.d.querySelector('.stage').dispatchEvent(new PointerEvent('pointerdown', { bubbles: true }));
+      const t1 = JSON.parse(pg.w.localStorage.getItem('mg-taste') || '{}');
+      check('Personalisation', 'a real tap in a game is remembered, the menu is not', before === null && t1.hanoi && t1.hanoi.n === 1, pg.w.localStorage.getItem('mg-taste'));
+      pg.close();
+    }
+
     // 4. Every game page, from a new visitor and from a returning player.
     for (const label of ['new visitor', 'returning player']) {
       seed(label === 'new visitor' ? {} : LEGACY);

@@ -38,7 +38,7 @@
     };
     for (const [key, v] of Object.entries(LEVELS)) { o[v[0]] = 'banana'; if (v[1]) for (const n of ['0', '1', '2', '3', '4', '5', '6', '7', '8', 'easy', 'mini', 'forward']) o[v[1] + n] = n % 2 ? 'NaN' : '{oops'; }
     for (const g of GAMES) { o['seen-' + g.id] = 'abc'; o['tut-done-' + g.id] = 'x'; o['lvdone-' + g.id] = '{oops'; }
-    Object.assign(o, { '2048-best': '-5', 'golf-best': 'x', 'pegs-best': '1e999', 'sequence-best': '', 'sequence-speed': 'warp', 'sequence-sound': '??', 'klondike-draw': '9', 'span-mode': 'sideways', 'queens-shade': 'purple', 'queens-found-8': '[[[' });
+    Object.assign(o, { '2048-best': '-5', 'golf-best': 'x', 'pegs-best': '1e999', 'sequence-best': '', 'sequence-speed': 'warp', 'sequence-sound': '??', 'klondike-draw': '9', 'span-mode': 'sideways', 'queens-shade': 'purple', 'queens-found-8': '[[[', 'mg-taste': '{"hanoi":{"n":"many"},"x":[1]}' });
     return o;
   };
 

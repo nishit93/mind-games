@@ -4,7 +4,7 @@
 # It only reads public addresses and never creates or changes anything on the server.
 set -u
 
-SITE="${SITE_URL:-https://nishit93.github.io/mind-games/}"
+SITE="${SITE_URL:-https://nishit93.github.io/quiet-board/}"
 API="${API_URL:-https://mindgames-api.duckdns.org}"
 ORIGIN="${SITE_ORIGIN:-https://nishit93.github.io}"
 TMP="$(mktemp -d)"

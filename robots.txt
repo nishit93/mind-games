@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://nishit93.github.io/mind-games/sitemap.xml
+Sitemap: https://nishit93.github.io/quiet-board/sitemap.xml

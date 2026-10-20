@@ -41,7 +41,7 @@
     history = [];
     done = false;
     ov.hide();
-    floorEl.style.gridTemplateColumns = `repeat(${W}, 1fr)`;
+    floorEl.style.gridTemplateColumns = `repeat(${W}, minmax(0, 1fr))`;
     cells = Array.from({ length: W * H }, (_, i) => {
       const d = document.createElement('div');
       d.addEventListener('click', () => walkTo(i));

@@ -10,7 +10,7 @@
 import { readFileSync, writeFileSync } from 'node:fs';
 import vm from 'node:vm';
 
-const SITE = 'https://nishit93.github.io/mind-games/';
+const SITE = 'https://nishit93.github.io/quiet-board/';
 const root = new URL('../', import.meta.url);
 const read = p => readFileSync(new URL(p, root), 'utf8').replace(/\r\n/g, '\n');
 const write = (p, s) => writeFileSync(new URL(p, root), s);
@@ -54,14 +54,14 @@ for (const g of GAMES) {
   const rules = text(section(html, 'Rules') || section(html, 'The rules') || section(html, 'The two rules') || '');
   const howItWorks = text(section(html, 'How it works'));
 
-  const title = `${g.name}: free to play, rules and history · Mind Games`;
+  const title = `${g.name}: free to play, rules and history · Quiet Board`;
   const base = `${g.name} (${g.origin}): ${g.blurb} Free to play online, no sign-up, with rules and history.`;
   const description = base.length + firstSentence(history).length < 158 ? `${base} ${firstSentence(history)}` : base;
 
   const faq = [
     [`How do you play ${g.name}?`, trim(`${goal} ${rules} ${howItWorks}`.replace(/\s+/g, ' ').trim(), 600)],
     [`Where does ${g.name} come from?`, history],
-    [`Is ${g.name} free to play?`, `Yes. ${g.name} on Mind Games is free, works in any browser on a phone or computer, needs no account and keeps your best scores on your device.`],
+    [`Is ${g.name} free to play?`, `Yes. ${g.name} on Quiet Board is free, works in any browser on a phone or computer, needs no account and keeps your best scores on your device.`],
   ];
   const ld = {
     '@context': 'https://schema.org',
@@ -71,13 +71,13 @@ for (const g of GAMES) {
         genre: ['Puzzle', sec.name], applicationCategory: 'Game', gamePlatform: 'Web browser', operatingSystem: 'Any',
         playMode: 'SinglePlayer', inLanguage: 'en', isAccessibleForFree: true, image: `${SITE}icon-512.png`,
         offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
-        publisher: { '@type': 'Organization', name: 'Mind Games', url: SITE },
+        publisher: { '@type': 'Organization', name: 'Quiet Board', url: SITE },
         ...(g.kids ? { audience: { '@type': 'PeopleAudience', suggestedMinAge: 6 } } : {}),
       },
       {
         '@type': 'BreadcrumbList',
         itemListElement: [
-          { '@type': 'ListItem', position: 1, name: 'Mind Games', item: SITE },
+          { '@type': 'ListItem', position: 1, name: 'Quiet Board', item: SITE },
           { '@type': 'ListItem', position: 2, name: sec.name, item: `${SITE}#${sec.id}` },
           { '@type': 'ListItem', position: 3, name: g.name, item: url },
         ],
@@ -90,8 +90,8 @@ for (const g of GAMES) {
   <meta name="description" content="${esc(description)}">
   <link rel="canonical" href="${url}">
   <meta property="og:type" content="website">
-  <meta property="og:site_name" content="Mind Games">
-  <meta property="og:title" content="${esc(`${g.name} · Mind Games`)}">
+  <meta property="og:site_name" content="Quiet Board">
+  <meta property="og:title" content="${esc(`${g.name} · Quiet Board`)}">
   <meta property="og:description" content="${esc(description)}">
   <meta property="og:url" content="${url}">
   <meta property="og:image" content="${SITE}icon-512.png">
@@ -113,13 +113,13 @@ for (const g of GAMES) {
 // Home page: description, social tags, structured data, and a plain list of games for visitors and crawlers without scripts.
 {
   let html = read('index.html');
-  const description = `Mind Games is a calm collection of ${GAMES.length} free single-player puzzle and mind games from around the world: Sudoku, Tower of Hanoi, Nonogram, solitaire and more. No sign-up, plays in your browser.`;
+  const description = `Quiet Board is a calm collection of ${GAMES.length} free single-player puzzle and mind games from around the world: Sudoku, Tower of Hanoi, Nonogram, solitaire and more. No sign-up, plays in your browser.`;
   const ld = {
     '@context': 'https://schema.org',
     '@graph': [
-      { '@type': 'WebSite', name: 'Mind Games', url: SITE, description, inLanguage: 'en' },
+      { '@type': 'WebSite', name: 'Quiet Board', url: SITE, description, inLanguage: 'en' },
       {
-        '@type': 'ItemList', name: 'Mind Games', numberOfItems: GAMES.length,
+        '@type': 'ItemList', name: 'Quiet Board', numberOfItems: GAMES.length,
         itemListElement: GAMES.map((g, i) => ({ '@type': 'ListItem', position: i + 1, name: g.name, url: `${SITE}games/${g.id}/` })),
       },
     ],
@@ -128,8 +128,8 @@ for (const g of GAMES) {
   <meta name="description" content="${esc(description)}">
   <link rel="canonical" href="${SITE}">
   <meta property="og:type" content="website">
-  <meta property="og:site_name" content="Mind Games">
-  <meta property="og:title" content="Mind Games: free puzzle and mind games from around the world">
+  <meta property="og:site_name" content="Quiet Board">
+  <meta property="og:title" content="Quiet Board: free puzzle and mind games from around the world">
   <meta property="og:description" content="${esc(description)}">
   <meta property="og:url" content="${SITE}">
   <meta property="og:image" content="${SITE}icon-512.png">
@@ -157,7 +157,7 @@ for (const g of GAMES) {
 const today = new Date().toISOString().slice(0, 10);
 write('sitemap.xml', `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls.map((u, i) => `  <url><loc>${u}</loc><lastmod>${today}</lastmod><priority>${i === 0 ? '1.0' : '0.7'}</priority></url>`).join('\n')}\n</urlset>\n`);
 write('robots.txt', `User-agent: *\nAllow: /\n\nSitemap: ${SITE}sitemap.xml\n`);
-write('llms.txt', `# Mind Games
+write('llms.txt', `# Quiet Board
 
 > A calm collection of ${GAMES.length} free single-player puzzle and mind games from around the world. No sign-up; each game has a How to play guide and a short history of where it comes from. Works in any browser on phones and computers.
 

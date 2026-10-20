@@ -21,4 +21,4 @@ createServer(async (req, res) => {
   } catch {
     res.writeHead(404).end('Not found');
   }
-}).listen(port, '127.0.0.1', () => console.log(`Mind Games on http://localhost:${port}`));
+}).listen(port, '127.0.0.1', () => console.log(`Quiet Board on http://localhost:${port}`));
