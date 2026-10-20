@@ -46,3 +46,8 @@
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) .card:not(.down) { background: #EFE7DF; }
 }
+.table { background: var(--sunk); }
+.card.red { color: var(--clay, #9A4729); }
+.card .stackn { position: absolute; right: -4px; top: -6px; min-width: 18px; height: 18px; padding: 0 4px; border-radius: 9px; background: var(--ink-1, #191F2B); color: var(--paper, #fff); font-size: 11px; line-height: 18px; text-align: center; }
+.nextlabel { position: absolute; font-size: 11px; line-height: 14px; color: var(--ink-2, #49505E); text-align: center; font-weight: 600; }
+.card.free { box-shadow: 0 0 0 2px var(--lagoon, #136868), 0 2px 6px rgb(25 31 43 / .2); }

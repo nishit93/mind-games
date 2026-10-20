@@ -630,6 +630,10 @@
       golf: C => ln('M70 118V38', C, 4) + p('M70 38l40 14-40 14z', 'D', C) + `<ellipse cx="70" cy="122" rx="30" ry="9" fill="${C.M}"/>` + c(106, 118, 7, 'W', C),
       'mahjong-solitaire': C => r(36, 56, 48, 64, 'O', C, 9) + r(50, 42, 48, 64, 'M', C, 9) + r(64, 28, 48, 64, 'W', C, 9) + ln('M80 50v28M92 50v28', C, 4),
       'free-cells': C => [0, 1, 2, 3].map(i => `<rect x="${28 + i * 26}" y="48" width="22" height="34" rx="6" fill="none" stroke="${C.D}" stroke-width="3" stroke-dasharray="5 4"/>`).join('') + r(54, 92, 52, 34, 'D', C, 9),
+      accordion: C => r(26, 56, 40, 56, 'O', C, 7) + r(46, 50, 40, 56, 'M', C, 7) + r(66, 44, 40, 56, 'D', C, 7) + r(86, 38, 40, 56, 'W', C, 7) + ln('M34 124h92', C, 4, 'L'),
+      tripeaks: C => p('M20 120L50 52l30 68z', 'D', C) + p('M60 120L90 40l30 80z', 'M', C) + p('M96 120l22-44 22 44z', 'L', C) + ln('M20 124h120', C, 4),
+      calculation: C => r(30, 36, 28, 40, 'D', C, 6) + r(62, 36, 28, 40, 'M', C, 6) + r(94, 36, 28, 40, 'L', C, 6) + ln('M44 100v22M76 100v22M108 100v22M30 112h100', C, 4, 'M'),
+      'monte-carlo': C => grid(3, 36, 36, 26, 8, (i, j, x, y) => r(x, y, 26, 26, (i === j) ? 'D' : 'O', C, 6)) + ln('M40 40l80 80', C, 3, 'M'),
     };
     return (id, hue) => {
       const f = D[id]; if (!f) return '';

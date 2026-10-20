@@ -178,6 +178,6 @@
   });
   document.getElementById('new').addEventListener('click', deal);
   MG.seg(document.getElementById('draw'), draw, v => { draw = +v; MG.store.set('klondike-draw', draw); deal(); });
-  new ResizeObserver(() => { if (s) render(); }).observe(tableEl);
+  { let raf = 0; new ResizeObserver(() => { cancelAnimationFrame(raf); raf = requestAnimationFrame(() => { if (s) render(); }); }).observe(tableEl); }
   deal();
 })();

@@ -130,6 +130,6 @@
   });
   undoBtn.addEventListener('click', () => { if (history.length && !done) { tiles = history.pop(); sel = null; render(); } });
   document.getElementById('new').addEventListener('click', deal);
-  new ResizeObserver(() => { if (tiles) render(); }).observe(boardEl);
+  { let raf = 0; new ResizeObserver(() => { cancelAnimationFrame(raf); raf = requestAnimationFrame(() => { if (tiles) render(); }); }).observe(boardEl); }
   deal();
 })();

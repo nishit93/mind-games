@@ -153,7 +153,7 @@
   sizeBtns.forEach(b => b.addEventListener('click', () => newGame(+b.dataset.size)));
   document.getElementById('shuffle').addEventListener('click', () => newGame());
   document.getElementById('again').addEventListener('click', () => newGame());
-  new ResizeObserver(layout).observe(board);
+  { let raf = 0; new ResizeObserver(() => { cancelAnimationFrame(raf); raf = requestAnimationFrame(layout); }).observe(board); }
 
   newGame(MG.kids ? 3 : +store.get('fifteen-size') || 4);
 })();

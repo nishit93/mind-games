@@ -151,6 +151,6 @@
     render();
   });
   document.getElementById('new').addEventListener('click', deal);
-  new ResizeObserver(() => { if (s) render(); }).observe(tableEl);
+  { let raf = 0; new ResizeObserver(() => { cancelAnimationFrame(raf); raf = requestAnimationFrame(() => { if (s) render(); }); }).observe(tableEl); }
   deal();
 })();

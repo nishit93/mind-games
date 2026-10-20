@@ -40,6 +40,10 @@
     'grid-recall': { key: 'recall-grid-best', kind: 'level' },
     'digit-span': { prefix: 'span-best-', kind: 'digits', lv: names({ forward: 'Forward', backward: 'Backward' }), order: ['forward', 'backward'] },
     'golf': { key: 'golf-best', kind: 'cardsleft' },
+    'accordion': { key: 'accordion-best', kind: 'piles' },
+    'tripeaks': { key: 'tripeaks-best', kind: 'cardsleft' },
+    'calculation': { key: 'calculation-best', kind: 'cardsleft' },
+    'monte-carlo': { key: 'montecarlo-best', kind: 'cardsleft' },
     'peg-solitaire': { key: 'pegs-best', kind: 'pegsleft' },
     'maze': { prefix: 'maze-best-', kind: 'steps', lv: names({ 7: 'Small', 10: 'Medium', 14: 'Large' }), order: ['7', '10', '14'] },
     'one-stroke': { prefix: 'stroke-best-', kind: 'moves', lv: levelN },
@@ -63,6 +67,7 @@
       case 'level': return `Level ${v}`;
       case 'digits': return `${v} digits`;
       case 'cardsleft': return `${v} left`;
+      case 'piles': return `${v} pile${v === 1 ? '' : 's'}`;
       case 'pegsleft': return `${v} left`;
       case 'streak': return `${v} in a row`;
       case 'steps': return `${v} steps`;

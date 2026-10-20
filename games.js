@@ -65,6 +65,10 @@ var GAMES = [
   { id: 'golf', sec: 'cards', kids: true, name: 'Golf', origin: 'Britain, 1900s', icon: '♣', blurb: 'Clear cards one higher or lower.' },
   { id: 'mahjong-solitaire', sec: 'cards', name: 'Mahjong Solitaire', origin: 'USA, 1981', icon: '中', blurb: 'Match free tiles in pairs.' },
   { id: 'free-cells', sec: 'cards', name: 'Free Cells', origin: 'USA, 1978', icon: '♠', blurb: 'All cards face up: plan your way home.' },
+  { id: 'accordion', sec: 'cards', name: 'Accordion', origin: 'Britain, 1900s', icon: '♦', blurb: 'Fold the whole deck into one pile.' },
+  { id: 'tripeaks', sec: 'cards', name: 'Tri Peaks', origin: 'Patience classic', icon: '♠', blurb: 'Clear three peaks, one up or down.' },
+  { id: 'calculation', sec: 'cards', name: 'Calculation', origin: 'Britain, 1800s', icon: '♥', blurb: 'Build four rows by ones, twos, threes and fours.' },
+  { id: 'monte-carlo', sec: 'cards', name: 'Monte Carlo', origin: 'Patience classic', icon: '♣', blurb: 'Pair up touching cards of the same number.' },
 ];
 
 // Games with a level or size choice, so they can open one step above the highest level the player has won.
