@@ -103,7 +103,7 @@
   const hueOf = g => { const same = GAMES.filter(x => x.sec === g.sec); return (HUES[g.sec] || 200) + [-6, 3, -3, 6, 0][Math.max(same.indexOf(g), 0) % 5]; };
   // On a game page, the pieces take the colour of the game's section.
   if (game) document.body.style.setProperty('--sec-h', HUES[game.sec] || 200);
-  const iconAttrs = g => `style="--hh:${hueOf(g)}" data-g="${esc(g.icon)}"`;
+  const iconAttrs = g => `style="--hh:${hueOf(g)}" data-g="${esc(g.icon)}" data-gid="${esc(g.id)}"`;
   const icon = g => `<span class="mini sec-${g.sec}${g.icon.length > 2 ? ' small' : ''}" ${iconAttrs(g)} aria-hidden="true"><span class="gglyph">${g.icon}</span></span>`;
 
   // The kids badge: a small smiling face and the age range, so it is clear which games are meant for children.
@@ -572,6 +572,86 @@
     }
     return a;
   };
+
+  // Game art: a flat tonal plate with a simple drawing for each game (see the design language, "Icons and imagery").
+  // The plate replaces the old text glyph; if anything here fails, the glyph simply stays.
+  const plates = (() => {
+    const T = (h) => ({ bg: `hsl(${h} 40% 92%)`, D: `hsl(${h} 42% 24%)`, M: `hsl(${h} 30% 52%)`, L: `hsl(${h} 34% 80%)`, W: '#FCFBF8' });
+    const sty = (k, C) => k === 'O' ? `fill="${C.W}" stroke="${C.D}" stroke-width="4"` : `fill="${C[k]}"`;
+    const r = (x, y, w, h, k, C, rx = 6) => `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${rx}" ${sty(k, C)}/>`;
+    const c = (x, y, R, k, C) => `<circle cx="${x}" cy="${y}" r="${R}" ${sty(k, C)}/>`;
+    const p = (d, k, C) => `<path d="${d}" ${sty(k, C)}/>`;
+    const ln = (d, C, w = 4, k = 'D') => `<path d="${d}" fill="none" stroke="${C[k]}" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round"/>`;
+    const grid = (n, x0, y0, s, gap, fn) => { let o = ''; for (let i = 0; i < n; i++) for (let j = 0; j < n; j++) o += fn(i, j, x0 + j * (s + gap), y0 + i * (s + gap)) || ''; return o; };
+    const txt = (t, x, y, size, C) => `<text x="${x}" y="${y}" text-anchor="middle" font-family="Georgia,serif" font-weight="700" font-size="${size}" fill="${C.D}">${t}</text>`;
+    const D = {
+      sudoku: C => r(36, 36, 88, 88, 'O', C, 10) + ln('M65 36v88M95 36v88M36 65h88M36 95h88', C, 3) + c(50, 50, 5, 'D', C) + c(110, 80, 5, 'D', C) + c(80, 110, 5, 'D', C),
+      nonogram: C => grid(5, 34, 34, 14, 3, (i, j, x, y) => r(x, y, 14, 14, (i + j * 2) % 3 === 0 || (i === 2) ? 'D' : 'W', C, 3)),
+      binary: C => grid(2, 40, 40, 36, 8, (i, j, x, y) => (i + j) % 2 ? c(x + 18, y + 18, 17, 'D', C) : c(x + 18, y + 18, 16, 'O', C)),
+      futoshiki: C => r(26, 56, 42, 48, 'O', C, 10) + r(92, 56, 42, 48, 'O', C, 10) + ln('M84 70L74 80l10 10', C, 5) + c(47, 80, 5, 'D', C),
+      skyscrapers: C => r(34, 76, 22, 52, 'D', C, 4) + r(60, 50, 22, 78, 'M', C, 4) + r(86, 62, 22, 66, 'D', C, 4) + r(112, 38, 16, 90, 'L', C, 4),
+      tents: C => p('M80 40L124 116H36z', 'D', C) + p('M80 78l14 38H66z', 'W', C) + c(40, 50, 14, 'M', C) + r(37, 60, 6, 14, 'D', C, 2),
+      mines: C => ln('M80 28v104M28 80h104M43 43l74 74M117 43L43 117', C, 5) + c(80, 80, 28, 'D', C) + c(72, 72, 7, 'W', C),
+      'lights-off': C => grid(3, 34, 34, 26, 8, (i, j, x, y) => c(x + 13, y + 13, 13, (i + j) % 2 ? 'W' : 'D', C)),
+      pipes: C => ln('M30 110h40a20 20 0 0 0 20-20V70a20 20 0 0 1 20-20h20', C, 12, 'M') + c(30, 110, 9, 'D', C) + c(130, 50, 9, 'D', C),
+      'colour-flood': C => grid(3, 34, 34, 26, 8, (i, j, x, y) => r(x, y, 26, 26, ['D', 'M', 'L'][(i + j) % 3], C, 7)),
+      'eight-queens': C => grid(2, 34, 64, 46, 0, (i, j, x, y) => r(x, y, 46, 46, (i + j) % 2 ? 'L' : 'W', C, 0)) + p('M50 60l8-24 10 14 12-18 12 18 10-14 8 24z', 'D', C) + r(50, 60, 72, 10, 'D', C, 3),
+      'knights-tour': C => ln('M44 116V84l36-0V48l36 0', C, 5, 'M') + c(44, 116, 11, 'D', C) + c(44, 84, 8, 'M', C) + c(80, 84, 8, 'M', C) + c(80, 48, 8, 'M', C) + c(116, 48, 11, 'D', C),
+      'bulls-and-cows': C => c(44, 80, 14, 'D', C) + c(80, 80, 14, 'O', C) + c(116, 80, 14, 'M', C) + ln('M34 112h92', C, 4, 'L'),
+      'one-stroke': C => ln('M36 112L80 40l44 72H36z', C, 5) + c(36, 112, 8, 'D', C) + c(80, 40, 8, 'D', C) + c(124, 112, 8, 'D', C),
+      'magic-square': C => grid(3, 36, 36, 20, 8, (i, j, x, y) => c(x + 10, y + 10, [4, 7, 10][(i + j) % 3], 'D', C)),
+      'make-24': C => txt('24', 80, 96, 64, C),
+      'target-number': C => c(80, 80, 46, 'L', C) + c(80, 80, 32, 'W', C) + c(80, 80, 18, 'M', C) + c(80, 80, 7, 'D', C),
+      'next-in-line': C => c(36, 88, 8, 'D', C) + c(64, 84, 12, 'D', C) + c(100, 78, 16, 'D', C) + `<circle cx="136" cy="70" r="12" fill="none" stroke="${C.D}" stroke-width="3" stroke-dasharray="4 5"/>`,
+      'number-pyramid': C => r(54, 36, 52, 26, 'D', C, 8) + r(36, 66, 40, 26, 'M', C, 8) + r(84, 66, 40, 26, 'M', C, 8) + r(26, 96, 34, 26, 'O', C, 8) + r(63, 96, 34, 26, 'O', C, 8) + r(100, 96, 34, 26, 'O', C, 8),
+      cages: C => grid(3, 36, 36, 26, 6, (i, j, x, y) => r(x, y, 26, 26, 'W', C, 5)) + `<rect x="30" y="30" width="64" height="38" rx="9" fill="none" stroke="${C.D}" stroke-width="4" stroke-dasharray="6 5"/>`,
+      'water-jugs': C => p('M36 60h40l-6 62H42z', 'O', C) + p('M41 92h30l-3 30H44z', 'M', C) + p('M90 40h34l-4 82H94z', 'O', C) + p('M93 76h28l-1 46H94z', 'M', C),
+      'chinese-rings': C => `<circle cx="52" cy="80" r="26" fill="none" stroke="${C.D}" stroke-width="6"/><circle cx="80" cy="80" r="26" fill="none" stroke="${C.M}" stroke-width="6"/><circle cx="108" cy="80" r="26" fill="none" stroke="${C.D}" stroke-width="6"/>`,
+      tchoukaillon: C => grid(1, 28, 70, 20, 4, () => '') + [0, 1, 2, 3, 4].map(i => r(30 + i * 22, 70, 18, 34, 'W', C, 9) + (i % 2 ? c(39 + i * 22, 94, 5, 'D', C) : c(39 + i * 22, 90, 5, 'M', C) + c(39 + i * 22, 98, 5, 'D', C))).join(''),
+      '15-puzzle': C => grid(3, 34, 34, 26, 8, (i, j, x, y) => (i === 2 && j === 2) ? '' : r(x, y, 26, 26, (i + j) % 2 ? 'M' : 'D', C, 7)),
+      hanoi: C => ln('M30 118h100', C, 4) + ln('M52 118V48M80 118V48M108 118V48', C, 4) + r(34, 102, 36, 14, 'D', C, 7) + r(40, 86, 24, 14, 'M', C, 7) + r(92, 102, 32, 14, 'O', C, 7),
+      'huarong-dao': C => r(32, 32, 44, 56, 'D', C, 8) + r(80, 32, 20, 26, 'M', C, 6) + r(104, 32, 24, 26, 'M', C, 6) + r(80, 62, 48, 26, 'L', C, 6) + r(32, 92, 22, 36, 'M', C, 6) + r(58, 92, 70, 36, 'O', C, 6),
+      'traffic-jam': C => r(30, 40, 70, 26, 'D', C, 13) + r(30, 74, 36, 26, 'M', C, 13) + r(74, 74, 56, 26, 'L', C, 13) + r(30, 108, 70, 22, 'M', C, 11),
+      maze: C => ln('M34 34h92v92H46V58h60v44H70', C, 8, 'M') + c(34, 34, 9, 'D', C) + c(70, 102, 9, 'D', C),
+      warehouse: C => r(38, 38, 84, 84, 'O', C, 10) + ln('M38 38l84 84M122 38L38 122', C, 4) + c(124, 124, 9, 'D', C),
+      pentominoes: C => r(38, 34, 40, 40, 'D', C, 8) + r(82, 34, 40, 40, 'D', C, 8) + r(38, 78, 40, 40, 'D', C, 8) + r(82, 78, 40, 40, 'L', C, 8),
+      'peg-solitaire': C => [[80, 42], [58, 80], [102, 80], [80, 118], [80, 80]].map(([x, y], i) => c(x, y, 16, i === 4 ? 'O' : 'D', C)).join(''),
+      2048: C => r(34, 34, 44, 44, 'D', C, 9) + r(82, 34, 44, 44, 'M', C, 9) + r(34, 82, 44, 44, 'L', C, 9) + r(82, 82, 44, 44, 'O', C, 9),
+      memory: C => r(34, 34, 40, 52, 'D', C, 9) + r(86, 34, 40, 52, 'O', C, 9) + r(86, 94, 40, 40, 'D', C, 9),
+      recall: C => p('M76 76V34a42 42 0 0 0-42 42z', 'D', C) + p('M84 76V34a42 42 0 0 1 42 42z', 'M', C) + p('M76 84v42a42 42 0 0 1-42-42z', 'L', C) + p('M84 84v42a42 42 0 0 0 42-42z', 'O', C),
+      'schulte-table': C => grid(3, 34, 34, 26, 8, (i, j, x, y) => r(x, y, 26, 26, 'W', C, 6) + (((i * 3 + j) % 2) ? c(x + 13, y + 13, 5, 'D', C) : '')),
+      'grid-recall': C => grid(3, 34, 34, 26, 8, (i, j, x, y) => r(x, y, 26, 26, (i === j || (i === 0 && j === 2)) ? 'D' : 'L', C, 7)),
+      'digit-span': C => [0, 1, 2, 3].map(i => r(28 + i * 26, 62, 22, 36, i < 3 ? 'D' : 'O', C, 7)).join(''),
+      'odd-one-out': C => c(56, 54, 16, 'D', C) + r(86, 38, 32, 32, 'O', C, 7) + p('M56 92l18 30H38z', 'D', C) + c(104, 108, 16, 'D', C),
+      'colour-word': C => r(28, 38, 70, 46, 'D', C, 14) + r(62, 78, 70, 46, 'O', C, 14) + txt('Aa', 63, 71, 28, { D: C.W }),
+      'word-search': C => grid(4, 34, 34, 14, 8, (i, j, x, y) => c(x + 7, y + 7, 4, i === j ? 'D' : 'M', C)) + ln('M36 36l78 78', C, 4, 'D'),
+      klondike: C => r(30, 40, 56, 78, 'O', C, 9) + r(52, 46, 56, 78, 'M', C, 9) + r(74, 52, 56, 78, 'W', C, 9) + c(102, 92, 9, 'D', C),
+      pyramid: C => [[80, 40], [62, 70], [98, 70], [44, 100], [80, 100], [116, 100]].map(([x, y], i) => r(x - 15, y - 18, 30, 40, i % 2 ? 'O' : 'M', C, 7)).join(''),
+      golf: C => ln('M70 118V38', C, 4) + p('M70 38l40 14-40 14z', 'D', C) + `<ellipse cx="70" cy="122" rx="30" ry="9" fill="${C.M}"/>` + c(106, 118, 7, 'W', C),
+      'mahjong-solitaire': C => r(36, 56, 48, 64, 'O', C, 9) + r(50, 42, 48, 64, 'M', C, 9) + r(64, 28, 48, 64, 'W', C, 9) + ln('M80 50v28M92 50v28', C, 4),
+      'free-cells': C => [0, 1, 2, 3].map(i => `<rect x="${28 + i * 26}" y="48" width="22" height="34" rx="6" fill="none" stroke="${C.D}" stroke-width="3" stroke-dasharray="5 4"/>`).join('') + r(54, 92, 52, 34, 'D', C, 9),
+    };
+    return (id, hue) => {
+      const f = D[id]; if (!f) return '';
+      const C = T(hue);
+      return `<svg class="plate" viewBox="0 0 160 160" aria-hidden="true" focusable="false"><rect width="160" height="160" fill="${C.bg}"/>${f(C)}</svg>`;
+    };
+  })();
+  const paintPlates = root => {
+    try {
+      (root || document).querySelectorAll('[data-gid]:not([data-plated])').forEach(el => {
+        const g = GAMES.find(x => x.id === el.dataset.gid);
+        const svg = g && plates(g.id, hueOf(g));
+        el.dataset.plated = '1';
+        if (svg) el.innerHTML = svg;
+      });
+    } catch { /* the text glyph stays */ }
+  };
+  try {
+    new MutationObserver(() => paintPlates()).observe(document.documentElement, { childList: true, subtree: true });
+    document.addEventListener('DOMContentLoaded', () => paintPlates());
+    paintPlates();
+  } catch { /* old browser: glyphs stay */ }
 
   window.MG = { root, game, kids, store, fmt, overlay, seg, clock, wait, shuffle, esc, badge, ageText, iconAttrs, hueOf, isKidMode, setKidMode, saveSheet, daily, dailyDone, dailyStreak, demo: () => loadTutorial(true), FACE };
 
