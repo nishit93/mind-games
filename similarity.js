@@ -111,11 +111,36 @@
     } catch { return games; }
   }
 
+  // ---- Recommendations: games close enough to your taste (cosine similarity at or above CUTOFF) that you have not played much ----
+  const CUTOFF = 0.75;
+  const PLAYED = 1;   // a game with this much (faded) play weight counts as already known
+  function recommend(games, limit = 12) {
+    try {
+      const w = weights();
+      if (!(total(w) > 0)) return { games: [], reason: {}, cold: true };
+      const p = profile(w);
+      const playedIds = Object.keys(w).filter(id => w[id] > 0);
+      const picks = games
+        .filter(g => VEC[g.id] && (w[g.id] || 0) < PLAYED)
+        .map(g => ({ g, s: cos(p, vec(g.id)) }))
+        .filter(x => x.s >= CUTOFF)
+        .sort((a, b) => b.s - a.s)
+        .slice(0, limit);
+      const reason = {};
+      for (const { g } of picks) {
+        let best = null, bs = -1;
+        for (const id of playedIds) { const s = cos(vec(g.id), vec(id)); if (s > bs) { bs = s; best = id; } }
+        reason[g.id] = best;
+      }
+      return { games: picks.map(x => x.g), reason, cold: false };
+    } catch { return { games: [], reason: {}, cold: true }; }
+  }
+
   // The nearest games to one game (for tools and future "more like this" links).
   function nearest(id, n = 5) {
     const base = vec(id);
     return Object.keys(VEC).filter(k => k !== id).map(k => ({ id: k, d: 1 - cos(base, VEC[k]) })).sort((a, b) => a.d - b.d).slice(0, n);
   }
 
-  window.MGTaste = { DIMS, VEC, vec, cos, secVec, record, weights, rankSections, rankGames, nearest, KEY };
+  window.MGTaste = { DIMS, VEC, vec, cos, secVec, record, weights, rankSections, rankGames, recommend, CUTOFF, nearest, KEY };
 })();

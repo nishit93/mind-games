@@ -152,6 +152,30 @@
       pg.close();
     }
 
+    // 3c. For you tab, side-by-side cards on Home, and the menu never opens the keyboard.
+    if (!lenient) {
+      seed({});
+      const f0 = await open('#foryou', 800);
+      check('For you', 'the tab bar has For you in place of Today', !!f0.d.querySelector('.tab[data-tab="foryou"]') && !f0.d.querySelector('.tab[data-tab="today"]'));
+      check('For you', 'a new visitor is invited to play a few games first', /Play a few games/.test(f0.d.querySelector('#view').textContent), f0.d.querySelector('#view').textContent.slice(0, 120));
+      f0.close();
+      seed({ 'mg-taste': JSON.stringify({ hanoi: { n: 30, t: Date.now() } }) });
+      const f1 = await open('#foryou', 800);
+      const hrefs = [...f1.d.querySelectorAll('#view .item-link')].map(a => a.getAttribute('href'));
+      check('For you', 'a Hanoi player is offered close games they have not played, such as the 15-Puzzle, and not Hanoi itself', hrefs.some(h => /15-puzzle/.test(h)) && !hrefs.some(h => /\/hanoi\//.test(h)), hrefs.join());
+      check('For you', 'far-away games (cards, memory) stay below the cutoff', !hrefs.some(h => /klondike|memory|accordion/.test(h)), hrefs.join());
+      check('For you', 'each suggestion says what it is like', /Like Tower of Hanoi/.test(f1.d.querySelector('#view').textContent));
+      f1.close();
+      seed({});
+      const hm = await open('', 700);
+      const daily = hm.d.querySelector('.duo .daily'), hero = hm.d.querySelector('.duo .hero');
+      const rd = daily && daily.getBoundingClientRect(), rh = hero && hero.getBoundingClientRect();
+      check('Home', 'puzzle of the day and continue playing sit side by side', !!rd && !!rh && Math.abs(rd.top - rh.top) < 4 && rd.right <= rh.left + 2, rd && rh ? [rd.top, rh.top, rd.right, rh.left].join() : 'missing');
+      hm.d.querySelector('.menu-btn').click(); await sleep(400);
+      check('Home', 'opening the menu does not focus the search box (no phone keyboard)', hm.d.activeElement && hm.d.activeElement.tagName !== 'INPUT', hm.d.activeElement && hm.d.activeElement.tagName);
+      hm.close();
+    }
+
     // 4. Every game page, from a new visitor and from a returning player.
     for (const label of ['new visitor', 'returning player']) {
       seed(label === 'new visitor' ? {} : LEGACY);
@@ -173,7 +197,7 @@
           try { const ld = JSON.parse(d.querySelector('script[type="application/ld+json"]').textContent); if (!ld['@graph'].some(x => x['@type'] === 'FAQPage') || !ld['@graph'].some(x => x['@type'] === 'VideoGame')) problems.push('structured data'); } catch { problems.push('structured data'); }
         }
         if (!lenient && label === 'new visitor') {
-          if (!w.MGTutorial) await sleep(500);
+          if (!w.MGTutorial) { const demoBtn = d.querySelector('.demo-btn'); if (demoBtn) demoBtn.click(); await sleep(900); }   // the demo only loads when asked for
           const miss = w.MGTutorial ? w.MGTutorial.missing() : ['tutorial did not load'];
           if (miss.length) problems.push('tutorial points at ' + miss.join(' and '));
           if (g.kids && !(d.querySelector('.sub .kidbadge') && /Ages \d+–\d+/.test(d.querySelector('.sub .kidbadge').textContent))) problems.push('kids badge');
@@ -438,41 +462,42 @@
       check('Game lists', 'deleting a list removes it everywhere but leaves a marker so the delete reaches other devices', h.w.MGProgress.lists().length === 0 && tomb && tomb.on === false);
       h.close();
 
-      // Focus while playing
+      // Focus while playing: starts with the first real change to the board, not with a plain tap
       seed({});
       const f1 = await open('games/golf/', 500);
       f1.d.querySelector('.card').dispatchEvent(new PointerEvent('pointerdown', { bubbles: true })); await sleep(1500);
-      const handle = f1.d.querySelector('.focus-handle');
-      check('Focus', 'once play starts, the header, rules and links step aside', f1.d.body.classList.contains('focus') && handle && !handle.hidden && f1.w.getComputedStyle(f1.d.querySelector('.howto')).display === 'none' && f1.w.getComputedStyle(f1.d.querySelector('.more')).display === 'none');
+      check('Focus', 'a plain tap does not start it', !f1.d.body.classList.contains('focus') && !f1.d.body.classList.contains('focus-in'));
+      f1.d.querySelector('.stage').append(f1.d.createElement('i')); await sleep(1600);
+      const handle = f1.d.querySelector('.focus-handle:not(.focus-fav):not(.focus-list)');
+      check('Focus', 'the first change to the board starts it: header, rules and links step aside', f1.d.body.classList.contains('focus') && handle && f1.w.getComputedStyle(f1.d.querySelector('.focus-dock')).display !== 'none' && f1.w.getComputedStyle(f1.d.querySelector('.howto')).display === 'none' && f1.w.getComputedStyle(f1.d.querySelector('.more')).display === 'none');
+      const favB = f1.d.querySelector('.focus-fav'), listB = f1.d.querySelector('.focus-list');
+      check('Focus', 'the heart and list buttons stay within reach', !!favB && !!listB);
+      favB.click(); await sleep(150);
+      check('Focus', 'the heart works while focused', f1.w.MGProgress.isFav('golf') && favB.getAttribute('aria-pressed') === 'true');
+      listB.click(); await sleep(400);
+      check('Focus', 'the list button opens the save sheet', !!f1.d.querySelector('.sheet-wrap .sheet'));
+      f1.d.querySelector('.sheet-done').click(); await sleep(400);
       handle.click(); await sleep(200);
       check('Focus', 'the handle brings everything back', !f1.d.body.classList.contains('focus') && f1.w.getComputedStyle(f1.d.querySelector('.howto')).display !== 'none');
       f1.close();
       seed({ 'mg-focus': 'off' });
       const f2 = await open('games/golf/', 500);
-      f2.d.querySelector('.card').dispatchEvent(new PointerEvent('pointerdown', { bubbles: true })); await sleep(1500);
+      f2.d.querySelector('.card').dispatchEvent(new PointerEvent('pointerdown', { bubbles: true })); f2.d.querySelector('.stage').append(f2.d.createElement('i')); await sleep(1500);
       check('Focus', 'it can be turned off in the menu', !f2.d.body.classList.contains('focus'));
       f2.close();
 
-      // Gesture tutorial
+      // Gesture tutorial: only when asked for
       seed({});
       const t1 = await open('games/hanoi/', 1700);
-      check('Tutorial', 'a new player sees the gesture demo on arrival', !!t1.d.querySelector('.coach .coach-text') && /peg/i.test(t1.d.querySelector('.coach-text').textContent));
+      check('Tutorial', 'a new player is not interrupted by the demo on arrival', !t1.d.querySelector('.coach'));
+      t1.d.querySelector('.demo-btn').click(); await sleep(500);
+      check('Tutorial', 'the demo button plays it', !!t1.d.querySelector('.coach .coach-text') && /peg/i.test(t1.d.querySelector('.coach-text').textContent));
       const stepsBefore = t1.d.querySelectorAll('.coach-steps b').length;
       t1.d.querySelector('.coach-next').click(); await sleep(150);
       check('Tutorial', 'Next moves through the steps', stepsBefore >= 2 && t1.d.querySelector('.coach-steps b.on') === t1.d.querySelectorAll('.coach-steps b')[1]);
       t1.d.querySelector('.peg').dispatchEvent(new PointerEvent('pointerdown', { bubbles: true })); await sleep(600);
       check('Tutorial', 'touching the board makes the demo step aside', !t1.d.querySelector('.coach'));
-      t1.d.querySelector('.demo-btn').click(); await sleep(400);
-      check('Tutorial', 'the demo button plays it again', !!t1.d.querySelector('.coach'));
       t1.close();
-      seed({ 'tut-done-hanoi': '1' });
-      const t2 = await open('games/hanoi/', 1700);
-      check('Tutorial', 'after a win it is not shown again', !t2.d.querySelector('.coach'));
-      t2.close();
-      seed({ 'sudoku-best-easy': '300000' });
-      const t3 = await open('games/sudoku/', 1700);
-      check('Tutorial', 'a returning player with scores does not see it', !t3.d.querySelector('.coach'));
-      t3.close();
     }
 
     // 10. Folded menu, stats page, puzzle of the day, and the new games.

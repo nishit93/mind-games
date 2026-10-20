@@ -128,7 +128,7 @@
       <span></span><span></span><span></span>
     </button>
     <div class="title">
-      <h1>${game ? game.name : '<span class="brand-mark" aria-hidden="true"></span>Quiet Board'}</h1>
+      <h1>${game ? game.name : 'The Quiet Board'}</h1>
       <p class="sub">${game ? `${game.origin} · <a href="${root}#${section.id}">${section.name}</a>${game.kids ? ` ${badge(game)}` : ''}` : 'Quiet puzzles from around the world.'}</p>
     </div>
     ${game
@@ -211,21 +211,52 @@
 
   // Focus: once play begins, everything except the game steps aside (the header, rules, history and links). A small
   // handle brings it all back. It can be turned off in the menu, and it is entered once per visit.
-  let focusing = false, focusLeft = false;
+  let focusing = false, focusLeft = false, focusTimer = 0;
   const focusOn = () => store.get('mg-focus') !== 'off';
   const handle = document.createElement('button');
+  const dock = document.createElement('div');
   if (game) {
     handle.className = 'focus-handle';
-    handle.hidden = true;
     handle.setAttribute('aria-label', 'Show the menu, rules and more');
     handle.innerHTML = '<span aria-hidden="true">⌃</span>';
-    document.body.append(handle);
+    dock.className = 'focus-dock';
+    dock.hidden = true;
+    // The heart and the list button stay within reach while the rest of the page steps aside.
+    if (!MGProgress._stub) {
+      const favB = document.createElement('button');
+      favB.className = 'focus-handle focus-fav';
+      const listB = document.createElement('button');
+      listB.className = 'focus-handle focus-list';
+      listB.setAttribute('aria-label', 'Save to a list');
+      listB.innerHTML = '<span aria-hidden="true">＋</span>';
+      const drawFocusFav = () => {
+        const on = MGProgress.isFav(game.id);
+        favB.innerHTML = `<span aria-hidden="true">${on ? '♥' : '♡'}</span>`;
+        favB.setAttribute('aria-pressed', String(on));
+        favB.setAttribute('aria-label', on ? 'Remove from favourites' : 'Add to favourites');
+      };
+      favB.addEventListener('click', () => MGProgress.toggleFav(game.id));
+      listB.addEventListener('click', () => saveSheet(game.id));
+      MGProgress.onChange(drawFocusFav);
+      drawFocusFav();
+      dock.append(favB, listB);
+    }
+    dock.append(handle);
+    document.body.append(dock);
   }
+  // Entering focus is gentle: the rules, history and links fade and slide away first, then the header folds up.
   function setFocus(on) {
+    clearTimeout(focusTimer);
     focusing = on;
-    document.body.classList.toggle('focus', on);
-    handle.hidden = !on;
-    if (!on) focusLeft = true;
+    if (on) {
+      document.body.classList.add('focus-in');
+      dock.hidden = false;
+      focusTimer = setTimeout(() => { if (focusing) document.body.classList.add('focus'); }, 460);
+    } else {
+      document.body.classList.remove('focus-in', 'focus');
+      dock.hidden = true;
+      focusLeft = true;
+    }
   }
   handle.addEventListener('click', () => setFocus(false));
   document.addEventListener('keydown', e => { if (e.key === 'Escape' && focusing) setFocus(false); });
@@ -246,7 +277,20 @@
         o[game.id] = { n: (+c.n > 0 ? +c.n : 0) + 1, t: Date.now() };
         localStorage.setItem('mg-taste', JSON.stringify(o));
       } catch { /* personalisation is optional */ }
-      if (focusOn() && !focusLeft) setTimeout(() => { if (!focusLeft) setFocus(true); }, 900);
+      // Focus begins with the first real action (a number typed, a piece slid), not with a plain tap: wait until the board changes.
+      if (focusOn() && !focusLeft) {
+        const stage = document.querySelector('.stage, .board, .table, main .grid') || document.querySelector('main');
+        let started = false;
+        const begin = () => { if (started || focusLeft) return; started = true; mo && mo.disconnect(); setTimeout(() => { if (!focusLeft) setFocus(true); }, 350); };
+        let mo = null;
+        try {
+          // Games where a first tap only selects something (and the real action is typing or a second tap) ignore attribute-only changes.
+          const SELECT_FIRST = ['sudoku', 'futoshiki', 'skyscrapers', 'cages', 'magic-square', 'number-pyramid', 'make-24', 'target-number', 'pyramid', 'monte-carlo', 'accordion', 'mahjong-solitaire', 'pentominoes'];
+          const watchAttrs = !SELECT_FIRST.includes(game.id);
+          mo = new MutationObserver(muts => { if (muts.some(m => m.type === 'characterData' || (m.type === 'childList' && (m.addedNodes.length || m.removedNodes.length)) || (watchAttrs && m.type === 'attributes'))) begin(); });
+          mo.observe(stage, { childList: true, subtree: true, characterData: true, attributes: watchAttrs, attributeFilter: watchAttrs ? ['class', 'style', 'aria-pressed', 'data-on', 'data-v'] : undefined });
+        } catch { setTimeout(begin, 900); }
+      }
     };
     addEventListener('pointerdown', onFirstTouch, true);
     addEventListener('keydown', onFirstTouch, true);
@@ -264,7 +308,7 @@
   function fillDrawer() {
     const km = isKidMode();
     drawer.innerHTML = `
-    <a class="drawer-home" href="${root}">Quiet Board</a>
+    <a class="drawer-home" href="${root}">The Quiet Board</a>
     <div class="drawer-switches">
       <button class="switch" role="switch" data-sw="kid" aria-checked="${km}"><span>Kid mode<small>Only games for children up to 11</small></span><i class="knob" aria-hidden="true"></i></button>
       ${game ? `<button class="switch" role="switch" data-sw="focus" aria-checked="${focusOn()}"><span>Focus while playing<small>Hide everything else once you start</small></span><i class="knob" aria-hidden="true"></i></button>` : ''}
@@ -319,7 +363,7 @@
     const I = {
       play: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4h10a3 3 0 0 1 3 3v10a3 3 0 0 1-3 3H7a3 3 0 0 1-3-3V7a3 3 0 0 1 3-3zM10 4v16M14 4v16M4 10h16M4 14h16"/></svg>',
       lists: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20.5s-7.5-4.6-7.5-10A4.3 4.3 0 0 1 12 7.8a4.3 4.3 0 0 1 7.5 2.7c0 5.4-7.5 10-7.5 10z"/></svg>',
-      today: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5.5h10a3 3 0 0 1 3 3v8.5a3 3 0 0 1-3 3H7a3 3 0 0 1-3-3V8.5a3 3 0 0 1 3-3zM4 10h16M8.5 3.5v4M15.5 3.5v4"/></svg>',
+      foryou: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.5l2.4 5.6 6.1.5-4.6 4 1.4 6-5.3-3.2-5.3 3.2 1.4-6-4.6-4 6.1-.5z"/></svg>',
       stats: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 20V11M12 20V5M19 20v-6"/></svg>',
     };
     const tabs = document.createElement('nav');
@@ -327,18 +371,17 @@
     tabs.setAttribute('aria-label', 'Main');
     tabs.innerHTML = `
       <a class="tab" data-tab="explore" href="#all"><span class="pill">${I.play}</span><span>Play</span></a>
-      <a class="tab" data-tab="today" href="${todayHref()}"><span class="pill">${I.today}</span><span>Today</span></a>
+      <a class="tab" data-tab="foryou" href="#foryou"><span class="pill">${I.foryou}</span><span>For you</span></a>
       <a class="tab" data-tab="lists" href="#lists"><span class="pill">${I.lists}</span><span>Lists</span></a>
       <a class="tab" data-tab="stats" href="#stats"><span class="pill">${I.stats}</span><span>Progress</span></a>`;
     document.body.append(tabs);
     const mark = () => {
       const f = location.hash.slice(1) || 'all';
-      const on = f === 'lists' || f === 'favs' || f.startsWith('l-') ? 'lists' : f === 'stats' ? 'stats' : 'explore';
+      const on = f === 'lists' || f === 'favs' || f.startsWith('l-') ? 'lists' : f === 'stats' ? 'stats' : f === 'foryou' ? 'foryou' : 'explore';
       tabs.querySelectorAll('.tab').forEach(t => { if (t.dataset.tab === on) t.setAttribute('aria-current', 'page'); else t.removeAttribute('aria-current'); });
     };
     mark();
     addEventListener('hashchange', mark);
-    document.addEventListener('mg-kidmode', () => { tabs.querySelector('[data-tab="today"]').href = todayHref(); });
   }
 
   const menuBtn = header.querySelector('.menu-btn');
@@ -348,7 +391,8 @@
     if (open) {
       const current = drawer.querySelector('.current');
       if (current) current.scrollIntoView({ block: 'center' });
-      (current || drawer.querySelector('.drawer-search')).focus({ preventScroll: true });
+      // Never focus the search box here: on a phone that pops the keyboard open as soon as the menu opens.
+      (current || drawer.querySelector('.drawer-home') || drawer).focus({ preventScroll: true });
     }
   };
   menuBtn.addEventListener('click', () => setOpen(true));
@@ -673,7 +717,7 @@
   window.MG = { root, game, kids, store, fmt, overlay, seg, clock, wait, shuffle, esc, badge, ageText, iconAttrs, hueOf, isKidMode, setKidMode, saveSheet, daily, dailyDone, dailyStreak, demo: () => loadTutorial(true), FACE };
 
   // Show the gesture tutorial on arrival, until a level of this game has been won.
-  if (game && !tutorialDone()) setTimeout(() => loadTutorial(false), 200);
+  // The gesture demo no longer starts by itself: it plays only when "Show me a quick demo" is pressed.
 
   // Offline support is a bonus: if it cannot start (private browsing, an old browser, a blocked file) nothing else may notice.
   try { if ('serviceWorker' in navigator) navigator.serviceWorker.register(`${root}sw.js`).catch(() => {}); } catch {}

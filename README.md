@@ -1,4 +1,4 @@
-# Quiet Board
+# The Quiet Board
 
 Calm, single-player puzzle and mind games from around the world. A static, installable web app (PWA) with no build step.
 

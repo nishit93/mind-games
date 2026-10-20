@@ -1,4 +1,4 @@
-# Quiet Board
+# The Quiet Board
 
 > A calm collection of 52 free single-player puzzle and mind games from around the world. No sign-up; each game has a How to play guide and a short history of where it comes from. Works in any browser on phones and computers.
 

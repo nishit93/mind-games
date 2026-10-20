@@ -275,12 +275,14 @@ const KIDS = GAMES.filter(g => g.kids).length, ALL = GAMES.length, third = x => 
       seed({});
       g = await open('games/lights-off/', { wait: 500 });
       const e4 = window.__errs.length;
-      g.d.querySelector('.light').dispatchEvent(new g.w.PointerEvent('pointerdown', { bubbles: true })); await sleep(1500);
-      const entered = g.d.body.classList.contains('focus');
+      g.d.querySelector('.light').dispatchEvent(new g.w.PointerEvent('pointerdown', { bubbles: true })); await sleep(1200);
+      const notYet = !g.d.body.classList.contains('focus');   // a plain touch does not start it: the first real move does
+      g.d.querySelector('.light').click(); await sleep(1500);
+      const entered = notYet && g.d.body.classList.contains('focus');
       g.d.dispatchEvent(new g.w.KeyboardEvent('keydown', { key: 'Escape', bubbles: true })); await sleep(150);
       const left = !g.d.body.classList.contains('focus');
-      g.d.querySelector('.light').dispatchEvent(new g.w.PointerEvent('pointerdown', { bubbles: true })); await sleep(1500);
-      check('Focus', 'focus is entered on first touch, Esc leaves it, and it does not jump back in during the same visit', entered && left && !g.d.body.classList.contains('focus') && !errsSince(e4).length, `${entered} ${left} ${errsSince(e4).join(' | ')}`);
+      g.d.querySelector('.light').dispatchEvent(new g.w.PointerEvent('pointerdown', { bubbles: true })); g.d.querySelector('.light').click(); await sleep(1500);
+      check('Focus', 'focus is entered on the first real move, Esc leaves it, and it does not jump back in during the same visit', entered && left && !g.d.body.classList.contains('focus') && !errsSince(e4).length, `${entered} ${left} ${errsSince(e4).join(' | ')}`);
       g.close();
       // plays are counted once, and not for taps on the menu or the sheet
       seed({});
@@ -313,7 +315,7 @@ const KIDS = GAMES.filter(g => g.kids).length, ALL = GAMES.length, third = x => 
         const p = await open(`games/${g.id}/`, { wait: 300 });
         const issues = [];
         try {
-          if (!p.w.MGTutorial) await sleep(600);
+          if (!p.w.MGTutorial) { const demoBtn = p.d.querySelector('.demo-btn'); if (demoBtn) demoBtn.click(); await sleep(900); }   // the demo only loads when asked for
           if (!p.w.MGTutorial) { issues.push('tutorial script did not load'); }
           else {
             p.w.MGTutorial.start({ force: true }); await sleep(250);
