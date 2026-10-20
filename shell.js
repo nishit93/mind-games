@@ -99,8 +99,8 @@
   const kids = new URLSearchParams(location.search).has('kids') || kidMode;
   document.body.classList.toggle('kidmode', kidMode);
   const href = (g, kidsLink = false) => `${root}games/${g.id}/${kidsLink && g.kids ? '?kids' : ''}`;
-  const HUES = { logic: 352, math: 262, moves: 20, memory: 172, cards: 214 };
-  const hueOf = g => { const same = GAMES.filter(x => x.sec === g.sec); return (HUES[g.sec] || 200) + [-10, 4, -4, 10, 0][Math.max(same.indexOf(g), 0) % 5]; };
+  const HUES = { logic: 28, math: 222, moves: 14, memory: 158, cards: 262 };
+  const hueOf = g => { const same = GAMES.filter(x => x.sec === g.sec); return (HUES[g.sec] || 200) + [-6, 3, -3, 6, 0][Math.max(same.indexOf(g), 0) % 5]; };
   // On a game page, the pieces take the colour of the game's section.
   if (game) document.body.style.setProperty('--sec-h', HUES[game.sec] || 200);
   const iconAttrs = g => `style="--hh:${hueOf(g)}" data-g="${esc(g.icon)}"`;

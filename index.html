@@ -253,7 +253,7 @@
       }
 
       // The category chips under the search: All, Kids and one for each section.
-      const CATS = [{ id: 'all', label: 'All', glyph: '✦', hue: 350 }, { id: 'kids', label: 'Kids', glyph: '☺', hue: 38 }]
+      const CATS = [{ id: 'all', label: 'All', glyph: '✦', hue: 28 }, { id: 'kids', label: 'Kids', glyph: '☺', hue: 28 }]
         .concat(SECTIONS.map(s => ({ id: s.id, label: s.name.replace(' & numbers', '').replace('Sliding & shapes', 'Sliding').replace('Memory & focus', 'Memory').replace('Solitaire & tiles', 'Cards'), glyph: { logic: '▦', math: '∑', moves: '▣', memory: '◉', cards: '♠' }[s.id] || '•', hue: { logic: 352, math: 262, moves: 20, memory: 172, cards: 214 }[s.id] || 200 })));
       function drawCats(f, searching) {
         const nav = document.getElementById('cats');
@@ -276,6 +276,7 @@
         const f = location.hash.slice(1) || 'all';
         const q = search.value.trim().toLowerCase();
         drawCats(f, !!q);
+        document.body.dataset.view = q ? 'search' : (f === 'stats' || f === 'lists' || f === 'favs' || f.startsWith('l-')) ? 'sub' : 'browse';
         const cols = collections();
         favSig = signature();
         const km = kidMode();

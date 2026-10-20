@@ -118,14 +118,14 @@
       let n = 0; while (have.has(dayKey(d))) { n++; d.setDate(d.getDate() - 1); }
       return n;
     })();
+    const plural = (n, w) => `${n} ${w}${n === 1 ? '' : 's'}`;
 
     // best results per game, grouped by section
     const rows = [];
-    let gamesWon = 0;
     for (const g of GAMES) {
       const info = BEST[g.id];
       const chips = [];
-      if (info && info.key) { const v = get(info.key); if (v !== null) chips.push({ label: '', text: show(info.kind, info.kind === 'wins' ? v : v) }); }
+      if (info && info.key) { const v = get(info.key); if (v !== null) chips.push({ label: '', text: show(info.kind, v) }); }
       if (info && info.prefix) {
         const found = Object.keys(st.bests || {}).filter(k => k.startsWith(info.prefix)).map(k => ({ lv: k.slice(info.prefix.length), v: get(k) })).filter(x => x.v !== null);
         found.sort((a, b) => {
@@ -142,32 +142,46 @@
         }
       }
       if (COUNTS[g.id]) { const n = (st.stats && st.stats[COUNTS[g.id]]) || 0; if (n > 0) chips.push({ label: 'Won', text: String(n) }); }
-      if (chips.length) { gamesWon++; rows.push({ g, chips }); }
+      if (chips.length) rows.push({ g, chips });
     }
-    const tile = (n, label) => `<div class="stat-tile"><b>${n}</b><small>${label}</small></div>`;
+    const art = g => (window.MG && MG.iconAttrs ? MG.iconAttrs(g) : '');
+    const longest = longestStreak(days);
     el.innerHTML = `
       <div class="topbar"><a class="back" href="#all">‹ All games</a></div>
       <h2 class="view-title">Your stats</h2>
       <p class="section-blurb">Kept on this device${P.configured && P.configured() && P.syncEnabled && P.syncEnabled() ? ' and backed up online' : ''}. Nothing here is shared.</p>
-      <div class="stat-tiles">
-        ${tile(sum.streak || 0, 'day streak')}
-        ${tile(longestStreak(days), 'longest streak')}
-        ${tile(days.length, 'days played')}
-        ${tile(sum.plays || 0, 'games played')}
-      </div>
-      <h3 class="stat-head">The last 15 weeks <small>${cal.count} day${cal.count === 1 ? '' : 's'} played</small></h3>
-      ${cal.html}
-      <h3 class="stat-head">Puzzle of the day</h3>
-      <div class="stat-tiles two">
-        ${tile(dd.length, `done in all`)}
-        ${tile(dailyStreak, `day streak`)}
-      </div>
-      <h3 class="stat-head">Your best results <small>${gamesWon} game${gamesWon === 1 ? '' : 's'}</small></h3>
+
+      <section class="st-card st-hero">
+        <div class="st-big"><b class="st-num">${sum.streak || 0}</b><span>day streak</span></div>
+        <dl class="st-facts">
+          <div><dt>Longest streak</dt><dd><b class="st-num">${longest}</b> ${longest === 1 ? 'day' : 'days'}</dd></div>
+          <div><dt>Days played</dt><dd><b class="st-num">${days.length}</b></dd></div>
+          <div><dt>Games played</dt><dd><b class="st-num">${sum.plays || 0}</b></dd></div>
+        </dl>
+      </section>
+
+      <section class="st-card">
+        <h3>Activity <small>last 15 weeks · ${plural(cal.count, 'day')} played</small></h3>
+        ${cal.html}
+      </section>
+
+      <section class="st-card">
+        <h3>Puzzle of the day</h3>
+        <dl class="st-facts">
+          <div><dt>Completed</dt><dd><b class="st-num">${dd.length}</b></dd></div>
+          <div><dt>Current streak</dt><dd><b class="st-num">${dailyStreak}</b> ${dailyStreak === 1 ? 'day' : 'days'}</dd></div>
+        </dl>
+      </section>
+
+      <h3 class="st-title">Best results <small>${plural(rows.length, 'game')}</small></h3>
       ${rows.length ? SECTIONS.map(s => {
         const mine = rows.filter(r => r.g.sec === s.id);
-        return mine.length ? `<h4 class="stat-sec">${esc(s.name)}</h4>` + mine.map(r => `
-          <div class="stat-game"><a href="games/${r.g.id}/">${esc(r.g.name)}</a>
-            <div class="stat-chips">${r.chips.map(c => `<span class="stat-chip">${c.label ? `<small>${esc(c.label)}</small>` : ''}<b>${esc(c.text)}</b></span>`).join('')}</div></div>`).join('') : '';
+        return mine.length ? `<h4 class="st-sec">${esc(s.name)}</h4>` + mine.map(r => `
+          <div class="st-row">
+            <span class="mini sec-${r.g.sec}${r.g.icon.length > 2 ? ' small' : ''}" ${art(r.g)} aria-hidden="true"><span class="gglyph">${esc(r.g.icon)}</span></span>
+            <a class="st-name" href="games/${r.g.id}/">${esc(r.g.name)}</a>
+            <div class="st-vals">${r.chips.map(c => `<span>${c.label ? `<small>${esc(c.label)}</small>` : ''}<b>${esc(c.text)}</b></span>`).join('')}</div>
+          </div>`).join('') : '';
       }).join('') : '<p class="empty">Finish a puzzle and your best results will appear here.</p>'}
       <p class="lists-link"><a href="#lists">Your lists and favourites ›</a></p>`;
   }

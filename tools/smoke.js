@@ -460,8 +460,9 @@
       seed({ ...LEGACY, 'mg-progress': JSON.stringify({ state: { favourites: {}, bests: { 'sudoku-best-easy': { v: 210000, dir: 'min', t: 5 }, 'hanoi-best-4': { v: 19, dir: 'min', t: 5 }, '2048-best': { v: 2200, dir: 'max', t: 5 } }, stats: { 'plays-dabc123': 3, 'klondike-wins': 2 }, settings: {}, days: ['2026-10-01', '2026-10-02', '2026-10-03', '2026-10-07'] } }) });
       let h = await open('', 700);
       h.w.location.hash = '#stats'; await until(() => h.d.querySelector('.stat-tile'), 10000);
-      const tiles = [...h.d.querySelectorAll('.stat-tile b')].map(b => b.textContent);
+      const tiles = [...h.d.querySelectorAll('.st-num')].map(b => b.textContent);
       check('Stats', 'the stats page shows streak, longest streak, days played and games played', tiles.length >= 4 && tiles[1] === '3' && tiles[2] === '4', tiles.join());
+      check('Stats', 'it opens with the streak as one big number', !!h.d.querySelector('.st-big .st-num'));
       check('Stats', 'it shows a calendar of recent days', !!h.d.querySelector('.cal') && h.d.querySelectorAll('.cal i').length > 90);
       const text = h.d.getElementById('view').textContent;
       check('Stats', 'best results are shown in plain words: a time, moves, a score and wins', /Sudoku/.test(text) && /3:30/.test(text) && /19 moves/.test(text) && /2200/.test(text) && /Klondike/.test(text) && /2\b/.test(text), text.slice(0, 300));
