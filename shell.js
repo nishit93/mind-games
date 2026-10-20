@@ -99,7 +99,7 @@
   const kids = new URLSearchParams(location.search).has('kids') || kidMode;
   document.body.classList.toggle('kidmode', kidMode);
   const href = (g, kidsLink = false) => `${root}games/${g.id}/${kidsLink && g.kids ? '?kids' : ''}`;
-  const HUES = { logic: 28, math: 222, moves: 14, memory: 158, cards: 262 };
+  const HUES = { logic: 28, math: 222, moves: 14, memory: 158, seek: 196, cards: 262 };
   const hueOf = g => { const same = GAMES.filter(x => x.sec === g.sec); return (HUES[g.sec] || 200) + [-6, 3, -3, 6, 0][Math.max(same.indexOf(g), 0) % 5]; };
   // On a game page, the pieces take the colour of the game's section.
   if (game) document.body.style.setProperty('--sec-h', HUES[game.sec] || 200);
@@ -634,6 +634,9 @@
       tripeaks: C => p('M20 120L50 52l30 68z', 'D', C) + p('M60 120L90 40l30 80z', 'M', C) + p('M96 120l22-44 22 44z', 'L', C) + ln('M20 124h120', C, 4),
       calculation: C => r(30, 36, 28, 40, 'D', C, 6) + r(62, 36, 28, 40, 'M', C, 6) + r(94, 36, 28, 40, 'L', C, 6) + ln('M44 100v22M76 100v22M108 100v22M30 112h100', C, 4, 'M'),
       'monte-carlo': C => grid(3, 36, 36, 26, 8, (i, j, x, y) => r(x, y, 26, 26, (i === j) ? 'D' : 'O', C, 6)) + ln('M40 40l80 80', C, 3, 'M'),
+      'find-the-cat': C => p('M44 70L52 36l22 20h12l22-20 8 34c8 8 12 18 12 28 0 22-20 34-46 34s-46-12-46-34c0-10 4-20 12-28z', 'D', C) + c(66, 90, 6, 'W', C) + c(94, 90, 6, 'W', C) + p('M76 102h8l-4 6z', 'L', C) + ln('M50 104l-16-4M50 112l-16 4M110 104l16-4M110 112l16 4', C, 3, 'L'),
+      'find-them-all': C => p('M80 30l14 30 32 4-24 22 7 32-29-17-29 17 7-32-24-22 32-4z', 'D', C) + c(40, 116, 9, 'M', C) + c(124, 112, 7, 'L', C),
+      'hide-and-seek': C => p('M80 30l34 56H46z', 'D', C) + p('M80 54l44 66H36z', 'M', C) + r(74, 118, 12, 16, 'D', C, 3) + c(124, 52, 14, 'L', C) + c(119, 49, 3, 'D', C) + c(129, 49, 3, 'D', C),
     };
     return (id, hue) => {
       const f = D[id]; if (!f) return '';

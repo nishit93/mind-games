@@ -53,7 +53,7 @@
     'word-search': { prefix: 'wordsearch-best-', kind: 'moves', lv: grid },
   };
   // Games that only count wins.
-  const COUNTS = { 'klondike': 'klondike-wins', 'pyramid': 'pyramid-wins', 'number-pyramid': 'pyramid-solved', 'pentominoes': 'pento-solved', 'target-number': 'target-solved', 'tchoukaillon': 'tchouk-solved', 'free-cells': 'freecells-wins' };
+  const COUNTS = { 'klondike': 'klondike-wins', 'pyramid': 'pyramid-wins', 'number-pyramid': 'pyramid-solved', 'pentominoes': 'pento-solved', 'target-number': 'target-solved', 'tchoukaillon': 'tchouk-solved', 'free-cells': 'freecells-wins', 'find-the-cat': 'findcat-wins', 'find-them-all': 'findall-wins', 'hide-and-seek': 'hideseek-wins' };
 
   const show = (kind, v) => {
     switch (kind) {
@@ -187,8 +187,7 @@
             <a class="st-name" href="games/${r.g.id}/">${esc(r.g.name)}</a>
             <div class="st-vals">${r.chips.map(c => `<span>${c.label ? `<small>${esc(c.label)}</small>` : ''}<b>${esc(c.text)}</b></span>`).join('')}</div>
           </div>`).join('') : '';
-      }).join('') : '<p class="empty">Finish a puzzle and your best results will appear here.</p>'}
-      <p class="lists-link"><a href="#lists">Your lists and favourites ›</a></p>`;
+      }).join('') : '<p class="empty">Finish a puzzle and your best results will appear here.</p>'}`;
   }
 
   window.MGStats = { render, longestStreak, BEST };
