@@ -309,21 +309,19 @@
   if (!game) {
     const todayHref = () => { try { const p = dailyPick(isKidMode()); return `${root}games/${p.id}/?daily=${p.date}`; } catch { return root; } };
     const I = {
-      explore: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5L21 21"/></svg>',
+      play: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4h10a3 3 0 0 1 3 3v10a3 3 0 0 1-3 3H7a3 3 0 0 1-3-3V7a3 3 0 0 1 3-3zM10 4v16M14 4v16M4 10h16M4 14h16"/></svg>',
       lists: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20.5s-7.5-4.6-7.5-10A4.3 4.3 0 0 1 12 7.8a4.3 4.3 0 0 1 7.5 2.7c0 5.4-7.5 10-7.5 10z"/></svg>',
-      today: '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="5.5" width="16" height="14.5" rx="3"/><path d="M4 10h16M8.5 3.5v4M15.5 3.5v4"/></svg>',
+      today: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5.5h10a3 3 0 0 1 3 3v8.5a3 3 0 0 1-3 3H7a3 3 0 0 1-3-3V8.5a3 3 0 0 1 3-3zM4 10h16M8.5 3.5v4M15.5 3.5v4"/></svg>',
       stats: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 20V11M12 20V5M19 20v-6"/></svg>',
-      menu: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>',
     };
     const tabs = document.createElement('nav');
     tabs.className = 'tabbar';
     tabs.setAttribute('aria-label', 'Main');
     tabs.innerHTML = `
-      <a class="tab" data-tab="explore" href="#all">${I.explore}<span>Explore</span></a>
-      <a class="tab" data-tab="lists" href="#lists">${I.lists}<span>Lists</span></a>
-      <a class="tab" data-tab="today" href="${todayHref()}">${I.today}<span>Today</span></a>
-      <a class="tab" data-tab="stats" href="#stats">${I.stats}<span>Stats</span></a>
-      <button class="tab" data-tab="menu" type="button" aria-controls="drawer">${I.menu}<span>Menu</span></button>`;
+      <a class="tab" data-tab="explore" href="#all"><span class="pill">${I.play}</span><span>Play</span></a>
+      <a class="tab" data-tab="today" href="${todayHref()}"><span class="pill">${I.today}</span><span>Today</span></a>
+      <a class="tab" data-tab="lists" href="#lists"><span class="pill">${I.lists}</span><span>Lists</span></a>
+      <a class="tab" data-tab="stats" href="#stats"><span class="pill">${I.stats}</span><span>Progress</span></a>`;
     document.body.append(tabs);
     const mark = () => {
       const f = location.hash.slice(1) || 'all';
@@ -333,7 +331,6 @@
     mark();
     addEventListener('hashchange', mark);
     document.addEventListener('mg-kidmode', () => { tabs.querySelector('[data-tab="today"]').href = todayHref(); });
-    tabs.querySelector('[data-tab="menu"]').addEventListener('click', () => setOpen(true));
   }
 
   const menuBtn = header.querySelector('.menu-btn');

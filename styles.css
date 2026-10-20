@@ -1,62 +1,83 @@
 /*
-  Mind Games design: quiet and elegant. White surfaces, warm neutral greys, near-black ink for actions,
-  hairline borders, soft tonal artwork for each game, and a single coral accent used sparingly
-  (the active tab, hearts and focus).
+  Mind Games design language v3 ("A quiet place to think"): warm paper, deep lagoon accent, Atkinson Hyperlegible
+  for reading and Fraunces for titles, 48px targets, 17px body, shapes plus colour, calm motion.
+  The tokens below drive everything; the design layer at the end of this file applies them.
 */
 :root {
-  --cloud: #FAF9F7;
-  --mocha: #59554F;
-  --peach: #E9E1D5;
-  --peri: #5C6784;
-  --gray: #706D67;
+  --paper: #F6F4EF;
+  --card: #FCFBF8;
+  --sunk: #ECE9E4;
+  --line: #DEDAD3;
+  --edge: #838078;
+  --ink-1: #191F2B;
+  --ink-2: #49505E;
+  --ink-3: #636976;
+  --lagoon: #136868;
+  --lagoon-press: #0E5252;
+  --lagoon-soft: #D2EFEC;
+  --lagoon-ink: #004141;
+  --hint: #7B5518;
+  --hint-soft: #F9EACA;
+  --clay: #9A4729;
+  --clay-soft: #FEE5DB;
 
-  --bg: #FFFFFF;
-  --surface: #FFFFFF;
-  --soft: #FAF9F7;
-  --board: #F3F1ED;
-  --line: #ECEAE5;
-  --line-strong: #DDDAD3;
-  --text: #1F1F1F;
-  --muted: #706D67;
-  --ink: #1F1F1F;
+  /* names the rest of the site already uses */
+  --cloud: var(--paper); --mocha: #59554F; --peach: #E9E1D5; --peri: #5C6784; --gray: var(--ink-3);
+  --bg: var(--paper);
+  --surface: var(--card);
+  --soft: var(--paper);
+  --board: var(--sunk);
+  --line-strong: var(--edge);
+  --text: var(--ink-1);
+  --muted: var(--ink-2);
+  --ink: var(--lagoon);
   --on-ink: #FFFFFF;
   --tile: #59554F;
   --tile-text: #FFFFFF;
   --tile-home: #E9E1D5;
   --tile-home-text: #2A2724;
-  --accent: #E8445C;
-  --accent-2: #D93A52;
+  --accent: var(--lagoon);
+  --accent-2: var(--lagoon-press);
   --on-accent: #FFFFFF;
-  --heart: #E8445C;
-  --shadow: 0 1px 2px rgb(0 0 0 / .05), 0 4px 14px rgb(0 0 0 / .06);
-  --radius: 20px;
+  --heart: var(--clay);
+  --focus: #138080;
+  --shadow: 0 1px 2px rgb(25 31 43 / .05), 0 4px 14px rgb(25 31 43 / .06);
+  --radius: 24px;
+  --font-ui: "Atkinson Hyperlegible Next", "Atkinson Hyperlegible", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-voice: "Fraunces", "Iowan Old Style", Georgia, serif;
   color-scheme: light;
 }
 
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --bg: #131312;
-    --surface: #1A1A19;
-    --soft: #1A1A19;
-    --board: #242422;
-    --line: #2C2C2A;
-    --line-strong: #3A3A37;
-    --text: #F1F0EC;
-    --muted: #A09D96;
-    --ink: #F1F0EC;
-    --on-ink: #131312;
-    --tile: #8A857C;
+    --paper: #12161E;
+    --card: #1B212C;
+    --sunk: #242B38;
+    --line: #323A49;
+    --edge: #8B93A3;
+    --ink-1: #ECEEF2;
+    --ink-2: #B6BCC8;
+    --ink-3: #9BA2B0;
+    --lagoon: #5FC4BC;
+    --lagoon-press: #7AD3CC;
+    --lagoon-soft: #16403F;
+    --lagoon-ink: #A8E8E2;
+    --hint: #F0CE8A;
+    --hint-soft: #3A2F18;
+    --clay: #F3B79C;
+    --clay-soft: #3F2A20;
+    --on-ink: #06302E;
+    --on-accent: #06302E;
+    --tile: #8A93A4;
     --tile-text: #FFFFFF;
-    --tile-home: #4A453D;
-    --tile-home-text: #F1F0EC;
-    --accent: #F0566C;
-    --accent-2: #E04A60;
-    --on-accent: #FFFFFF;
-    --heart: #F0566C;
+    --tile-home: #3A4252;
+    --tile-home-text: #ECEEF2;
+    --focus: #8FDCD5;
     --shadow: 0 1px 2px rgb(0 0 0 / .4), 0 6px 20px rgb(0 0 0 / .3);
     color-scheme: dark;
   }
 }
+
 
 * { box-sizing: border-box; }
 
@@ -1151,3 +1172,104 @@ body[data-game] { --tile: hsl(var(--sec-h, 28) 14% 38%); --tile-home: hsl(var(--
 body[data-view="sub"] .searchbar, body[data-view="sub"] .kidswitch { display: none; }
 body[data-view="sub"] header.top { margin-bottom: 4px; }
 .cal i.cal-on { background: color-mix(in srgb, var(--ink) 78%, var(--bg)); }
+
+/* =====================================================================================================================
+   Design language v3 applied: type, targets, controls, tab bar, artwork, messages, motion.
+   ===================================================================================================================== */
+body { font-family: var(--font-ui); font-size: 17px; line-height: 1.5; letter-spacing: 0; background: var(--paper); color: var(--ink-1); }
+h1, h2, .view-title, .st-title, .shelf-head h2, .drawer-home { font-family: var(--font-voice); font-weight: 600; letter-spacing: -.02em; }
+h1 { font-size: 1.75rem; line-height: 1.2; }
+.sub, .status, .gmeta, .item-text small { color: var(--ink-2); font-size: .94rem; }
+:focus-visible { outline: 3px solid var(--focus); outline-offset: 3px; border-radius: 12px; }
+
+/* Touch targets: 48 px */
+.icon-btn { width: 48px; height: 48px; border-radius: 50%; background: var(--card); border: 1px solid var(--line); }
+header.top .icon-btn { width: 48px; height: 48px; }
+.seg button { min-height: 44px; font-size: .95rem; }
+.cat { min-height: 48px; }
+.chip { min-height: 40px; padding: 0 16px; display: inline-flex; align-items: center; gap: 6px; font-weight: 600; }
+.item .heart, .gwrap .heart { width: 48px; height: 48px; }
+.back { min-height: 48px; }
+.btn { min-height: 52px; border-radius: 16px; font-weight: 700; font-size: 1.05rem; padding: 0 24px; display: inline-flex; align-items: center; justify-content: center; gap: 10px; transition: background-color .12s ease, transform .12s ease; }
+.btn:hover { filter: none; background: var(--lagoon-press); }
+.btn:active { filter: none; background: var(--lagoon-press); transform: scale(.97); }
+.btn.ghost { background: var(--card); color: var(--ink-1); border: 1.5px solid var(--edge); }
+.btn.ghost:hover { background: var(--sunk); }
+
+/* Choices: selected = tick + heavier weight + bolder edge + soft fill (never colour alone) */
+.seg { background: var(--sunk); border-radius: 18px; }
+.seg button { border-radius: 14px; color: var(--ink-2); font-weight: 600; border: 1.5px solid transparent; }
+.seg button[aria-pressed="true"] { background: var(--card); color: var(--ink-1); font-weight: 700; box-shadow: none; border-color: var(--ink-1); }
+.seg button[aria-pressed="true"]::before { content: "\2713"; margin-right: 6px; font-weight: 700; }
+.chip { border: 1px solid var(--edge); background: var(--card); color: var(--ink-1); }
+.chip[aria-pressed="true"], .cat[aria-current] { background: var(--lagoon-soft); color: var(--lagoon-ink); border: 2px solid var(--lagoon); font-weight: 700; }
+.chip[aria-pressed="true"]::before { content: "\2713"; font-weight: 700; }
+.cat { border-color: var(--edge); }
+
+/* Cards and surfaces */
+.hero, .daily, .st-card, .howto, .stats, .tile-link, .install { background: var(--card); border: 1px solid var(--line); box-shadow: none; }
+.hero, .daily { border-radius: 28px; }
+.hero-text b, .daily-text b { font-family: var(--font-voice); font-weight: 600; font-size: 1.3rem; line-height: 1.25; }
+.hero-label, .daily-text small { color: var(--ink-3); font-size: .8rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; }
+.daily-go, .hero-link { color: var(--lagoon); font-weight: 700; text-decoration: underline; text-underline-offset: 3px; }
+.daily.done .daily-go { color: var(--ink-2); }
+.calart i { background: var(--lagoon); color: #fff; }
+.daily.done .calart i { background: var(--ink-3); }
+.stats b { font-family: var(--font-voice); font-weight: 600; }
+.stats span { color: var(--ink-3); }
+
+/* Tonal artwork: flat, calm tiles; the shape glyph carries identity */
+.gicon, .mini { background: hsl(var(--hh, 28) 40% 92%); color: hsl(var(--hh, 28) 40% 24%); border: 1px solid hsl(var(--hh, 28) 24% 84%); }
+.gicon::before, .mini::before { color: hsl(var(--hh, 28) 34% 82%); opacity: 1; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .gicon, :root:not([data-theme="light"]) .mini { background: hsl(var(--hh, 28) 16% 22%); } }
+.gcard .gicon { border-radius: 26px; }
+.gname { font-size: 1rem; font-weight: 700; }
+.gwrap .heart { color: rgb(25 31 43 / .45); }
+.gwrap .heart[aria-pressed="true"], .item .heart[aria-pressed="true"] { color: var(--clay); }
+.kidbadge, .gcard .kidbadge { background: var(--card); color: var(--ink-2); border: 1px solid var(--line); }
+
+/* Tab bar: four destinations, the active one gets a pill, a heavier stroke and a bolder label */
+.tabbar { background: var(--card); backdrop-filter: none; -webkit-backdrop-filter: none; border-top: 1px solid var(--line); padding: 8px 6px calc(10px + env(safe-area-inset-bottom)); }
+.tab { max-width: none; color: var(--ink-2); font-family: var(--font-ui); font-size: .8rem; font-weight: 600; gap: 4px; min-height: 56px; }
+.tab svg { width: 24px; height: 24px; stroke-width: 2; }
+.tab .pill { width: 64px; height: 32px; border-radius: 16px; display: flex; align-items: center; justify-content: center; transition: background-color .24s ease; }
+.tab[aria-current] { color: var(--lagoon-ink); font-weight: 700; }
+.tab[aria-current] .pill { background: var(--lagoon-soft); }
+.tab[aria-current] svg { stroke: var(--lagoon-ink); stroke-width: 2.25; }
+.home { padding-bottom: 120px; }
+body:has(.tabbar) .home .menu-btn { display: grid; }
+
+/* Home header and search */
+.home h1 { font-family: var(--font-voice); font-size: 1.9rem; }
+.brand-mark { background: var(--lagoon); }
+.home .search { height: 52px; border: 1.5px solid var(--edge); background: var(--card); box-shadow: none; border-radius: 16px; font-size: 1rem; }
+.search:focus { outline: 3px solid var(--focus); outline-offset: 2px; }
+
+/* Lists and stats */
+.item-link { min-height: 72px; }
+.item-text b { font-size: 1.05rem; font-weight: 700; }
+.see-all { width: 48px; height: 48px; background: var(--sunk); }
+.st-big b { font-family: var(--font-voice); font-weight: 600; }
+.st-card h3 { font-weight: 700; }
+.cal i { border-radius: 6px; }
+.cal i.cal-on { background: var(--lagoon); }
+.cal i.cal-today { outline: 2px solid var(--ink-1); }
+.st-sec { color: var(--ink-3); }
+
+/* Messages, win overlay, sheets */
+.dailybar, .kidbar { background: var(--lagoon-soft); color: var(--lagoon-ink); border-radius: 16px; }
+.empty { color: var(--ink-2); }
+.sheet { background: var(--card); border-radius: 28px 28px 0 0; }
+.win .badge circle { fill: var(--lagoon-soft); stroke: var(--lagoon); }
+.win .badge path { stroke: var(--lagoon); }
+.win .reward i:nth-of-type(odd) { background: var(--lagoon-soft); }
+.win .reward i:nth-of-type(even) { background: var(--hint-soft); }
+.coach-dot { background: color-mix(in srgb, var(--lagoon) 75%, transparent); }
+.coach-ring { border-color: var(--lagoon); }
+.coach-glow { box-shadow: 0 0 0 3px color-mix(in srgb, var(--lagoon) 25%, transparent); }
+.coach-steps b.on { background: var(--lagoon); }
+[aria-checked="true"] > .knob { background: var(--lagoon); }
+[aria-checked="true"] > .knob::after { background: #fff; }
+
+@media (prefers-reduced-motion: reduce) { * { animation-duration: .01ms !important; transition-duration: .01ms !important; } }
+@media (max-width: 420px) { .home h1 { font-size: 1.55rem; white-space: nowrap; } .brand-mark { display: none; } }
