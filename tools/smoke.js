@@ -459,7 +459,7 @@
       // stats page
       seed({ ...LEGACY, 'mg-progress': JSON.stringify({ state: { favourites: {}, bests: { 'sudoku-best-easy': { v: 210000, dir: 'min', t: 5 }, 'hanoi-best-4': { v: 19, dir: 'min', t: 5 }, '2048-best': { v: 2200, dir: 'max', t: 5 } }, stats: { 'plays-dabc123': 3, 'klondike-wins': 2 }, settings: {}, days: ['2026-10-01', '2026-10-02', '2026-10-03', '2026-10-07'] } }) });
       let h = await open('', 700);
-      h.w.location.hash = '#stats'; await sleep(900);
+      h.w.location.hash = '#stats'; await until(() => h.d.querySelector('.stat-tile'), 10000);
       const tiles = [...h.d.querySelectorAll('.stat-tile b')].map(b => b.textContent);
       check('Stats', 'the stats page shows streak, longest streak, days played and games played', tiles.length >= 4 && tiles[1] === '3' && tiles[2] === '4', tiles.join());
       check('Stats', 'it shows a calendar of recent days', !!h.d.querySelector('.cal') && h.d.querySelectorAll('.cal i').length > 90);
@@ -468,6 +468,7 @@
       h.close();
       seed({});
       h = await open('#stats', 900);
+      await until(() => /Finish a puzzle/.test(h.d.getElementById('view').textContent), 10000);
       check('Stats', 'with nothing played, it says so kindly instead of showing a blank page', /Finish a puzzle/.test(h.d.getElementById('view').textContent));
       h.close();
 
