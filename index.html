@@ -276,7 +276,6 @@
         if (haveFav || custom.length) {
           if (fav) out.push({ id: 'favs', chip: 'favs', label: 'Favourites', glyph: '♥', hue: 8 });
           custom.forEach(c => out.push({ id: 'l-' + c.id, chip: c.id, label: c.name, glyph: '☰', hue: 200 }));
-          if (!P._stub) out.push({ id: 'lists', label: '＋', glyph: '', hue: 200, add: true });
         }
         SECTIONS.forEach(s => out.push({ id: s.id, label: SEC_LABEL(s), glyph: SEC_GLYPH[s.id] || '•', hue: SEC_HUE[s.id] || 200 }));
         if (!kidMode()) out.push({ id: 'kids', label: 'Kids', glyph: '☺', hue: 28 });
