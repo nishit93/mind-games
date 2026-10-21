@@ -231,13 +231,13 @@
       h = await open('', { wait: 600 });
       const e1 = window.__errs.length;
       const hashes = ['#all', '#lists', '#favs', '#kids', '#logic', '#math', '#moves', '#memory', '#cards', '#zzz', '#l-nope', '#', '#l-', '#lists?x=1', '#%E0%A4%A'];
-      const clickables = () => [...h.d.querySelectorAll('#view button, .kidswitch')].filter(visible);
+      const clickables = () => [...h.d.querySelectorAll('#view button, .theme-btn, .drawer [data-sw="kid"]')].filter(visible);
       for (let i = 0; i < 400; i++) {
         const r = Math.random();
         try {
           if (r < 0.2) h.w.location.hash = hashes[Math.floor(Math.random() * hashes.length)];
           else if (r < 0.3) { const s = h.d.getElementById('search'); s.value = ['', 'a', 'sud', 'zzzz', '<b>', 'ma'][Math.floor(Math.random() * 6)]; s.dispatchEvent(new h.w.Event('input')); }
-          else if (r < 0.34) h.d.querySelector('.kidswitch').click();
+          else if (r < 0.34) h.d.querySelector('[data-sw="kid"]').click();
           else if (r < 0.40) { const f = h.d.querySelector('[data-newlist]'); if (f) { f.querySelector('input').value = 'L' + i; f.dispatchEvent(new h.w.Event('submit', { cancelable: true, bubbles: true })); } }
           else { const c = clickables(); if (c.length) { const el = c[Math.floor(Math.random() * c.length)]; if (!el.matches('[data-act="rename-list"],[data-act="delete-list"],[data-act="erase"],[data-act="use"],[data-act="copy"]')) el.click(); } }
         } catch (err) { window.__errs.push('harness: ' + err.message); }
@@ -253,7 +253,7 @@
       h = await open('', { wait: 600 });
       const e2 = window.__errs.length;
       const states = [];
-      for (let i = 0; i < 6; i++) { h.d.querySelector('.kidswitch').click(); await sleep(150); states.push(h.d.body.classList.contains('kidmode') + ':' + h.d.querySelectorAll('.drawer-item').length + ':' + new Set([...h.d.querySelectorAll('#view .gcard')].map(a => a.getAttribute('href'))).size); }
+      for (let i = 0; i < 6; i++) { h.d.querySelector('[data-sw="kid"]').click(); await sleep(150); states.push(h.d.body.classList.contains('kidmode') + ':' + h.d.querySelectorAll('.drawer-item').length + ':' + new Set([...h.d.querySelectorAll('#view .gcard')].map(a => a.getAttribute('href'))).size); }
 const KIDS = GAMES.filter(g => g.kids).length, ALL = GAMES.length, third = x => x.split(':')[2];
       check('Kid mode', 'switching kid mode on and off six times keeps the page, menu and storage in step', states.every((x, k) => x.startsWith(k % 2 === 0 ? 'true:' + KIDS + ':' : 'false:' + ALL + ':')) && third(states[0]) === third(states[2]) && third(states[1]) === third(states[3]) && !errsSince(e2).length, states.join(' ') + ' ' + errsSince(e2).join(' | '));
       h.close();

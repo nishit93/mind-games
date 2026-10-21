@@ -133,8 +133,33 @@
     </div>
     ${game
       ? `${MGProgress._stub ? '' : '<button class="icon-btn fav-btn" aria-label="Add to favourites" aria-pressed="false">♡</button><button class="icon-btn list-btn" aria-label="Save to a list">＋</button>'}<button class="icon-btn help-btn" aria-label="How to play">?</button>`
-      : `<button class="kidswitch" role="switch" aria-checked="${kidMode}" title="Kid mode shows only games for children up to 11">${FACE}<span>Kid mode</span><i class="knob" aria-hidden="true"></i></button>`}`;
+      : '<button class="icon-btn theme-btn" type="button" aria-label="Switch to dark mode"></button>'}`;
   main.prepend(header);
+
+  // Light or dark: follows the phone until the player chooses, then remembers the choice on this device (mg-theme).
+  const THEME_ICON = {
+    moon: '<svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/></svg>',
+    sun: '<svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2M5.3 5.3l1.4 1.4M17.3 17.3l1.4 1.4M5.3 18.7l1.4-1.4M17.3 6.7l1.4-1.4"/></svg>',
+  };
+  const themeBtn = header.querySelector('.theme-btn');
+  const themeNow = () => {
+    const t = store.get('mg-theme');
+    if (t === 'dark' || t === 'light') return t;
+    try { return matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'; } catch { return 'light'; }
+  };
+  function applyTheme() {
+    const t = store.get('mg-theme');
+    if (t === 'dark' || t === 'light') document.documentElement.setAttribute('data-theme', t); else document.documentElement.removeAttribute('data-theme');
+    const dark = themeNow() === 'dark';
+    if (themeBtn) {
+      themeBtn.innerHTML = dark ? THEME_ICON.sun : THEME_ICON.moon;
+      themeBtn.setAttribute('aria-label', dark ? 'Switch to light mode' : 'Switch to dark mode');
+      themeBtn.title = dark ? 'Switch to light mode' : 'Switch to dark mode';
+    }
+    try { const m = document.querySelector('meta[name="theme-color"]'); if (m) m.setAttribute('content', dark ? '#12161E' : '#F6F4EF'); } catch { /* optional */ }
+  }
+  if (themeBtn) themeBtn.addEventListener('click', () => { store.set('mg-theme', themeNow() === 'dark' ? 'light' : 'dark'); applyTheme(); });
+  applyTheme();
 
   // Kid mode switch: reloads a game (so it starts on its easiest setting); the home page redraws itself.
   function setKidMode(on) {

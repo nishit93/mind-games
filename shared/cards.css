@@ -46,6 +46,8 @@
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) .card:not(.down) { background: #EFE7DF; }
 }
+/* the same, when the player chose dark with the toggle */
+:root[data-theme="dark"] .card:not(.down) { background: #EFE7DF; }
 .table { background: var(--sunk); }
 .card.red { color: var(--clay, #9A4729); }
 .card .stackn { position: absolute; right: -4px; top: -6px; min-width: 18px; height: 18px; padding: 0 4px; border-radius: 9px; background: var(--ink-1, #191F2B); color: var(--paper, #fff); font-size: 11px; line-height: 18px; text-align: center; }

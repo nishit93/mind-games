@@ -182,6 +182,30 @@
       hm.close();
     }
 
+    // 3d. Light and dark toggle in the home header; Kid mode lives in the menu.
+    if (!lenient) {
+      seed({});
+      const th = await open('', 700);
+      const rootEl = th.d.documentElement;
+      check('Theme', 'the home header has a light/dark toggle and no Kid mode switch', !!th.d.querySelector('header.top .theme-btn') && !th.d.querySelector('header.top .kidswitch') && !!th.d.querySelector('.drawer [data-sw="kid"]'));
+      const before = th.w.getComputedStyle(th.d.body).backgroundColor;
+      const startDark = th.w.matchMedia('(prefers-color-scheme: dark)').matches;
+      th.d.querySelector('.theme-btn').click(); await sleep(250);
+      const after = th.w.getComputedStyle(th.d.body).backgroundColor;
+      check('Theme', 'tapping it switches the colours and remembers the choice', rootEl.getAttribute('data-theme') === (startDark ? 'light' : 'dark') && th.w.localStorage.getItem('mg-theme') === (startDark ? 'light' : 'dark') && before !== after, before + ' -> ' + after);
+      th.d.querySelector('.theme-btn').click(); await sleep(250);
+      check('Theme', 'tapping again goes back', th.w.getComputedStyle(th.d.body).backgroundColor === before);
+      th.close();
+      seed({ 'mg-theme': 'dark' });
+      const td = await open('games/golf/', 600);
+      check('Theme', 'a chosen theme applies to game pages too, from the first paint', td.d.documentElement.getAttribute('data-theme') === 'dark' && /rgb\(1[0-9], 2[0-9], 3[0-9]\)/.test(td.w.getComputedStyle(td.d.body).backgroundColor), td.w.getComputedStyle(td.d.body).backgroundColor);
+      td.close();
+      seed({ 'mg-theme': 'banana' });
+      const tb = await open('', 500);
+      check('Theme', 'a damaged theme value is ignored', !tb.d.documentElement.getAttribute('data-theme') && tb.d.querySelectorAll('.gcard').length > 10);
+      tb.close();
+    }
+
     // 4. Every game page, from a new visitor and from a returning player.
     for (const label of ['new visitor', 'returning player']) {
       seed(label === 'new visitor' ? {} : LEGACY);
@@ -422,7 +446,7 @@
       sInput.value = 'mahjong'; sInput.dispatchEvent(new Event('input')); await sleep(100);
       check('Kid mode', 'search finds children\'s games but not the others', found1 === 1 && !!h.d.querySelector('.empty'));
       sInput.value = ''; sInput.dispatchEvent(new Event('input'));
-      h.d.querySelector('.kidswitch').click(); await sleep(500);
+      h.d.querySelector('[data-sw="kid"]').click(); await sleep(500);
       check('Kid mode', 'switching it off brings every game back', !h.d.body.classList.contains('kidmode') && h.w.localStorage.getItem('mg-kidmode') === 'off' && nonKidLinks(h.d).length > 0);
       h.close();
 

@@ -77,6 +77,34 @@
     color-scheme: dark;
   }
 }
+/* the same, when the player chose dark with the toggle */
+:root[data-theme="dark"] {
+    --paper: #12161E;
+    --card: #1B212C;
+    --sunk: #242B38;
+    --line: #323A49;
+    --edge: #8B93A3;
+    --ink-1: #ECEEF2;
+    --ink-2: #B6BCC8;
+    --ink-3: #9BA2B0;
+    --lagoon: #5FC4BC;
+    --lagoon-press: #7AD3CC;
+    --lagoon-soft: #16403F;
+    --lagoon-ink: #A8E8E2;
+    --hint: #F0CE8A;
+    --hint-soft: #3A2F18;
+    --clay: #F3B79C;
+    --clay-soft: #3F2A20;
+    --on-ink: #06302E;
+    --on-accent: #06302E;
+    --tile: #8A93A4;
+    --tile-text: #FFFFFF;
+    --tile-home: #3A4252;
+    --tile-home-text: #ECEEF2;
+    --focus: #8FDCD5;
+    --shadow: 0 1px 2px rgb(0 0 0 / .4), 0 6px 20px rgb(0 0 0 / .3);
+    color-scheme: dark;
+  }
 
 
 * { box-sizing: border-box; }
@@ -759,6 +787,8 @@ h1 {
 /* ---- Kids badge: a small smiling face and the age range ---- */
 :root { --kid-bg: #FFDCC6; --kid-fg: #5A3A2A; --kid-face: #FFB98F; }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --kid-bg: #5B4337; --kid-fg: #FFDCC6; --kid-face: #D98E66; } }
+/* the same, when the player chose dark with the toggle */
+:root[data-theme="dark"] { --kid-bg: #5B4337; --kid-fg: #FFDCC6; --kid-face: #D98E66; }
 .kidbadge {
   display: inline-flex; align-items: center; gap: 4px; vertical-align: middle;
   padding: 1px 8px 1px 4px; border-radius: 999px;
@@ -1004,6 +1034,9 @@ body:has(.tabbar) .home .menu-btn { display: none; }   /* the Menu tab replaces 
   :root:not([data-theme="light"]) .gicon, :root:not([data-theme="light"]) .mini { background: linear-gradient(160deg, hsl(var(--hh, 28) 12% 24%), hsl(var(--hh, 28) 12% 19%)); color: hsl(var(--hh, 28) 30% 84%); }
   :root:not([data-theme="light"]) .gicon::before, :root:not([data-theme="light"]) .mini::before { color: hsl(var(--hh, 28) 12% 30%); }
 }
+/* the same, when the player chose dark with the toggle */
+:root[data-theme="dark"] .gicon, :root[data-theme="dark"] .mini { background: linear-gradient(160deg, hsl(var(--hh, 28) 12% 24%), hsl(var(--hh, 28) 12% 19%)); color: hsl(var(--hh, 28) 30% 84%); }
+  :root[data-theme="dark"] .gicon::before, :root[data-theme="dark"] .mini::before { color: hsl(var(--hh, 28) 12% 30%); }
 
 /* Home: search pill, category chips */
 .searchbar { position: relative; }
@@ -1111,6 +1144,8 @@ body:has(.tabbar) .home .menu-btn { display: none; }   /* the Menu tab replaces 
 /* Kids badge and kid mode: neutral */
 :root { --kid-bg: #F3F1ED; --kid-fg: #4A4538; --kid-face: #EBDDB0; }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --kid-bg: #2C2C2A; --kid-fg: #E5DFC9; --kid-face: #7A6F4B; } }
+/* the same, when the player chose dark with the toggle */
+:root[data-theme="dark"] { --kid-bg: #2C2C2A; --kid-fg: #E5DFC9; --kid-face: #7A6F4B; }
 .kidswitch { border: 1px solid var(--line-strong); box-shadow: none; background: var(--surface); font-weight: 500; }
 .kidmode .kidswitch { background: var(--board); border-color: var(--line-strong); }
 .kidbadge { font-weight: 600; }
@@ -1171,6 +1206,8 @@ body:has(.tabbar) .home .menu-btn { display: none; }   /* the Menu tab replaces 
 /* Pieces on a game page take a quiet tone of the game's section colour (--sec-h is set by shell.js) */
 body[data-game] { --tile: hsl(var(--sec-h, 28) 14% 38%); --tile-home: hsl(var(--sec-h, 28) 42% 86%); --tile-home-text: #2A2724; }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) body[data-game] { --tile: hsl(var(--sec-h, 28) 12% 52%); --tile-home: hsl(var(--sec-h, 28) 18% 30%); --tile-home-text: #F1F0EC; } }
+/* the same, when the player chose dark with the toggle */
+:root[data-theme="dark"] body[data-game] { --tile: hsl(var(--sec-h, 28) 12% 52%); --tile-home: hsl(var(--sec-h, 28) 18% 30%); --tile-home-text: #F1F0EC; }
 
 /* Stats and lists are quiet sub-pages: no search or kid switch on top */
 body[data-view="sub"] .searchbar, body[data-view="sub"] .kidswitch { display: none; }
@@ -1226,6 +1263,8 @@ header.top .icon-btn { width: 48px; height: 48px; }
 .gicon, .mini { background: hsl(var(--hh, 28) 40% 92%); color: hsl(var(--hh, 28) 40% 24%); border: 1px solid hsl(var(--hh, 28) 24% 84%); }
 .gicon::before, .mini::before { color: hsl(var(--hh, 28) 34% 82%); opacity: 1; }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .gicon, :root:not([data-theme="light"]) .mini { background: hsl(var(--hh, 28) 16% 22%); } }
+/* the same, when the player chose dark with the toggle */
+:root[data-theme="dark"] .gicon, :root[data-theme="dark"] .mini { background: hsl(var(--hh, 28) 16% 22%); }
 .gcard .gicon { border-radius: 26px; }
 .gname { font-size: 1rem; font-weight: 700; }
 .gwrap .heart { color: rgb(25 31 43 / .45); }
@@ -1326,7 +1365,9 @@ h1 { font-size: 1.4rem; }
 .home { padding-bottom: 96px; }
 .st-big b { font-size: 2.6rem; }
 .st-card { padding: 14px 16px; }
-@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .plate { filter: brightness(.8) saturate(.85); } }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .plate { filter: brightness(.66) saturate(.8); } }
+/* the same, when the player chose dark with the toggle */
+:root[data-theme="dark"] .plate { filter: brightness(.66) saturate(.8); }
 
 .sec-seek { --ic-bg: #6FA3A0; --ic-fg: #FFFFFF; }
 
@@ -1364,3 +1405,7 @@ h1 { font-size: 1.4rem; }
 /* Once the fade has finished the final state is set outright (no transition), so nothing depends on animations running. */
 body.focus header.top, body.focus .howto, body.focus .more, body.focus .history, body.focus .kidbar { transition: none; }
 body.focus .howto, body.focus .more, body.focus .history, body.focus .kidbar { opacity: 0; visibility: hidden; pointer-events: none; }
+
+/* Light/dark toggle in the home header */
+.theme-btn { flex: none; display: grid; place-items: center; color: var(--ink-2); }
+.theme-btn:hover { background: var(--sunk); color: var(--ink-1); }
