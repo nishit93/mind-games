@@ -1409,3 +1409,8 @@ body.focus .howto, body.focus .more, body.focus .history, body.focus .kidbar { o
 /* Light/dark toggle in the home header */
 .theme-btn { flex: none; display: grid; place-items: center; color: var(--ink-2); }
 .theme-btn:hover { background: var(--sunk); color: var(--ink-1); }
+
+/* About page */
+.about { padding-bottom: 24px; }
+.about h3 { margin: 22px 0 6px; font-family: var(--font-voice); font-weight: 600; font-size: 1.1rem; letter-spacing: -.01em; }
+.about p { margin: 0 0 4px; color: var(--ink-2); line-height: 1.6; }

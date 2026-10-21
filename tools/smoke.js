@@ -81,7 +81,7 @@
       if (!lenient) {
         check('Home page', `${label}: progress features are running`, w.MGProgress && !w.MGProgress._stub, `MGProgress is ${typeof w.MGProgress}${w.MGProgress && w.MGProgress._stub ? ' (fallback)' : ''}`);
         const shelves = [...d.querySelectorAll('.shelf[data-shelf]')].map(s => s.dataset.shelf);
-        check('Home page', `${label}: one big pick plus a shelf for every section`, !!d.querySelector('.hero') && SECTIONS.every(s => shelves.includes(s.id)) && shelves.includes('kids'), `shelves: ${shelves.join(', ')}`);
+        check('Home page', `${label}: one big pick plus a shelf for every section, and no Great for kids shelf`, !!d.querySelector('.hero') && SECTIONS.every(s => shelves.includes(s.id)) && !shelves.includes('kids'), `shelves: ${shelves.join(', ')}`);
         const height = d.documentElement.scrollHeight;
         check('Home page', `${label}: stays a sensible length (under 4.5 phone screens)`, height <= 4.5 * 812, `${height}px tall`);
         if (label.startsWith('returning')) check('Home page', 'the hero continues the last game played', d.querySelector('.hero b') && d.querySelector('.hero b').textContent.trim().startsWith('Sudoku') && /Continue/.test(d.querySelector('.hero-label').textContent));
@@ -128,7 +128,7 @@
       check('Personalisation', 'every game has a place on the similarity map', !!T0 && GAMES.every(g => Array.isArray(T0.VEC[g.id]) && T0.VEC[g.id].length === T0.DIMS.length), T0 ? GAMES.filter(g => !T0.VEC[g.id]).map(g => g.id).join() : 'similarity.js did not load');
       check('Personalisation', 'a new visitor sees the sections in their usual order', secOrder(p0.d).join() === SECTIONS.map(x => x.id).join(), secOrder(p0.d).join());
       const allShelves = [...p0.d.querySelectorAll('.shelf[data-shelf]')].map(e => e.dataset.shelf);
-      check('Personalisation', 'for a new visitor the Great for kids shelf comes last, not first', allShelves[allShelves.length - 1] === 'kids' && allShelves[0] !== 'kids', allShelves.join());
+      check('Personalisation', 'the home page has no Great for kids shelf (the Kids chip and the Kid mode switch cover it)', !allShelves.includes('kids'), allShelves.join());
       const logicNames = [...p0.d.querySelectorAll('.shelf[data-shelf="logic"] .gname')].map(e => e.textContent);
       check('Personalisation', 'a new visitor sees every row in plain alphabetical order, so games for children are not bunched at the start', logicNames.join() === [...logicNames].sort((a, b) => a.localeCompare(b)).join(), logicNames.join());
       const logicKids = [...p0.d.querySelectorAll('.shelf[data-shelf="logic"] .gcard')].map(a => !!a.querySelector('.kidbadge'));
@@ -204,6 +204,17 @@
       const tb = await open('', 500);
       check('Theme', 'a damaged theme value is ignored', !tb.d.documentElement.getAttribute('data-theme') && tb.d.querySelectorAll('.gcard').length > 10);
       tb.close();
+    }
+
+    // 3e. The About page.
+    if (!lenient) {
+      seed({});
+      const ab = await open('#about', 700);
+      const txt = ab.d.querySelector('#view').textContent;
+      check('About', 'the About page says what the app is, who we are and why it is free', /What this is/.test(txt) && /Who we are/.test(txt) && /Why it is free/.test(txt) && /no ads/i.test(txt));
+      check('About', 'the About page has a way back and hides the search and category row', !!ab.d.querySelector('#view .back') && ab.d.body.dataset.view === 'sub' && ab.d.getElementById('cats').hidden);
+      check('About', 'the menu links to it', !!ab.d.querySelector('.drawer a[href$="#about"]'));
+      ab.close();
     }
 
     // 4. Every game page, from a new visitor and from a returning player.
@@ -431,8 +442,9 @@
 
       seed({});
       let h = await open('', 700);
-      const kidShelf = h.d.querySelector('.shelf[data-shelf="kids"]');
-      check('Kids badge', 'every game in the kids shelf has a badge with its ages, and no star is used', kidShelf && kidShelf.querySelectorAll('.kidbadge').length === GAMES.filter(g => g.kids).length && !/★/.test(h.d.body.textContent));
+      const kl = await open('#kids', 700);
+      check('Kids badge', 'every game on the Kids page has a badge with its ages, and no star is used', kl.d.querySelectorAll('#view .item .kidbadge').length === GAMES.filter(g => g.kids).length && !/★/.test(kl.d.body.textContent));
+      kl.close();
       h.w.location.hash = '#kids'; await sleep(300);
       check('Kids badge', 'the kids list shows the age range on every row', [...h.d.querySelectorAll('.item')].every(r => /Ages \d+–\d+/.test(r.textContent)) && h.d.querySelectorAll('.item').length === GAMES.filter(g => g.kids).length);
       h.close();
@@ -578,8 +590,9 @@
 
       const sig = async path => { const f = await open(path, 450); const out = f.d.querySelector('.stage, .board').innerHTML.replace(/\s+/g, ' '); f.close(); return out; };
       seed({ 'lights-n': '3' });
-      const d1 = await sig('games/lights-off/?daily=' + today), d2 = await sig('games/lights-off/?daily=' + today), p1 = await sig('games/lights-off/'), p2 = await sig('games/lights-off/');
-      check('Puzzle of the day', 'everyone gets the same puzzle on the same day, and normal games stay random', d1 === d2 && p1 !== p2);
+      const d1 = await sig('games/lights-off/?daily=' + today), d2 = await sig('games/lights-off/?daily=' + today), p1 = await sig('games/lights-off/'), p2 = await sig('games/lights-off/'), p3 = await sig('games/lights-off/'), p4 = await sig('games/lights-off/');
+      // a small 3x3 board can repeat by chance, so four plain games must not all be the same
+      check('Puzzle of the day', 'everyone gets the same puzzle on the same day, and normal games stay random', d1 === d2 && new Set([p1, p2, p3, p4]).size > 1);
       check('Puzzle of the day', 'it is played on its own level, and the player\'s own saved level is untouched', d1.split('class="light').length - 1 === 25 && localStorage.getItem('lights-n') === '3', localStorage.getItem('lights-n'));
       seed({});
       const oldPage = await open('games/lights-off/?daily=2001-01-01', 450);

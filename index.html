@@ -235,6 +235,27 @@
         } catch { return ''; }
       }
 
+      // About: what this is, who is behind it and why it is free. Plain text, edited here.
+      function aboutHtml() {
+        return `
+        <div class="topbar"><a class="back" href="#all">‹ All games</a></div>
+        <article class="about">
+          <h2 class="view-title">About The Quiet Board</h2>
+          <h3>What this is</h3>
+          <p>The Quiet Board is a calm place to think: ${GAMES.length} single-player puzzle and mind games from around the world, in one quiet app. Logic grids, number puzzles, sliding pieces, memory games, patience card games and gentle find-it games for children. There are no ticking clocks, no lives to lose and nothing to rush. Play for two minutes or for an hour.</p>
+          <h3>Who it is for</h3>
+          <p>For anyone who is, well, quite bored: on a train, in a queue, at the end of a long day. And for children, who have a section of their own. Games with a smiling face are made for them, show an age range, and start on the easiest level.</p>
+          <h3>Who we are</h3>
+          <p>We are a small, independent team of puzzle lovers who got tired of noisy apps. Every game here has a short history on its page, because most of them are older than any of us: Tower of Hanoi is from 1883, Sudoku from 1984, and some solitaire games are older still.</p>
+          <h3>Why it is free</h3>
+          <p>Because puzzles belong to everybody. These games have been passed from person to person for generations, and it feels wrong to put a price on a quiet moment. We make this for the pleasure of it. There are no ads, no sign-up, no paywall, and we do not sell your attention or your data.</p>
+          <h3>Your privacy</h3>
+          <p>Your progress stays on your own device. If you want it, an anonymous backup lets you carry your streaks and scores to another phone with a progress code. It holds no name or email, and "Erase my online data" in the Progress tab removes it whenever you like.</p>
+          <h3>Say hello</h3>
+          <p>Found a bug, or a game we should add? Tell us. A puzzle you love is probably one somebody else would love too.</p>
+        </article>`;
+      }
+
       // Your stats: the page's code is loaded when it is first opened.
       function showStats() {
         const draw = () => { try { MGStats.render(view, P); } catch (err) { console.error(err); view.innerHTML = '<div class="topbar"><a class="back" href="#all">‹ All games</a></div><p class="empty">Could not show your stats right now.</p>'; } };
@@ -285,7 +306,7 @@
       function drawCats(f, searching) {
         const nav = document.getElementById('cats');
         if (!nav) return;
-        const shows = !searching && !(f === 'stats' || f === 'lists' || f === 'foryou');
+        const shows = !searching && !(f === 'stats' || f === 'lists' || f === 'foryou' || f === 'about');
         nav.hidden = !shows;
         if (!shows) return;
         const known = f === 'all' || f === 'kids' || f === 'favs' || f.startsWith('l-') || SECTIONS.some(s => s.id === f);
@@ -304,7 +325,7 @@
         const f = location.hash.slice(1) || 'all';
         const q = search.value.trim().toLowerCase();
         drawCats(f, !!q);
-        document.body.dataset.view = q ? 'search' : (f === 'stats' || f === 'lists' || f === 'foryou') ? 'sub' : 'browse';
+        document.body.dataset.view = q ? 'search' : (f === 'stats' || f === 'lists' || f === 'foryou' || f === 'about') ? 'sub' : 'browse';
         const cols = collections();
         favSig = signature();
         const km = kidMode();
@@ -325,6 +346,8 @@
             <h2 class="view-title">For you <small>${rec.games.length || ''}</small></h2>
             <p class="section-blurb">Games that sit close to the ones you play, and that you have not played much yet. It learns quietly, on this device only.</p>
             ${rec.games.length ? `<div class="list">${rec.games.map(g => row(why(g), km)).join('')}</div>` : `<p class="empty">${rec.cold ? 'Play a few games and this page will start suggesting others you might like.' : 'Nothing new sits close to your taste right now. Try something from the Play tab.'}</p>`}`;
+        } else if (f === 'about') {
+          html = aboutHtml();
         } else if (f === 'stats') {
           html = '<div class="topbar"><a class="back" href="#all">‹ All games</a></div><p class="empty">Loading…</p>';
         } else if (f === 'lists') {
@@ -348,10 +371,7 @@
             ${games.length ? `<div class="list">${games.map(g => row(g, km, current.fav ? '' : current.id)).join('')}</div>` : `<p class="empty">${current.fav ? 'No favourites yet. Tap the ♡ on any game to keep it here.' : 'Nothing here yet. Tap the ＋ on any game to add it.'}</p>`}`;
         } else if (f === 'all' || !(f === 'kids' || SECTIONS.some(s => s.id === f))) {
           html = `<div class="duo">${dailyStrip()}${hero()}</div>`
-            // Sections, and Great for kids as one more shelf that starts last and rises only if what you play is close to it.
-            + rankSecs(SECTIONS.concat(km ? [] : [{ id: 'kids', name: 'Great for kids' }])).map(s => s.id === 'kids'
-              ? { s: { id: 'kids', name: `${M.FACE || ''} Great for kids` }, games: rankGs(GAMES.filter(g => g.kids)), kidsLink: true }
-              : { s, games: rankGs(GAMES.filter(g => g.sec === s.id && vis(g))), kidsLink: km }).filter(x => x.games.length).map(x => shelf(x.s.id, x.s.name, x.games, x.kidsLink)).join('');
+            + rankSecs(SECTIONS).map(s => ({ s, games: rankGs(GAMES.filter(g => g.sec === s.id && vis(g))) })).filter(x => x.games.length).map(x => shelf(x.s.id, x.s.name, x.games, km)).join('');
         } else {
           const info = f === 'kids' ? { name: 'Great for kids', blurb: 'Made for children up to 11. Each one opens on its easiest setting.', games: rankGs(GAMES.filter(g => g.kids)), kids: true }
             : { ...SECTIONS.find(s => s.id === f), games: rankGs(GAMES.filter(g => g.sec === f && vis(g))), kids: km };

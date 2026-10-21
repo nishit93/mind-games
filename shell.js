@@ -344,6 +344,7 @@
     <a class="drawer-kids drawer-favs" href="${root}#favs">♥ Favourites</a>
     <a class="drawer-kids drawer-lists" href="${root}#lists">☰ Your lists</a>
     <a class="drawer-kids drawer-stats" href="${root}#stats">▤ Your stats</a>
+    <a class="drawer-kids drawer-about" href="${root}#about">ⓘ About</a>
     ${SECTIONS.map(s => {
       const games = GAMES.filter(g => g.sec === s.id && (!km || g.kids));
       const isCurrent = !!game && game.sec === s.id;
