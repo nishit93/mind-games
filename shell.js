@@ -423,6 +423,9 @@
   };
   menuBtn.addEventListener('click', () => setOpen(true));
   scrim.addEventListener('click', () => setOpen(false));
+  // A link in the menu that stays on this page (About, Favourites, Stats…) must close the menu too: no page load does it for us.
+  drawer.addEventListener('click', e => { if (e.target.closest && e.target.closest('a[href]')) setOpen(false); });
+  addEventListener('hashchange', () => setOpen(false));
   document.addEventListener('keydown', e => { if (e.key === 'Escape') setOpen(false); });
 
   // The puzzle of the day: a banner, and the controls that would replace the puzzle ask before they do.

@@ -1,7 +1,7 @@
 // Network first so updates show up right away; fall back to cache offline.
 importScripts('games.js');
 
-const CACHE = 'quiet-board-v29';
+const CACHE = 'quiet-board-v30';
 const SHELL = [
   './', 'index.html', 'styles.css', 'games.js', 'similarity.js', 'shell.js', 'progress.js', 'icon.svg', 'icon-192.png', 'icon-512.png', 'icon-maskable-512.png', 'apple-touch-icon.png', 'manifest.webmanifest',
   'shared/combine.js', 'shared/combine.css', 'shared/latin.js', 'shared/latin.css', 'shared/cards.js', 'shared/cards.css', 'shared/tutorial.js', 'shared/stats.js',

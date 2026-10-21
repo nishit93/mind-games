@@ -215,6 +215,18 @@
       check('About', 'the About page has a way back and hides the search and category row', !!ab.d.querySelector('#view .back') && ab.d.body.dataset.view === 'sub' && ab.d.getElementById('cats').hidden);
       check('About', 'the menu links to it', !!ab.d.querySelector('.drawer a[href$="#about"]'));
       ab.close();
+      // The menu closes after a link that stays on the same page (no page load does it for us)
+      const mn = await open('', 700);
+      for (const [sel, hash] of [['.drawer-about', '#about'], ['.drawer-stats', '#stats'], ['.drawer-favs', '#favs'], ['.drawer-lists', '#lists']]) {
+        mn.d.querySelector('.menu-btn').click(); await sleep(250);
+        const wasOpen = mn.d.body.classList.contains('drawer-open');
+        mn.d.querySelector(sel).click(); await sleep(400);
+        check('Menu', 'tapping ' + hash + ' in the menu opens it and closes the menu', wasOpen && !mn.d.body.classList.contains('drawer-open') && mn.w.location.hash === hash, 'open before: ' + wasOpen + ', open after: ' + mn.d.body.classList.contains('drawer-open') + ', hash ' + mn.w.location.hash);
+      }
+      mn.d.querySelector('.menu-btn').click(); await sleep(250);
+      mn.d.querySelector('.drawer-about').click(); await sleep(400);
+      check('Menu', 'tapping the link for the page you are already on still closes the menu', !mn.d.body.classList.contains('drawer-open'));
+      mn.close();
     }
 
     // 4. Every game page, from a new visitor and from a returning player.
