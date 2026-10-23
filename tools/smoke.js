@@ -351,6 +351,24 @@
       dmg.close();
     }
 
+    // 3i. The visitor count: a page view is sent without cookies or stored markers, and never in Kid mode, with sharing off, or by automation.
+    if (!lenient) {
+      const body = async (data, path = 'games/hanoi/') => { seed({ 'mg-api': 'https://example.invalid', ...data }); const g = await open(path, 300); const b = g.w.MGProgress._visitBody(true); const keys = Object.keys(g.w.localStorage); g.close(); return { b, keys }; };
+      const norm = await body({});
+      check('Visitors', 'a normal page view carries only the page, a coarse source, time zone, language, device kind and a first-ever flag', !!norm.b && norm.b.p === 'hanoi' && norm.b.src === 'direct' && ['n', 'p', 'src', 'tz', 'lang', 'os', 'device'].every(k => k in norm.b) && Object.keys(norm.b).length === 7, JSON.stringify(norm.b));
+      check('Visitors', 'counting stores no new marker on the device (no visitor id or cookie)', !norm.keys.some(k => /visit|uid|visitor|_ga/i.test(k)) && !(await open('', 100).then(p => { const c = p.d.cookie; p.close(); return c; })), norm.keys.join());
+      check('Visitors', 'nothing is sent in Kid mode', (await body({ 'mg-kidmode': 'on' })).b === null);
+      check('Visitors', 'nothing is sent for a game opened from the Kids section', (await body({}, 'games/hanoi/?kids')).b === null);
+      check('Visitors', 'nothing is sent when sharing is off', (await body({ 'mg-usage-off': '1' })).b === null);
+      if (['localhost', '127.0.0.1'].includes(location.hostname)) {
+        seed({}); localStorage.removeItem('mg-api');
+        const g = await open('games/hanoi/', 300); const r = g.w.MGProgress._visitBody(true); g.close();
+        check('Visitors', 'nothing is sent from a local copy of the site unless a test server is named', r === null, JSON.stringify(r));
+      }
+      const first = await body({ 'mg-device': 'abc123' });
+      check('Visitors', 'a returning device is not flagged as new, a first-ever device is', first.b && first.b.n === 0 && norm.b.n === 1, JSON.stringify([first.b && first.b.n, norm.b && norm.b.n]));
+    }
+
     // 4. Every game page, from a new visitor and from a returning player.
     for (const label of ['new visitor', 'returning player']) {
       seed(label === 'new visitor' ? {} : LEGACY);

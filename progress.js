@@ -155,6 +155,8 @@
   const dayString = d => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
   const today = () => dayString(new Date());
 
+  // A brand-new device has no id yet; the id is created just below, so this is true only on a device's very first visit.
+  const firstEver = !ls.get('mg-device');
   let device = ls.get('mg-device');
   if (!device) {
     device = Array.from(crypto.getRandomValues(new Uint8Array(3)), b => b.toString(16).padStart(2, '0')).join('');
@@ -428,12 +430,50 @@
       }
     } catch { /* tried again at the next chance */ } finally { flushing = false; }
   }
+  // One anonymous page view for the visitor count. Nothing is stored on the device and no cookie is used; the server counts each visitor
+  // once a day without keeping their address. Same safeguards as the usage counts (never in Kid mode, never with Do Not Track), and not
+  // for automated browsers or for local test copies of the site.
+  const SRC = [
+    ['ai', ['chatgpt.com', 'openai.com', 'perplexity.ai', 'claude.ai', 'anthropic.com', 'gemini.google.com', 'copilot.microsoft.com', 'poe.com']],
+    ['search', ['google.', 'bing.com', 'duckduckgo.com', 'yahoo.', 'baidu.com', 'ecosia.org', 'brave.com', 'yandex.', 'startpage.com', 'qwant.com']],
+    ['social', ['facebook.com', 'instagram.com', 'twitter.com', 'x.com', 't.co', 'reddit.com', 'linkedin.com', 'youtube.com', 'whatsapp.com', 'pinterest.com', 'tiktok.com', 't.me', 'telegram.org', 'threads.net']],
+  ];
+  const hostIs = (host, h) => host === h || host.endsWith('.' + h) || (h.endsWith('.') && ('.' + host).includes('.' + h));
+  // What would be sent for this page view, or null when nothing may be sent.
+  function visitBody(ignoreAutomation) {
+    try {
+      if (!api() || usageOff() || (navigator.webdriver && !ignoreAutomation)) return null;
+      const local = ['localhost', '127.0.0.1', '[::1]'].includes(location.hostname);
+      if (local && !ls.get('mg-api')) return null;
+      let src = 'direct';
+      if (document.referrer) {
+        let host = '';
+        try { host = new URL(document.referrer).hostname.toLowerCase(); } catch { /* unreadable */ }
+        if (host === location.hostname) src = 'direct';
+        else { src = 'other'; for (const [name, list] of SRC) if (list.some(h => hostIs(host, h))) { src = name; break; } }
+      }
+      const e = envNow();
+      let tz = '', lang = 'en';
+      try { tz = Intl.DateTimeFormat().resolvedOptions().timeZone || ''; } catch { /* optional */ }
+      lang = ls.get('mg-lang') || 'en';
+      return { p: pageId(), src, tz, lang, os: e.os, device: e.device, n: firstEver ? 1 : 0 };
+    } catch { return null; }
+  }
+  function visit() {
+    const body = visitBody();
+    if (!body) return;
+    fetch(api() + '/v1/visit', {
+      method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body),
+      credentials: 'omit', cache: 'no-store', keepalive: true,
+    }).catch(() => {});
+  }
   function setUsageSharing(on) {
     if (on) ls.del('mg-usage-off'); else { ls.set('mg-usage-off', '1'); usage = { c: {}, e: [] }; saveUsage(); }
   }
   try {
     document.addEventListener('visibilitychange', () => { if (document.hidden) flushUsage(true); });
     setTimeout(() => flushUsage(false), 8000);
+    setTimeout(visit, 800);
     setInterval(() => flushUsage(false), 60_000);
   } catch { /* optional */ }
 
@@ -478,7 +518,7 @@
     lists, collections, createList, renameList, deleteList, inList, setInList,
     onChange: fn => listeners.push(fn),
     sync, exportCode, useCode, eraseOnline, setSyncEnabled,
-    track, trackGame, flushUsage, setUsageSharing, usageSharing: () => ls.get('mg-usage-off') !== '1', usageBlocked: usageOff,
+    track, trackGame, flushUsage, _visitBody: visitBody, setUsageSharing, usageSharing: () => ls.get('mg-usage-off') !== '1', usageBlocked: usageOff,
     configured: () => !!api(),
     syncEnabled,
     status: () => ({ status, lastSync, hasPlayer: !!getPlayer() }),
