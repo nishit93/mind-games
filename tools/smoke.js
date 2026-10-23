@@ -424,7 +424,7 @@
     // 6. Saving to a real server and moving progress to another device.
     if (!lenient && apiUnderTest) {
       const authed = code => ({ headers: { authorization: `Bearer ${code}` } });
-      seed({ 'mg-api': apiUnderTest });
+      seed({ 'mg-api': apiUnderTest, 'mg-usage-off': '1' });   // usage counting is off so test runs never reach the real dashboard
       const a = await open('games/golf/', 600);
       a.d.querySelector('.fav-btn').click();
       a.d.querySelector('.card').dispatchEvent(new PointerEvent('pointerdown', { bubbles: true }));
@@ -439,7 +439,7 @@
       check('Saving online', 'the server holds the player\'s own game list', server && server.lists && Object.values(server.lists).some(l => l.name === 'Smoke list' && l.on && l.games.includes('golf')));
       a.close();
 
-      seed({ 'mg-api': apiUnderTest });
+      seed({ 'mg-api': apiUnderTest, 'mg-usage-off': '1' });   // usage counting is off so test runs never reach the real dashboard
       const b = await open('games/sudoku/', 500);
       check('Saving online', 'a wrong or malformed code is refused and changes nothing', (await b.w.MGProgress.useCode('not a code')) === 'invalid' && (await b.w.MGProgress.useCode('0'.repeat(32) + '.' + 'A'.repeat(43))) === 'unknown' && !b.w.MGProgress.status().hasPlayer);
       const joined = await b.w.MGProgress.useCode(testCode);
