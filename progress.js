@@ -394,7 +394,7 @@
   function noteError(msg, where) {
     if (usageOff()) return;
     let m = String(msg || '').replace(/https?:\/\/[^\s)]*\/([^/\s)?#]*)[^\s)]*/g, '$1').replace(/[\w.+-]+@[\w.-]+/g, '').replace(/\s+/g, ' ').trim().slice(0, 140);
-    if (!m || /ResizeObserver loop|Script error\.?$/i.test(m)) return;
+    if (!m || /ResizeObserver loop|Script error\.?$|Transition was aborted|Skipped ViewTransition/i.test(m)) return;
     if (where) m += ' @' + where;
     if (usage.e.length >= 10 || usage.e.some(x => x.m === m && x.p === pageId())) return;
     usage.e.push({ p: pageId(), m });
