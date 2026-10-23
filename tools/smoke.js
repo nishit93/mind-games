@@ -351,6 +351,20 @@
       dmg.close();
     }
 
+    // 3h2. Board cells keep their shape: a page-level style once padded every element named "home", which stretched Colour Flood's cells into tall bars.
+    if (!lenient) {
+      seed({});
+      const cf = await open('games/colour-flood/', 500);
+      const cells = [...cf.d.querySelectorAll('.fc')];
+      const off = cells.filter(c => { const r = c.getBoundingClientRect(); return !r.width || Math.abs(r.height - r.width) > 3; });
+      const padded = cells.filter(c => cf.w.getComputedStyle(c).paddingTop !== '0px');
+      check('Board shape', 'Colour Flood cells are square, with no stray padding', cells.length >= 100 && !off.length && !padded.length, cells.length + ' cells, ' + off.length + ' not square, ' + padded.length + ' padded');
+      cf.close();
+      const home = await open('', 500);
+      check('Board shape', 'the home page still has its own top and bottom space', parseFloat(home.w.getComputedStyle(home.d.querySelector('main.home')).paddingBottom) >= 90);
+      home.close();
+    }
+
     // 3i. The visitor count: a page view is sent without cookies or stored markers, and never in Kid mode, with sharing off, or by automation.
     if (!lenient) {
       const body = async (data, path = 'games/hanoi/') => { seed({ 'mg-api': 'https://example.invalid', ...data }); const g = await open(path, 300); const b = g.w.MGProgress._visitBody(true); const keys = Object.keys(g.w.localStorage); g.close(); return { b, keys }; };

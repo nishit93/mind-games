@@ -578,7 +578,7 @@ h1 {
 }
 
 /* ---- Calmer home page: hero, shelves, lists ---- */
-.home { padding-top: 22px; }
+main.home { padding-top: 22px; }
 .home .search { margin-top: 0; padding: 10px 18px; box-shadow: none; background: var(--surface); }
 
 .gicon {
@@ -1119,7 +1119,7 @@ body:has(.tabbar) .home .menu-btn { display: none; }   /* the Menu tab replaces 
 .cats:not([hidden]) ~ #view .view-title { margin-top: 6px; }
 
 /* Bottom tab bar (home) */
-.home { padding-bottom: 112px; }
+main.home { padding-bottom: 112px; }
 .tabbar { position: fixed; left: 0; right: 0; bottom: 0; z-index: 9; display: flex; justify-content: space-around; padding: 8px 6px calc(8px + env(safe-area-inset-bottom)); background: color-mix(in srgb, var(--bg) 92%, transparent); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border-top: 1px solid var(--line); }
 .tab { flex: 1; max-width: 110px; display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 4px 0; border: 0; background: none; color: var(--muted); font: inherit; font-size: .68rem; font-weight: 600; text-decoration: none; cursor: pointer; }
 .tab svg { width: 26px; height: 26px; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; transition: transform .2s ease; }
@@ -1279,7 +1279,7 @@ header.top .icon-btn { width: 48px; height: 48px; }
 .tab[aria-current] { color: var(--lagoon-ink); font-weight: 700; }
 .tab[aria-current] .pill { background: var(--lagoon-soft); }
 .tab[aria-current] svg { stroke: var(--lagoon-ink); stroke-width: 2.25; }
-.home { padding-bottom: 120px; }
+main.home { padding-bottom: 120px; }
 body:has(.tabbar) .home .menu-btn { display: grid; }
 
 /* Home header and search */
@@ -1362,7 +1362,7 @@ h1 { font-size: 1.4rem; }
 .tab { font-size: .7rem; min-height: 48px; gap: 2px; }
 .tab svg { width: 22px; height: 22px; }
 .tab .pill { width: 56px; height: 28px; border-radius: 14px; }
-.home { padding-bottom: 96px; }
+main.home { padding-bottom: 96px; }
 .st-big b { font-size: 2.6rem; }
 .st-card { padding: 14px 16px; }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .plate { filter: brightness(.66) saturate(.8); } }
