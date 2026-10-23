@@ -229,6 +229,22 @@
       mn.close();
     }
 
+    // 3f. Surprise me is always in the home header; the streak is on the Progress page only.
+    if (!lenient) {
+      seed({});
+      const hs = await open("", 600);
+      check("Home header", "a new visitor sees Surprise me", !!hs.d.querySelector("header.top .sub #surprise"));
+      hs.close();
+      const today = new Date().toISOString().slice(0, 10);
+      seed({ "mg-progress": JSON.stringify({ state: { favourites: {}, bests: {}, stats: { "plays-dabc123": 3 }, settings: {}, days: [today], lists: {} } }) });
+      const hp = await open("", 700);
+      check("Home header", "a player with a streak still sees Surprise me, and no streak line", !!hp.d.querySelector("header.top .sub #surprise") && !/streak/.test(hp.d.querySelector("header.top").textContent), hp.d.querySelector("header.top").textContent.replace(/s+/g, " "));
+      hp.close();
+      const sp = await open("#stats", 1200);
+      check("Home header", "the Progress page shows the streak", /streak/i.test(sp.d.querySelector("#view").textContent));
+      sp.close();
+    }
+
     // 4. Every game page, from a new visitor and from a returning player.
     for (const label of ['new visitor', 'returning player']) {
       seed(label === 'new visitor' ? {} : LEGACY);

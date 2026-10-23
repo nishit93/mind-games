@@ -415,8 +415,8 @@
         // One quiet line under the title instead of a big panel.
         const sub = document.querySelector('header.top .sub');
         if (sub) {
-          if (sum.streak > 0) sub.innerHTML = `<a href="#stats">${sum.streak}-day streak</a>`;
-          else sub.innerHTML = 'Quite bored? <a href="#" id="surprise">Surprise me</a>';
+          // Always the same line: the streak lives on the Progress page only.
+          sub.innerHTML = 'Quite bored? <a href="#" id="surprise">Surprise me</a>';
         }
         document.getElementById('progress').hidden = !has || location.hash !== '#stats';
         const _pstreak = document.getElementById('p-streak'); if (_pstreak) _pstreak.textContent = sum.streak;
