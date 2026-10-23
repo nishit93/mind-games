@@ -341,7 +341,7 @@
       sw.w.MGProgress.setUsageSharing(false);
       check('Analytics', 'switching sharing off also clears what was waiting to be sent', !Object.keys(JSON.parse(sw.w.localStorage.getItem('mg-usage')).c).length && sw.w.localStorage.getItem('mg-usage-off') === '1');
       const box = await open('#stats', 900);
-      check('Analytics', 'the Progress page has the sharing switch', !!box.d.querySelector('#p-usage'));
+      check('Analytics', 'the Progress page links to the About page, and has no sharing switch', !!box.d.querySelector('#about-link a[href="#about"]') && !box.d.querySelector('#about-link').hidden && !box.d.querySelector('#p-usage'));
       box.close(); sw.close();
       seed({ 'mg-usage': '{oops', 'mg-env-sent': '5' });
       const dmg = await open('games/lights-off/', 500);

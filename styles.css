@@ -1432,3 +1432,5 @@ body.focus .howto, body.focus .more, body.focus .history, body.focus .kidbar { o
 .usage-row { display: flex; align-items: center; gap: 10px; min-height: 48px; margin-top: 12px; font-weight: 600; }
 .usage-row input { width: 22px; height: 22px; accent-color: var(--lagoon); }
 .usage-note { margin-top: 0; font-size: .85rem; }
+.about-link { margin: 20px 0 8px; font-weight: 600; }
+.about-link a { display: inline-flex; align-items: center; min-height: 48px; }
