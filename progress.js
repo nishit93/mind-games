@@ -219,6 +219,13 @@
     signal: typeof AbortSignal.timeout === 'function' ? AbortSignal.timeout(10_000) : undefined,
   });
 
+  // Two coarse facts that help us see who plays: the phone's time zone (the server turns it into a country; no address or location is ever read) and the chosen language.
+  function context() {
+    let tz = '', lang = 'en';
+    try { tz = Intl.DateTimeFormat().resolvedOptions().timeZone || ''; } catch (e) { /* optional */ }
+    try { lang = localStorage.getItem('mg-lang') || 'en'; } catch (e) { /* optional */ }
+    return { tz, lang };
+  }
   async function createPlayer(base) {
     const res = await call(base, 'POST', '/v1/players');
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -264,12 +271,12 @@
     try {
       let player = getPlayer() || await createPlayer(base);
       const sent = ver;
-      let res = await call(base, 'POST', '/v1/sync', player, { state });
+      let res = await call(base, 'POST', '/v1/sync', player, { state, ...context() });
       if (res.status === 401) {
         if (strict) throw Object.assign(new Error('unknown player'), { code: 'unknown' });
         clearPlayer();
         player = await createPlayer(base);
-        res = await call(base, 'POST', '/v1/sync', player, { state });
+        res = await call(base, 'POST', '/v1/sync', player, { state, ...context() });
       }
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const body = await res.json();

@@ -5,11 +5,11 @@
   if (!L) return;
   const T = s => L.t(s);
 
-  // Devanagari fonts, loaded only for Hindi (the Latin letters keep the usual fonts).
+  // Devanagari fonts (our own copies, in fonts/), loaded only for Hindi.
   try {
     const f = document.createElement('link');
     f.rel = 'stylesheet';
-    f.href = 'https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;600;700&family=Noto+Serif+Devanagari:wght@500;600&display=swap';
+    f.href = L.base + 'fonts/hi.css';
     document.head.appendChild(f);
   } catch (e) { /* the system's Hindi font is used */ }
 
@@ -168,10 +168,11 @@
       'Why it is free': 'यह मुफ़्त क्यों है',
       'Your privacy': 'आपकी निजता',
       'Say hello': 'हमसे बात कीजिए',
+      'Email us:': 'हमें ईमेल कीजिए:',
       'For anyone who is, well, quite bored: on a train, in a queue, at the end of a long day. And for children, who have a section of their own. Games with a smiling face are made for them, show an age range, and start on the easiest level.': 'उन सबके लिए जो ज़रा बोर हो रहे हों: ट्रेन में, लाइन में, या दिन भर की थकान के बाद। और बच्चों के लिए भी, जिनका अपना अलग हिस्सा है। जिन खेलों पर मुस्कुराता चेहरा बना है, वे बच्चों के लिए हैं। उन पर उम्र लिखी होती है और वे सबसे आसान लेवल से शुरू होते हैं।',
       'We are a small, independent team of puzzle lovers who got tired of noisy apps. Every game here has a short history on its page, because most of them are older than any of us: Tower of Hanoi is from 1883, Sudoku from 1984, and some solitaire games are older still.': 'हम पहेलियों के शौकीन लोगों की एक छोटी, स्वतंत्र टीम हैं, जो शोर-शराबे वाले ऐप्स से तंग आ चुके थे। हर खेल के पेज पर उसका छोटा-सा इतिहास भी है, क्योंकि ज़्यादातर खेल हम सबसे पुराने हैं: टावर ऑफ़ हनोई 1883 का है, सुडोकू 1984 का, और ताश के कुछ खेल तो उनसे भी पुराने हैं।',
       'Because puzzles belong to everybody. These games have been passed from person to person for generations, and it feels wrong to put a price on a quiet moment. We make this for the pleasure of it. There are no ads, no sign-up, no paywall, and we do not sell your attention or your data.': 'क्योंकि पहेलियाँ सबकी होती हैं। ये खेल पीढ़ियों से एक से दूसरे तक चलते आए हैं, और किसी शांत पल की कीमत लगाना हमें ठीक नहीं लगता। हम इसे शौक़ से बनाते हैं। यहाँ न विज्ञापन हैं, न साइन-अप, न कोई पैसा, और हम आपका ध्यान या आपका डेटा बेचते नहीं हैं।',
-      'Your progress stays on your own device. If you want it, an anonymous backup lets you carry your streaks and scores to another phone with a progress code. It holds no name or email, and "Erase my online data" in the Progress tab removes it whenever you like.': 'आपकी प्रगति आपके अपने फ़ोन में ही रहती है। चाहें तो एक बेनाम बैकअप बन सकता है, जिससे आप प्रोग्रेस कोड की मदद से अपनी लगातार बारियाँ और स्कोर दूसरे फ़ोन पर ले जा सकते हैं। उसमें कोई नाम या ईमेल नहीं होता, और "प्रगति" टैब में "मेरा ऑनलाइन डेटा मिटाएँ" दबाकर आप उसे जब चाहें हटा सकते हैं।',
+      'Your progress stays on your own device. If you want it, an anonymous backup lets you carry your streaks and scores to another phone with a progress code. It holds no name or email, only your country (guessed from your phone\'s time zone) and your language, so we can see roughly where people play. We never store your IP address. "Erase my online data" in the Progress tab removes it whenever you like.': 'आपकी प्रगति आपके अपने फ़ोन में ही रहती है। चाहें तो एक बेनाम बैकअप बन सकता है, जिससे आप प्रोग्रेस कोड की मदद से अपनी लगातार बारियाँ और स्कोर दूसरे फ़ोन पर ले जा सकते हैं। उसमें कोई नाम या ईमेल नहीं होता, बस आपका देश (आपके फ़ोन के टाइम ज़ोन से अंदाज़ा लगाकर) और आपकी भाषा, ताकि हम मोटा-मोटा देख सकें कि लोग कहाँ खेलते हैं। हम आपका IP एड्रेस कभी सेव नहीं करते। "प्रगति" टैब में "मेरा ऑनलाइन डेटा मिटाएँ" दबाकर आप इसे जब चाहें हटा सकते हैं।',
       'Found a bug, or a game we should add? Tell us. A puzzle you love is probably one somebody else would love too.': 'कोई गड़बड़ दिखी, या कोई खेल जोड़ना चाहिए? हमें बताइए। जो पहेली आपको पसंद है, वह शायद किसी और को भी पसंद आएगी।',
     },
 

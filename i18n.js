@@ -18,7 +18,7 @@
   const cs = document.currentScript;
   const base = cs && cs.src ? cs.src.replace(/[^/]*$/, '') : '';
   const pack = { dict: {}, patterns: [], games: {}, sections: {}, ui: {}, labels: {} };
-  const L = window.MGLang = { code, langs: LANGS, pack, loaded: false };
+  const L = window.MGLang = { code, langs: LANGS, pack, loaded: false, base: base.replace(/\/$/, '') ? base : '' };
   const cache = new Map();
 
   L.add = part => {

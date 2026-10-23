@@ -251,6 +251,7 @@
       const DEV = /[ऀ-ॿ]/;
       seed({});
       const en = await open('', 600);
+      check('Fonts', 'the fonts come from our own site: no page asks Google for them', ![...en.d.querySelectorAll('link[href*="googleapis"],link[href*="gstatic"]')].length && [...en.d.styleSheets].some(s => /fonts\/fonts\.css/.test(s.href || '') && s.cssRules.length >= 4), [...en.d.styleSheets].map(s => s.href).join());
       check('Languages', 'a new visitor gets English (no language set on the page)', !en.d.documentElement.hasAttribute('data-lang') && !DEV.test(en.d.body.textContent.replace(/हिन्दी/g, '')), en.d.documentElement.getAttribute('data-lang'));
       en.w.document.querySelector('.menu-btn, #menuBtn, [aria-label="Open games menu"]').click(); await sleep(400);
       const row = en.d.querySelector('.lang-row');
