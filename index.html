@@ -113,7 +113,6 @@
         <button class="install-close" id="install-close" aria-label="Not now">✕</button>
       </div>
     </div>
-    <p class="about-link" id="about-link" hidden><a href="#about">About The Quiet Board</a></p>
     <details id="progress" class="howto" hidden>
       <summary>Backup and sync</summary>
       <p class="section-blurb" id="p-status"></p>
@@ -254,7 +253,7 @@
 
       // Your stats: the page's code is loaded when it is first opened.
       function showStats() {
-        const draw = () => { try { MGStats.render(view, P); } catch (err) { console.error(err); view.innerHTML = '<div class="topbar"><a class="back" href="#all">‹ All games</a></div><p class="empty">Could not show your stats right now.</p>'; } };
+        const draw = () => { try { MGStats.render(view, P); view.insertAdjacentHTML('beforeend', '<p class="about-link"><a href="#about">About The Quiet Board</a></p>'); } catch (err) { console.error(err); view.innerHTML = '<div class="topbar"><a class="back" href="#all">‹ All games</a></div><p class="empty">Could not show your stats right now.</p>'; } };
         if (window.MGStats) return draw();
         const s = document.createElement('script');
         s.src = 'shared/stats.js';
@@ -415,7 +414,6 @@
           sub.innerHTML = 'Quite bored? <a href="#" id="surprise">Surprise me</a>';
         }
         document.getElementById('progress').hidden = !has || location.hash !== '#stats';
-        document.getElementById('about-link').hidden = location.hash !== '#stats';
         const _pstreak = document.getElementById('p-streak'); if (_pstreak) _pstreak.textContent = sum.streak;
         const _pplays = document.getElementById('p-plays'); if (_pplays) _pplays.textContent = sum.plays;
         const _pfavs = document.getElementById('p-favs'); if (_pfavs) _pfavs.textContent = sum.favourites;

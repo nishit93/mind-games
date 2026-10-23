@@ -1434,3 +1434,58 @@ body.focus .howto, body.focus .more, body.focus .history, body.focus .kidbar { o
 .usage-note { margin-top: 0; font-size: .85rem; }
 .about-link { margin: 20px 0 8px; font-weight: 600; }
 .about-link a { display: inline-flex; align-items: center; min-height: 48px; }
+
+/* Layout stability: the header and the board are built by scripts, so their space is held until they arrive (about 80% of the real size). */
+body[data-game] main.wrap:not(:has(> header.top))::before { content: ""; display: block; height: 73px; }
+body[data-game="2048"] .stage { min-height: 259px; }
+body[data-game="sudoku"] .stage { min-height: 259px; }
+body[data-game="nonogram"] .stage { min-height: 262px; }
+body[data-game="binary"] .stage { min-height: 259px; }
+body[data-game="futoshiki"] .stage { min-height: 245px; }
+body[data-game="skyscrapers"] .stage { min-height: 241px; }
+body[data-game="tents"] .stage { min-height: 254px; }
+body[data-game="mines"] .stage { min-height: 259px; }
+body[data-game="lights-off"] .stage { min-height: 259px; }
+body[data-game="pipes"] .stage { min-height: 259px; }
+body[data-game="colour-flood"] .stage { min-height: 259px; }
+body[data-game="eight-queens"] .stage { min-height: 259px; }
+body[data-game="knights-tour"] .stage { min-height: 259px; }
+body[data-game="bulls-and-cows"] .stage { min-height: 134px; }
+body[data-game="one-stroke"] .stage { min-height: 259px; }
+body[data-game="magic-square"] .stage { min-height: 251px; }
+body[data-game="make-24"] .stage { min-height: 223px; }
+body[data-game="target-number"] .stage { min-height: 276px; }
+body[data-game="next-in-line"] .stage { min-height: 126px; }
+body[data-game="number-pyramid"] .stage { min-height: 156px; }
+body[data-game="cages"] .stage { min-height: 259px; }
+body[data-game="water-jugs"] .stage { min-height: 310px; }
+body[data-game="chinese-rings"] .stage { min-height: 154px; }
+body[data-game="tchoukaillon"] .stage { min-height: 136px; }
+body[data-game="hanoi"] .stage { min-height: 234px; }
+body[data-game="huarong-dao"] .stage { min-height: 326px; }
+body[data-game="traffic-jam"] .stage { min-height: 259px; }
+body[data-game="maze"] .stage { min-height: 259px; }
+body[data-game="warehouse"] .stage { min-height: 259px; }
+body[data-game="pentominoes"] .stage { min-height: 135px; }
+body[data-game="peg-solitaire"] .stage { min-height: 259px; }
+body[data-game="memory"] .stage { min-height: 334px; }
+body[data-game="recall"] .stage { min-height: 259px; }
+body[data-game="schulte-table"] .stage { min-height: 259px; }
+body[data-game="grid-recall"] .stage { min-height: 259px; }
+body[data-game="digit-span"] .stage { min-height: 148px; }
+body[data-game="odd-one-out"] .stage { min-height: 259px; }
+body[data-game="colour-word"] .stage { min-height: 133px; }
+body[data-game="word-search"] .stage { min-height: 259px; }
+body[data-game="klondike"] .stage { min-height: 168px; }
+body[data-game="pyramid"] .stage { min-height: 254px; }
+body[data-game="golf"] .stage { min-height: 176px; }
+body[data-game="mahjong-solitaire"] .stage { min-height: 251px; }
+body[data-game="free-cells"] .stage { min-height: 170px; }
+body[data-game="accordion"] .stage { min-height: 396px; }
+body[data-game="tripeaks"] .stage { min-height: 142px; }
+body[data-game="calculation"] .stage { min-height: 267px; }
+body[data-game="monte-carlo"] .stage { min-height: 346px; }
+body[data-game="15-puzzle"] .board { min-height: 259px; }
+
+/* Long lists: rows below the screen are not laid out until they are near. */
+.list > .item { content-visibility: auto; contain-intrinsic-size: auto 76px; }

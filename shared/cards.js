@@ -17,7 +17,7 @@
 
   // Card markup. opts: { up, value } where value shows the number for J, Q, K (helpful for adding games).
   function html(c, opts = {}) {
-    if (!opts.up) return `<div class="card down" data-id="${c.id}" aria-label="Face-down card"></div>`;
+    if (!opts.up) return `<div class="card down" data-id="${c.id}" role="img" aria-label="Face-down card"></div>`;
     const v = opts.value && c.rank > 10 ? `<small class="val">${c.rank}</small>` : '';
     return `<div class="card${red(c) ? ' red' : ''}" data-id="${c.id}" aria-label="${name(c)}">
       <span class="corner">${RANKS[c.rank]}<br>${SUITS[c.suit]}</span><span class="pip">${SUITS[c.suit]}</span>${v}</div>`;

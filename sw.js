@@ -1,7 +1,7 @@
 // Network first so updates show up right away; fall back to cache offline.
 importScripts('games.js');
 
-const CACHE = 'quiet-board-v39';
+const CACHE = 'quiet-board-v40';
 const SHELL = [
   './', 'index.html', 'styles.css', 'games.js', 'i18n.js', 'fonts/atkinson-hyperlegible-next-latin-400-NaPNcYPd.woff2', 'fonts/atkinson-hyperlegible-next-latin-ext-400-NaPNcYPd.woff2', 'fonts/fonts.css', 'fonts/fraunces-latin-500-6NU78FyL.woff2', 'fonts/fraunces-latin-ext-500-6NU78FyL.woff2', 'fonts/hi.css', 'fonts/noto-sans-devanagari-devanagari-400-TuG7UUFz.woff2', 'fonts/noto-serif-devanagari-devanagari-500-x3dNcl3I.woff2', 'lang/hi.js', 'lang/hi.games1.js', 'lang/hi.games2.js', 'lang/hi.games3.js', 'lang/hi.games4.js', 'lang/hi.play.js', 'similarity.js', 'shell.js', 'progress.js', 'icon.svg', 'icon-192.png', 'icon-512.png', 'icon-maskable-512.png', 'apple-touch-icon.png', 'manifest.webmanifest',
   'shared/combine.js', 'shared/combine.css', 'shared/latin.js', 'shared/latin.css', 'shared/cards.js', 'shared/cards.css', 'shared/tutorial.js', 'shared/stats.js',

@@ -417,6 +417,7 @@
   const menuBtn = header.querySelector('.menu-btn');
   const setOpen = open => {
     document.body.classList.toggle('drawer-open', open);
+    if (open) paintPlates(drawer);
     menuBtn.setAttribute('aria-expanded', String(open));
     if (open) {
       const current = drawer.querySelector('.current');
@@ -493,6 +494,7 @@
   // How to play: opens on the first two visits, and the ? button jumps to it. A demo button replays the gesture tutorial.
   const howto = document.querySelector('.howto');
   if (howto && game) {
+    howto.querySelectorAll('h3').forEach(h => h.setAttribute('aria-level', '2'));
     // Open on the first two visits to a game, then folded away (it can always be opened again).
     const visits = parseInt(store.get(`seen-${game.id}`), 10) || 0;
     if (visits < 2) howto.open = true;
@@ -732,6 +734,7 @@
   const paintPlates = root => {
     try {
       (root || document).querySelectorAll('[data-gid]:not([data-plated])').forEach(el => {
+        if (el.closest('.drawer') && !document.body.classList.contains('drawer-open')) return;
         const g = GAMES.find(x => x.id === el.dataset.gid);
         const svg = g && plates(g.id, hueOf(g));
         el.dataset.plated = '1';
