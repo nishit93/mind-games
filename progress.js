@@ -359,7 +359,7 @@
   let usage = (() => {
     try {
       const u = JSON.parse(ls.get(USAGE_KEY));
-      return { c: u && u.c && typeof u.c === 'object' && !Array.isArray(u.c) ? u.c : {}, e: u && Array.isArray(u.e) ? u.e : [] };
+      return { c: u && u.c && typeof u.c === 'object' && !Array.isArray(u.c) ? u.c : {}, e: u && Array.isArray(u.e) ? u.e : [], o: u && u.o && typeof u.o === 'object' ? u.o : null };
     } catch { return { c: {}, e: [] }; }
   })();
   const saveUsage = () => ls.set(USAGE_KEY, JSON.stringify(usage));
@@ -379,6 +379,37 @@
     } catch { return '_'; }
   }
   const trackGame = kind => { const id = pageId(); if (id !== 'home') track(kind + '.' + id + '.' + levelTag(id)); };
+
+  // ---- Attempts: one puzzle from its first move until it is solved, given up on (New game, Show me, a level change) or left behind.
+  // This is what makes a solve rate meaningful (a visit can contain many puzzles). Counts only: s started, w solved, a gave up,
+  // d solve time in coarse buckets (under 15 s, 30 s, 1 min, 2 min, 5 min, 10 min, 20 min, longer).
+  const BUCKETS = [15, 30, 60, 120, 300, 600, 1200];
+  let live = null;
+  const attemptKey = () => { const id = pageId(); return id === 'home' ? '' : id + '.' + levelTag(id); };
+  function attemptStart() {
+    if (live || usageOff()) return;
+    const k = attemptKey();
+    if (!k) return;
+    live = { k, t0: Date.now() };
+    usage.o = { k };   // remembered, so leaving the page counts as giving up
+    track('s.' + k);
+  }
+  function attemptWin() {
+    if (usageOff()) return;
+    const k = live ? live.k : attemptKey();
+    if (!k) return;
+    if (!live) track('s.' + k);
+    track('w.' + k);
+    if (live) { const secs = (Date.now() - live.t0) / 1000; let b = BUCKETS.findIndex(x => secs < x); if (b < 0) b = BUCKETS.length; track('d.' + k + '.' + b); }
+    live = null; usage.o = null; saveUsage();
+  }
+  function attemptEnd() {
+    if (!live) return;
+    track('a.' + live.k);
+    live = null; usage.o = null; saveUsage();
+  }
+  // A puzzle left open when the previous page closed counts as given up.
+  if (usage.o && typeof usage.o.k === 'string') { const k = usage.o.k; usage.o = null; if (!usageOff()) track('a.' + k); saveUsage(); } else if (usage.o) { usage.o = null; saveUsage(); }
 
   function envNow() {
     let os = 'other', device = 'desktop', mode = 'browser';
@@ -468,7 +499,7 @@
     }).catch(() => {});
   }
   function setUsageSharing(on) {
-    if (on) ls.del('mg-usage-off'); else { ls.set('mg-usage-off', '1'); usage = { c: {}, e: [] }; saveUsage(); }
+    if (on) ls.del('mg-usage-off'); else { ls.set('mg-usage-off', '1'); usage = { c: {}, e: [] }; live = null; saveUsage(); }
   }
   try {
     document.addEventListener('visibilitychange', () => { if (document.hidden) flushUsage(true); });
@@ -518,7 +549,7 @@
     lists, collections, createList, renameList, deleteList, inList, setInList,
     onChange: fn => listeners.push(fn),
     sync, exportCode, useCode, eraseOnline, setSyncEnabled,
-    track, trackGame, flushUsage, _visitBody: visitBody, setUsageSharing, usageSharing: () => ls.get('mg-usage-off') !== '1', usageBlocked: usageOff,
+    track, trackGame, attemptStart, attemptWin, attemptEnd, flushUsage, _visitBody: visitBody, setUsageSharing, usageSharing: () => ls.get('mg-usage-off') !== '1', usageBlocked: usageOff,
     configured: () => !!api(),
     syncEnabled,
     status: () => ({ status, lastSync, hasPlayer: !!getPlayer() }),

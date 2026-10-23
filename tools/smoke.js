@@ -329,7 +329,7 @@
         return { c, sharing };
       };
       const normal = await counted({});
-      check('Analytics', 'a normal play is counted per game and level, with no player or personal detail', Object.keys(normal.c).length === 1 && /^p\.lights-off\.[a-z0-9_]+$/.test(Object.keys(normal.c)[0]), JSON.stringify(normal.c));
+      check('Analytics', 'a normal play is counted per game and level (visit and attempt), with no player or personal detail', Object.keys(normal.c).length === 2 && Object.keys(normal.c).every(k => /^[ps]\.lights-off\.[a-z0-9_]+$/.test(k)), JSON.stringify(normal.c));
       const kid = await counted({ 'mg-kidmode': 'on' });
       check('Analytics', 'nothing is counted in Kid mode', !Object.keys(kid.c).length, JSON.stringify(kid.c));
       const kidLink = await counted({}, 'games/lights-off/?kids');
@@ -416,6 +416,50 @@
       const none = await open('#foryou', 700);
       check('Global ranking', 'without a published ranking, For you keeps its usual invitation', !/Loved by players/.test(none.d.querySelector('#view').textContent));
       none.close();
+    }
+
+    // 3k. Attempts (for the solve rate): one puzzle from first move to solved, given up, or left behind; a visit can hold many.
+    if (!lenient) {
+      const usageOf = w => { try { return JSON.parse(w.localStorage.getItem('mg-usage')); } catch { return null; } };
+      const touch = (g, sel) => g.d.querySelector(sel).dispatchEvent(new g.w.PointerEvent('pointerdown', { bubbles: true }));
+      seed({});
+      const at = await open('games/hanoi/', 400);
+      touch(at, '.peg'); touch(at, '.peg'); await sleep(150);
+      let u = usageOf(at.w);
+      const sKey = Object.keys(u.c).find(k => k.startsWith('s.hanoi.'));
+      check('Attempts', 'the first touch of a board starts one attempt (and more touches do not start more)', !!sKey && u.c[sKey] === 1 && !!u.o, JSON.stringify(u));
+      touch(at, '#new, #restart'); await sleep(100);
+      u = usageOf(at.w);
+      check('Attempts', 'New game before solving counts as giving up', Object.keys(u.c).some(k => k.startsWith('a.hanoi.')) && !u.o, JSON.stringify(u));
+      touch(at, '.peg'); await sleep(100);
+      check('Attempts', 'the next touch starts a fresh attempt', usageOf(at.w).c[sKey] === 2);
+      at.close();
+
+      seed({ 'mg-usage': JSON.stringify({ c: {}, e: [], o: { k: 'hanoi.4' } }) });
+      const left = await open('games/golf/', 400);
+      u = usageOf(left.w);
+      check('Attempts', 'a puzzle left open when the page closed counts as given up on the next visit', u.c['a.hanoi.4'] === 1 && !u.o, JSON.stringify(u));
+      left.close();
+
+      seed({});
+      const won = await open('games/hanoi/', 500);
+      won.d.querySelector('#size [data-value="3"]').click();
+      const pegs = [...won.d.querySelectorAll('.peg')], moves = [];
+      (function h(n, a, b, c) { if (!n) return; h(n - 1, a, c, b); moves.push([a, b]); h(n - 1, c, b, a); })(3, 0, 2, 1);
+      touch(won, '.peg');
+      for (const [a, b] of moves) { pegs[a].click(); pegs[b].click(); }
+      await sleep(900);
+      u = usageOf(won.w);
+      const sk = Object.keys(u.c).filter(k => k.startsWith('s.hanoi.')), wk = Object.keys(u.c).filter(k => k.startsWith('w.hanoi.')), dk = Object.keys(u.c).filter(k => /^d\.hanoi\..+\.\d$/.test(k));
+      check('Attempts', 'a solve counts as started and solved, with its time in a coarse bucket, and is never more than started', sk.length === 1 && wk.length === 1 && dk.length === 1 && u.c[wk[0]] <= u.c[sk[0]] && !u.o, JSON.stringify(u.c));
+      won.close();
+
+      seed({ 'mg-kidmode': 'on' });
+      const kid = await open('games/hanoi/', 400);
+      touch(kid, '.peg'); await sleep(100);
+      const ku = usageOf(kid.w);
+      check('Attempts', 'nothing is counted in Kid mode', !ku || !Object.keys(ku.c).length, JSON.stringify(ku));
+      kid.close();
     }
 
     // 3i. The visitor count: a page view is sent without cookies or stored markers, and never in Kid mode, with sharing off, or by automation.

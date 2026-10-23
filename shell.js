@@ -5,7 +5,7 @@
   if (!window.MGProgress) {
     window.MGProgress = {
       _stub: true,
-      mirror() {}, recordPlay() {}, track() {}, trackGame() {}, toggleFav: () => false, onChange() {}, setSyncEnabled() {}, refresh() {},
+      mirror() {}, recordPlay() {}, track() {}, trackGame() {}, attemptStart() {}, attemptWin() {}, attemptEnd() {}, toggleFav: () => false, onChange() {}, setSyncEnabled() {}, refresh() {},
       isFav: () => false, favs: () => [], configured: () => false, syncEnabled: () => false, exportCode: () => '',
       lists: () => [], collections: () => [], createList: () => null, renameList: () => false, deleteList() {}, inList: () => false, setInList: () => false,
       summary: () => ({ streak: 0, plays: 0, favourites: 0, days: 0 }),
@@ -330,6 +330,22 @@
     };
     addEventListener('pointerdown', onFirstTouch, true);
     addEventListener('keydown', onFirstTouch, true);
+    // Attempts, for the anonymous counts: the first real touch of a board starts one; New game, Restart, Show me or a level change ends it unfinished.
+    const lvBtns = typeof LEVELS === 'object' && LEVELS[game.id] ? LEVELS[game.id][2] : null;
+    const ENDERS = ['new', 'restart', 'shuffle', 'show', 'reveal'];
+    const attemptTouch = e => {
+      try {
+        const t = e.target;
+        if (!t || !t.closest) return;
+        const btn = t.closest('button');
+        if (btn && !t.closest('.win') && (ENDERS.includes(btn.id) || (lvBtns && t.closest(lvBtns)))) { MGProgress.attemptEnd(); return; }
+        if (t.closest('header.top, .drawer, .scrim, .howto, .more, .history, .coach, .sheet-wrap, .focus-handle, .kidbar, .win')) return;
+        if (e.type === 'keydown' && ['Escape', 'Tab', 'Shift', 'Control', 'Alt', 'Meta'].includes(e.key)) return;
+        MGProgress.attemptStart();
+      } catch { /* counting is optional */ }
+    };
+    addEventListener('pointerdown', attemptTouch, true);
+    addEventListener('keydown', attemptTouch, true);
   }
 
   // Games menu: switches, then search, then the games grouped by section.
@@ -617,7 +633,7 @@
       next.hidden = true;
       nextBtn = null;
       if (celebrate) {
-        try { MGProgress.trackGame('w'); } catch { /* optional */ }
+        try { MGProgress.attemptWin(); } catch { /* optional */ }
         nextBtn = noteWin();
         const streak = (() => { try { return MGProgress.summary().streak; } catch { return 0; } })();
         const bits = [];
