@@ -351,6 +351,30 @@
       dmg.close();
     }
 
+    // 3h1. Getting around: a back button on game pages and a home link in the home title (desktop has no swipe-back).
+    if (!lenient) {
+      seed({});
+      const gp = await open('games/hanoi/', 400);
+      const bb = gp.d.querySelector('header.top .back-btn');
+      check('Navigation', 'game pages have a Back to all games button that leads home', !!bb && bb.getAttribute('aria-label') === 'Back to all games' && new URL(bb.getAttribute('href'), gp.w.location.href).pathname === new URL('../../', gp.w.location.href).pathname, bb ? bb.getAttribute('href') : 'missing');
+      const shouldShow = gp.w.matchMedia('(min-width: 640px), (min-width: 560px) and (hover: hover) and (pointer: fine)').matches;
+      check('Navigation', 'it shows on wide screens (and from 560px with a mouse), and stays out of the way on a touch phone and in very narrow windows', (gp.w.getComputedStyle(bb).display !== 'none') === shouldShow, gp.w.getComputedStyle(bb).display + ' / expected ' + shouldShow);
+      gp.close();
+      const hp = await open('#about', 700);
+      const hl = hp.d.querySelector('header.top h1 a.home-link');
+      check('Navigation', 'the home title is a link', !!hl && hl.getAttribute('href') === '#all');
+      if (hl) { hl.click(); await sleep(400); }
+      check('Navigation', 'clicking it from the About page returns to the home page', hp.w.location.hash === '#all' && !!hp.d.querySelector('.hero, .shelf'), hp.w.location.hash);
+      hp.close();
+      for (const hash of ['#stats', '#lists', '#foryou']) {
+        const sp = await open(hash, 700);
+        const l = sp.d.querySelector('header.top h1 a.home-link');
+        if (l) { l.click(); await sleep(300); }
+        check('Navigation', 'the home title works from ' + hash, sp.w.location.hash === '#all', sp.w.location.hash);
+        sp.close();
+      }
+    }
+
     // 3h2. Board cells keep their shape: a page-level style once padded every element named "home", which stretched Colour Flood's cells into tall bars.
     if (!lenient) {
       seed({});

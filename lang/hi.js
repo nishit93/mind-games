@@ -26,6 +26,7 @@
       // menu and header
       'Games': 'खेल',
       'Find a game': 'खेल खोजें',
+      'Back to all games': 'सारे खेलों पर वापस',
       'Open games menu': 'मेन्यू खोलें',
       'Main': 'मुख्य',
       'Language': 'भाषा',

@@ -123,18 +123,27 @@
   // Header
   const header = document.createElement('header');
   header.className = 'top';
+  const BACK_ICON = '<svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" focusable="false"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
   header.innerHTML = `
+    ${game ? `<a class="icon-btn back-btn" href="${root}" aria-label="Back to all games" title="Back to all games">${BACK_ICON}</a>` : ''}
     <button class="icon-btn menu-btn" aria-label="Open games menu" aria-controls="drawer" aria-expanded="false">
       <span></span><span></span><span></span>
     </button>
     <div class="title">
-      <h1>${game ? game.name : 'The Quiet Board'}</h1>
+      <h1>${game ? game.name : '<a class="home-link" href="#all">The Quiet Board</a>'}</h1>
       <p class="sub">${game ? `${game.origin} · <a href="${root}#${section.id}">${section.name}</a>${game.kids ? ` ${badge(game)}` : ''}` : 'Quite bored? <a href="#" id="surprise">Surprise me</a>'}</p>
     </div>
     ${game
       ? `${MGProgress._stub ? '' : '<button class="icon-btn fav-btn" aria-label="Add to favourites" aria-pressed="false">♡</button><button class="icon-btn list-btn" aria-label="Save to a list">＋</button>'}<button class="icon-btn help-btn" aria-label="How to play">?</button>`
       : '<button class="icon-btn theme-btn" type="button" aria-label="Switch to dark mode"></button>'}`;
   main.prepend(header);
+  // Back goes to where the player came from (the list they chose the game from) when that was this site, otherwise to the home page.
+  const backBtn = header.querySelector('.back-btn');
+  if (backBtn) backBtn.addEventListener('click', e => {
+    try {
+      if (history.length > 1 && document.referrer && new URL(document.referrer).origin === location.origin) { e.preventDefault(); history.back(); }
+    } catch { /* the link still goes home */ }
+  });
 
   // Light or dark: follows the phone until the player chooses, then remembers the choice on this device (mg-theme).
   const THEME_ICON = {

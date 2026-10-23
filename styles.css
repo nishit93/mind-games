@@ -1489,3 +1489,9 @@ body[data-game="15-puzzle"] .board { min-height: 259px; }
 
 /* Long lists: rows below the screen are not laid out until they are near. */
 .list > .item { content-visibility: auto; contain-intrinsic-size: auto 76px; }
+
+/* Back button on game pages: phones have a swipe gesture and little room, so it appears from tablet width up, and from 560px on anything with a mouse; below that the header has no room. */
+.back-btn { display: none; align-items: center; justify-content: center; text-decoration: none; color: inherit; }
+@media (min-width: 640px), (min-width: 560px) and (hover: hover) and (pointer: fine) { .back-btn { display: inline-flex; } }
+.home-link { color: inherit; text-decoration: none; }
+.home-link:hover { text-decoration: underline; text-underline-offset: 4px; }
