@@ -60,7 +60,15 @@
       files.add('index.html');
       for (const g of GAMES) { files.add(`games/${g.id}/`); files.add(`games/${g.id}/game.js`); }
       const bad = [];
-      await Promise.all([...files].map(async p => { try { const r = await fetch(base + p, { cache: 'no-store' }); if (!r.ok) bad.push(`${p} (${r.status})`); } catch { bad.push(`${p} (failed)`); } }));
+      // A few at a time, and a missing file is tried once more: the host sometimes answers 503 when hit by a hundred requests at once.
+      const queue = [...files];
+      const one = async p => {
+        for (let attempt = 0; attempt < 2; attempt++) {
+          try { const r = await fetch(base + p, { cache: 'no-store' }); if (r.ok) return; if (attempt) bad.push(`${p} (${r.status})`); } catch { if (attempt) bad.push(`${p} (failed)`); }
+          await sleep(600);
+        }
+      };
+      await Promise.all(Array.from({ length: 8 }, async () => { for (let p; (p = queue.shift());) await one(p); }));
       check('Files', `all ${files.size} files load`, !bad.length, bad.join(', '));
       let manifest = null;
       try { manifest = await (await fetch(base + 'manifest.webmanifest', { cache: 'no-store' })).json(); } catch {}
