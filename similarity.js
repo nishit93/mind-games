@@ -1,7 +1,7 @@
 // A quiet personalisation layer: a map of how alike the games are, and a taste profile kept on this device.
 // Each game has a small vector over nine skills (0 = not at all, 3 = very much). Sections are the mean of their games.
 // The home page uses it to put the sections you lean towards first, and, inside each, the games closest to your taste.
-// Nothing leaves the device. If this file is missing or broken, the home page simply keeps its default order.
+// The taste profile never leaves the device; only a public, id-only ranking of the most loved games is fetched. If this file is missing or broken, the home page simply keeps its default order.
 //
 // Dimensions: deduce, number, space, memory, attention, plan, cards, visual, gentle
 // A new game needs a row in VEC (the smoke test fails without one).
@@ -103,15 +103,66 @@
     } catch { return sections; }
   }
 
+  // ---- The global order: which games players love most (from hearts, published by the server only once there is enough data).
+  // It is a list of game ids and nothing else. It is cached on this device, refreshed in the background, and if it is missing the
+  // default order simply stays. A new visitor sees it directly; as someone plays, their own taste takes over gradually.
+  const GKEY = 'mg-popular';
+  const GLOBAL_TTL = 6 * 3600 * 1000;
+  const readGlobal = () => {
+    try {
+      const o = JSON.parse(localStorage.getItem(GKEY));
+      if (o && Array.isArray(o.order)) return { t: +o.t || 0, order: o.order.filter(x => typeof x === 'string' && VEC[x]) };
+    } catch { /* no cache */ }
+    return { t: 0, order: [] };
+  };
+  let glob = readGlobal();
+  const gscore = id => { const i = glob.order.indexOf(id); return i < 0 ? 0 : 1 - i / glob.order.length; };
+  const hearted = id => { try { return window.MGProgress && MGProgress.isFav(id); } catch { return false; } };
+  function refreshGlobal() {
+    try {
+      if (Date.now() - glob.t < GLOBAL_TTL) return;
+      const cfg = typeof MG_CONFIG === 'object' && MG_CONFIG ? MG_CONFIG : {};
+      let url = '';
+      try { url = (localStorage.getItem('mg-api') || cfg.api || '').replace(/\/+$/, ''); } catch { url = (cfg.api || '').replace(/\/+$/, ''); }
+      if (!/^https:\/\/|^http:\/\/(localhost|127\.0\.0\.1)(:|\/|$)/.test(url)) return;
+      if (['localhost', '127.0.0.1'].includes(location.hostname) && !localStorage.getItem('mg-api')) return;
+      fetch(url + '/v1/popular', { credentials: 'omit', signal: typeof AbortSignal.timeout === 'function' ? AbortSignal.timeout(6000) : undefined })
+        .then(r => (r.ok ? r.json() : null))
+        .then(j => {
+          if (!j || !Array.isArray(j.order)) return;
+          const order = j.order.filter(x => typeof x === 'string' && VEC[x]);
+          const changed = order.join() !== glob.order.join();
+          glob = { t: Date.now(), order };
+          try { localStorage.setItem(GKEY, JSON.stringify(glob)); } catch { /* optional */ }
+          if (changed) document.dispatchEvent(new CustomEvent('mg-popular'));
+        })
+        .catch(() => {});
+    } catch { /* the default order stays */ }
+  }
+
   function rankGames(games) {
     try {
       const w = weights(), tot = total(w);
-      if (!(tot > 0)) return games;
+      const haveGlobal = glob.order.length > 0;
+      if (!(tot > 0)) return haveGlobal ? rank(games, g => gscore(g.id)) : games;
       const p = profile(w);
       const top = Math.max(...Object.values(w));
-      return rank(games, g => 0.55 * cos(p, vec(g.id)) + 0.45 * ((w[g.id] || 0) / top));
+      // Your own taste (and hearts) count for more the more you play; until then the global order leads.
+      const mine = g => 0.55 * cos(p, vec(g.id)) + 0.45 * ((w[g.id] || 0) / top) + (hearted(g.id) ? 0.2 : 0);
+      if (!haveGlobal) return rank(games, mine);
+      const conf = Math.min(1, tot / 6);
+      return rank(games, g => conf * mine(g) + (1 - conf) * gscore(g.id) + 0.1 * gscore(g.id));
     } catch { return games; }
   }
+
+  // The most loved games, for someone with no taste of their own yet (empty until the server publishes a ranking).
+  function popular(games, limit = 8) {
+    try {
+      const by = new Map(games.map(g => [g.id, g]));
+      return glob.order.map(id => by.get(id)).filter(Boolean).slice(0, limit);
+    } catch { return []; }
+  }
+  refreshGlobal();
 
   // ---- Recommendations: games close enough to your taste (cosine similarity at or above CUTOFF) that you have not played much ----
   const CUTOFF = 0.75;
@@ -144,5 +195,5 @@
     return Object.keys(VEC).filter(k => k !== id).map(k => ({ id: k, d: 1 - cos(base, VEC[k]) })).sort((a, b) => a.d - b.d).slice(0, n);
   }
 
-  window.MGTaste = { DIMS, VEC, vec, cos, secVec, record, weights, rankSections, rankGames, recommend, CUTOFF, nearest, KEY };
+  window.MGTaste = { DIMS, VEC, vec, cos, secVec, record, weights, rankSections, rankGames, recommend, popular, CUTOFF, nearest, KEY, _setGlobal: order => { glob = { t: Date.now(), order }; } };
 })();

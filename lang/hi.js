@@ -84,6 +84,8 @@
       'All games': 'सारे खेल',
       'Loading…': 'खुल रहा है…',
       'Nothing here.': 'यहाँ कुछ नहीं है।',
+      'Loved by players': 'खिलाड़ियों के पसंदीदा',
+      'The games players are hearting most.': 'जिन खेलों पर खिलाड़ी सबसे ज़्यादा दिल लगाते हैं।',
       'Nothing here yet. Tap the ＋ on any game to add it.': 'अभी यहाँ कुछ नहीं है। किसी भी खेल पर ＋ दबाकर उसे जोड़ें।',
       'Tap the ♡ on any game to keep it here.': 'किसी भी खेल पर ♡ दबाइए, वह यहाँ आ जाएगा।',
       'No favourites yet. Tap the ♡ on any game to keep it here.': 'अभी कोई पसंदीदा नहीं है। किसी भी खेल पर ♡ दबाइए, वह यहाँ आ जाएगा।',

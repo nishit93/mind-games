@@ -389,6 +389,35 @@
       home.close();
     }
 
+    // 3j. The global ranking: a new visitor sees the most loved games first; a player's own taste takes over as they play; damaged data is ignored.
+    if (!lenient) {
+      const firstOf = (d, shelf) => { const a = d.querySelector('.shelf[data-shelf="' + shelf + '"] .gname'); return a ? a.textContent.trim() : ''; };
+      const order = ['hanoi', 'sudoku', 'golf'];
+      seed({ 'mg-popular': JSON.stringify({ t: Date.now(), order }) });
+      const gp = await open('', 700);
+      check('Global ranking', 'a new visitor sees the most loved game first in its shelf', firstOf(gp.d, 'moves') === 'Tower of Hanoi' && firstOf(gp.d, 'logic') === 'Sudoku', firstOf(gp.d, 'moves') + ' / ' + firstOf(gp.d, 'logic'));
+      gp.close();
+      seed({ 'mg-popular': JSON.stringify({ t: Date.now(), order }), 'mg-taste': JSON.stringify({ maze: { n: 30, t: Date.now() } }) });
+      const pp = await open('', 700);
+      check('Global ranking', 'someone who plays a lot gets their own taste first (Maze, not the globally loved Hanoi)', firstOf(pp.d, 'moves') === 'Maze', firstOf(pp.d, 'moves'));
+      pp.close();
+      for (const bad of ['{oops', '[1,2]', '"x"', JSON.stringify({ t: Date.now(), order: 'sudoku' }), JSON.stringify({ t: Date.now(), order: [1, null, {}, 'not-a-game'] })]) {
+        seed({ 'mg-popular': bad });
+        const bp = await open('', 600);
+        const names = [...bp.d.querySelectorAll('.shelf[data-shelf="logic"] .gname')].map(e => e.textContent.trim());
+        check('Global ranking', 'a damaged ranking (' + bad.slice(0, 12) + ') changes nothing and breaks nothing', names.length > 3 && names.join() === [...names].sort((a, b) => a.localeCompare(b)).join(), names.join().slice(0, 80));
+        bp.close();
+      }
+      seed({ 'mg-popular': JSON.stringify({ t: Date.now(), order }) });
+      const fy = await open('#foryou', 700);
+      check('Global ranking', 'For you offers the most loved games to someone with no taste yet', /Loved by players/.test(fy.d.querySelector('#view').textContent) && fy.d.querySelectorAll('#view .item').length === 3, fy.d.querySelectorAll('#view .item').length);
+      fy.close();
+      seed({});
+      const none = await open('#foryou', 700);
+      check('Global ranking', 'without a published ranking, For you keeps its usual invitation', !/Loved by players/.test(none.d.querySelector('#view').textContent));
+      none.close();
+    }
+
     // 3i. The visitor count: a page view is sent without cookies or stored markers, and never in Kid mode, with sharing off, or by automation.
     if (!lenient) {
       const body = async (data, path = 'games/hanoi/') => { seed({ 'mg-api': 'https://example.invalid', ...data }); const g = await open(path, 300); const b = g.w.MGProgress._visitBody(true); const keys = Object.keys(g.w.localStorage); g.close(); return { b, keys }; };

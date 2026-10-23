@@ -335,12 +335,13 @@
             : '<p class="empty">No game matches that search.</p>';
         } else if (f === 'foryou') {
           const rec = window.MGTaste ? MGTaste.recommend(GAMES.filter(vis)) : { games: [], reason: {}, cold: true };
+          const lovedGames = window.MGTaste && MGTaste.popular ? MGTaste.popular(GAMES.filter(vis), 8) : [];
           const why = g => { const b = byId(rec.reason[g.id]); return b ? { ...g, blurb: 'Like ' + b.name + ' · ' + g.blurb } : g; };
           html = `
             <div class="topbar"><a class="back" href="#all">‹ All games</a></div>
             <h2 class="view-title">For you <small>${rec.games.length || ''}</small></h2>
             <p class="section-blurb">Games that sit close to the ones you play, and that you have not played much yet. It learns quietly, on this device only.</p>
-            ${rec.games.length ? `<div class="list">${rec.games.map(g => row(why(g), km)).join('')}</div>` : `<p class="empty">${rec.cold ? 'Play a few games and this page will start suggesting others you might like.' : 'Nothing new sits close to your taste right now. Try something from the Play tab.'}</p>`}`;
+            ${rec.games.length ? `<div class="list">${rec.games.map(g => row(why(g), km)).join('')}</div>` : `<p class="empty">${rec.cold ? 'Play a few games and this page will start suggesting others you might like.' : 'Nothing new sits close to your taste right now. Try something from the Play tab.'}</p>${rec.cold && lovedGames.length ? `<h2 class="view-title">Loved by players</h2><p class="section-blurb">The games players are hearting most.</p><div class="list">${lovedGames.map(g => row(g, km)).join('')}</div>` : ''}`}`;
         } else if (f === 'about') {
           html = aboutHtml();
         } else if (f === 'stats') {
@@ -528,6 +529,8 @@
       window.addEventListener('hashchange', () => { search.value = ''; safeDraw(); enter(); window.scrollTo(0, 0); });
       // Kid mode was switched in the header or the menu.
       document.addEventListener('mg-kidmode', () => { safeDraw(); enter(); });
+      // The global ranking arrived (or changed): redraw quietly so a new visitor sees the most loved games first.
+      document.addEventListener('mg-popular', () => { if (!search.value.trim()) safeDraw(); });
       safeDraw();
       enter();
     })();
