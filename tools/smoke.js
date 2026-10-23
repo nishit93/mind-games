@@ -307,6 +307,42 @@
       ws.close();
     }
 
+    // 3h. Anonymous usage counts: counted for a normal player, and never in Kid mode, with Do Not Track, or when switched off.
+    if (!lenient) {
+      const counted = async (data, path = 'games/lights-off/') => {
+        seed(data);
+        const g = await open(path, 400);
+        g.d.querySelector('.light').dispatchEvent(new g.w.PointerEvent('pointerdown', { bubbles: true }));
+        await sleep(200);
+        const raw = g.w.localStorage.getItem('mg-usage');
+        const sharing = g.w.MGProgress.usageSharing();
+        g.close();
+        let c = {}; try { c = JSON.parse(raw).c; } catch {}
+        return { c, sharing };
+      };
+      const normal = await counted({});
+      check('Analytics', 'a normal play is counted per game and level, with no player or personal detail', Object.keys(normal.c).length === 1 && /^p\.lights-off\.[a-z0-9_]+$/.test(Object.keys(normal.c)[0]), JSON.stringify(normal.c));
+      const kid = await counted({ 'mg-kidmode': 'on' });
+      check('Analytics', 'nothing is counted in Kid mode', !Object.keys(kid.c).length, JSON.stringify(kid.c));
+      const kidLink = await counted({}, 'games/lights-off/?kids');
+      check('Analytics', 'nothing is counted for a game opened from the Kids section', !Object.keys(kidLink.c).length, JSON.stringify(kidLink.c));
+      const off = await counted({ 'mg-usage-off': '1' });
+      check('Analytics', 'nothing is counted when the player switched sharing off', !Object.keys(off.c).length && off.sharing === false, JSON.stringify(off.c));
+      seed({ 'mg-usage': JSON.stringify({ c: { 'p.hanoi.4': 2 }, e: [] }) });
+      const sw = await open('', 500);
+      sw.w.MGProgress.setUsageSharing(false);
+      check('Analytics', 'switching sharing off also clears what was waiting to be sent', !Object.keys(JSON.parse(sw.w.localStorage.getItem('mg-usage')).c).length && sw.w.localStorage.getItem('mg-usage-off') === '1');
+      const box = await open('#stats', 900);
+      check('Analytics', 'the Progress page has the sharing switch', !!box.d.querySelector('#p-usage'));
+      box.close(); sw.close();
+      seed({ 'mg-usage': '{oops', 'mg-env-sent': '5' });
+      const dmg = await open('games/lights-off/', 500);
+      dmg.d.querySelector('.light').dispatchEvent(new dmg.w.PointerEvent('pointerdown', { bubbles: true }));
+      await sleep(200);
+      check('Analytics', 'damaged saved counts are ignored and the game still plays', !!dmg.d.querySelector('.light') && !!JSON.parse(dmg.w.localStorage.getItem('mg-usage')).c, '');
+      dmg.close();
+    }
+
     // 4. Every game page, from a new visitor and from a returning player.
     for (const label of ['new visitor', 'returning player']) {
       seed(label === 'new visitor' ? {} : LEGACY);

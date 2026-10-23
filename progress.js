@@ -103,6 +103,7 @@
   function toggleFav(id) {
     const on = !isFav(id);
     state.favourites[id] = { on, t: Date.now() };
+    if (on) track('f.fav');
     save();
     emit();
     schedule();
@@ -126,6 +127,7 @@
     if (!n || liveLists().length >= MAX_LISTS) return null;
     const id = 'l' + Date.now().toString(36) + Math.random().toString(36).slice(2, 5);
     state.lists[id] = { name: n, games: firstGame ? [String(firstGame)] : [], on: true, t: Date.now() };
+    track('f.list');
     save(); emit(); schedule();
     return id;
   }
@@ -163,6 +165,8 @@
   function recordPlay() {
     const key = `plays-d${device}`;
     state.stats[key] = (state.stats[key] || 0) + 1;
+    trackGame('p');
+    if (/[?&]daily=/.test(location.search)) track('f.daily');
     const d = today();
     if (!state.days.includes(d)) state.days = [...state.days, d].sort().slice(-MAX_DAYS);
     save();
@@ -285,6 +289,7 @@
       ls.set('mg-last-sync', String(lastSync));
       backoff = 0;
       setStatus('ok');
+      flushUsage();
     } catch (err) {
       result = err.code === 'unknown' ? 'unknown' : navigator.onLine === false ? 'offline' : 'error';
       setStatus(result === 'unknown' ? 'idle' : result);
@@ -332,6 +337,106 @@
     if (on) { setStatus(api() ? 'idle' : 'off'); schedule(200); } else { clearTimeout(timer); setStatus(api() ? 'paused' : 'off'); }
   }
 
+  // ---- Anonymous usage counts -------------------------------------------------------------------------------
+  // What is counted: plays and wins per game and level, a few feature uses, the kind of device, and script errors.
+  // What is never counted: anything in Kid mode (or a game opened from the Kids section), anything when the browser says
+  // Do Not Track or Global Privacy Control, or when the player switched sharing off in the Progress tab. No text the player
+  // typed, no list names, no addresses, no per-tap log. The server adds the counts to daily totals that are not linked to a player.
+  const USAGE_KEY = 'mg-usage';
+  const COUNT_KEY = /^[a-z0-9][a-z0-9.:_-]{0,39}$/;
+  const MAX_COUNT_KEYS = 120;
+  function usageOff() {
+    try {
+      if (ls.get('mg-usage-off') === '1') return true;
+      if (ls.get('mg-kidmode') === 'on') return true;
+      if (/[?&]kids(&|$)/.test(location.search)) return true;
+      if (navigator.doNotTrack === '1' || window.doNotTrack === '1' || navigator.globalPrivacyControl === true) return true;
+    } catch { /* if in doubt, count nothing */ return true; }
+    return false;
+  }
+  let usage = (() => {
+    try {
+      const u = JSON.parse(ls.get(USAGE_KEY));
+      return { c: u && u.c && typeof u.c === 'object' && !Array.isArray(u.c) ? u.c : {}, e: u && Array.isArray(u.e) ? u.e : [] };
+    } catch { return { c: {}, e: [] }; }
+  })();
+  const saveUsage = () => ls.set(USAGE_KEY, JSON.stringify(usage));
+  function track(key) {
+    if (usageOff() || !COUNT_KEY.test(key)) return;
+    if (!(key in usage.c) && Object.keys(usage.c).length >= MAX_COUNT_KEYS) return;
+    usage.c[key] = Math.min((+usage.c[key] || 0) + 1, 100000);
+    saveUsage();
+  }
+  const pageId = () => (document.body && document.body.dataset && document.body.dataset.game) || 'home';
+  // The level the player is on, as a short tag (the setting named in LEVELS), or _ when the game has none.
+  function levelTag(id) {
+    try {
+      const L = typeof LEVELS === 'object' && LEVELS ? LEVELS[id] : null;
+      const v = L ? ls.get(L[0]) : null;
+      return v ? String(v).toLowerCase().replace(/[^a-z0-9]/g, '').slice(0, 10) || '_' : '_';
+    } catch { return '_'; }
+  }
+  const trackGame = kind => { const id = pageId(); if (id !== 'home') track(kind + '.' + id + '.' + levelTag(id)); };
+
+  function envNow() {
+    let os = 'other', device = 'desktop', mode = 'browser';
+    try {
+      const ua = navigator.userAgent || '';
+      const p = (navigator.userAgentData && navigator.userAgentData.platform) || '';
+      os = /iPhone|iPad|iPod/i.test(ua) ? 'ios' : /Android/i.test(ua) || /android/i.test(p) ? 'android' : /Windows/i.test(ua) || /windows/i.test(p) ? 'windows' : /Mac/i.test(ua) ? 'mac' : /Linux|CrOS/i.test(ua) ? 'linux' : 'other';
+      const w = Math.min(screen.width || 0, screen.height || 0);
+      device = w && w < 600 ? 'phone' : w && w < 900 ? 'tablet' : 'desktop';
+      mode = matchMedia('(display-mode: standalone)').matches || navigator.standalone ? 'app' : 'browser';
+    } catch { /* coarse guesses only */ }
+    return { os, device, mode };
+  }
+  // Script errors: only a short cleaned message and the page, a handful per visit.
+  function noteError(msg, where) {
+    if (usageOff()) return;
+    let m = String(msg || '').replace(/https?:\/\/[^\s)]*\/([^/\s)?#]*)[^\s)]*/g, '$1').replace(/[\w.+-]+@[\w.-]+/g, '').replace(/\s+/g, ' ').trim().slice(0, 140);
+    if (!m || /ResizeObserver loop|Script error\.?$/i.test(m)) return;
+    if (where) m += ' @' + where;
+    if (usage.e.length >= 10 || usage.e.some(x => x.m === m && x.p === pageId())) return;
+    usage.e.push({ p: pageId(), m });
+    saveUsage();
+  }
+  try {
+    addEventListener('error', ev => noteError(ev.message, ev.filename ? String(ev.filename).split('/').pop().split('?')[0] + ':' + (ev.lineno || 0) : ''));
+    addEventListener('unhandledrejection', ev => noteError('Unhandled: ' + ((ev.reason && ev.reason.message) || ev.reason)));
+  } catch { /* optional */ }
+
+  let flushing = false;
+  async function flushUsage(keepalive) {
+    const base = api(), player = getPlayer();
+    if (!base || !player || flushing || !syncEnabled() || usageOff() || navigator.onLine === false) return;
+    const counts = { ...usage.c }, errs = usage.e.slice(0, 5), env = envNow();
+    const envKey = JSON.stringify(env);
+    if (!Object.keys(counts).length && !errs.length && ls.get('mg-env-sent') === envKey) return;
+    flushing = true;
+    try {
+      const res = await fetch(base + '/v1/usage', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json', authorization: `Bearer ${player.id}.${player.token}` },
+        body: JSON.stringify({ counts, errs, env }),
+        credentials: 'omit', cache: 'no-store', keepalive: !!keepalive,
+      });
+      if (res.ok) {
+        for (const [k, n] of Object.entries(counts)) { const left = (+usage.c[k] || 0) - n; if (left > 0) usage.c[k] = left; else delete usage.c[k]; }
+        usage.e = usage.e.filter(x => !errs.some(y => y.m === x.m && y.p === x.p));
+        saveUsage();
+        ls.set('mg-env-sent', envKey);
+      }
+    } catch { /* tried again at the next chance */ } finally { flushing = false; }
+  }
+  function setUsageSharing(on) {
+    if (on) ls.del('mg-usage-off'); else { ls.set('mg-usage-off', '1'); usage = { c: {}, e: [] }; saveUsage(); }
+  }
+  try {
+    document.addEventListener('visibilitychange', () => { if (document.hidden) flushUsage(true); });
+    setTimeout(() => flushUsage(false), 8000);
+    setInterval(() => flushUsage(false), 60_000);
+  } catch { /* optional */ }
+
   // Pick up anything already stored, such as scores from before this module existed, or keys a game
   // wrote without going through MG.store. This must run last: it uses everything defined above.
   // First run: older values get time 0, so they can never overwrite something newer from another device.
@@ -373,6 +478,7 @@
     lists, collections, createList, renameList, deleteList, inList, setInList,
     onChange: fn => listeners.push(fn),
     sync, exportCode, useCode, eraseOnline, setSyncEnabled,
+    track, trackGame, flushUsage, setUsageSharing, usageSharing: () => ls.get('mg-usage-off') !== '1', usageBlocked: usageOff,
     configured: () => !!api(),
     syncEnabled,
     status: () => ({ status, lastSync, hasPlayer: !!getPlayer() }),

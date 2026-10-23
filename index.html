@@ -118,6 +118,8 @@
       <p class="section-blurb" id="p-status"></p>
       <div class="progress-actions" id="p-actions"></div>
       <p class="section-blurb" id="p-note" aria-live="polite"></p>
+      <label class="usage-row"><input type="checkbox" id="p-usage"> <span>Share anonymous usage counts</span></label>
+      <p class="section-blurb usage-note">Counts of which games are played, which features are used and any errors. They are never linked to you, and nothing is counted in Kid mode.</p>
     </details>
   </main>
   <script src="games.js"></script>
@@ -244,7 +246,7 @@
           <h3>Why it is free</h3>
           <p>Because puzzles belong to everybody. These games have been passed from person to person for generations, and it feels wrong to put a price on a quiet moment. We make this for the pleasure of it. There are no ads, no sign-up, no paywall, and we do not sell your attention or your data.</p>
           <h3>Your privacy</h3>
-          <p>Your progress stays on your own device. If you want it, an anonymous backup lets you carry your streaks and scores to another phone with a progress code. It holds no name or email, only your country (guessed from your phone's time zone) and your language, so we can see roughly where people play. We never store your IP address. "Erase my online data" in the Progress tab removes it whenever you like.</p>
+          <p>Your progress stays on your own device. If you want it, an anonymous backup lets you carry your streaks and scores to another phone with a progress code. It holds no name or email, only your country (guessed from your phone's time zone) and your language, so we can see roughly where people play. We never store your IP address. We also count which games are played, which features are used and any errors, as daily totals that are never linked to you, and never in Kid mode. You can switch that off in the Progress tab. "Erase my online data" in the Progress tab removes it whenever you like.</p>
           <h3>Say hello</h3>
           <p>Found a bug, or a game we should add? Tell us. A puzzle you love is probably one somebody else would love too.</p>
           <p>Email us: <a href="mailto:nishitjain93@gmail.com">nishitjain93@gmail.com</a></p>
@@ -425,6 +427,11 @@
           : '<button class="btn" data-act="on">Back up my progress online</button><button class="btn ghost" data-act="use">Use a code</button>';
       }
       const note = text => { document.getElementById('p-note').textContent = text; };
+      const usageBox = document.getElementById('p-usage');
+      if (usageBox) {
+        usageBox.checked = !P.usageSharing || P.usageSharing();
+        usageBox.addEventListener('change', () => { try { P.setUsageSharing(usageBox.checked); } catch { /* optional */ } });
+      }
 
       document.addEventListener('click', async e => {
         const chip = e.target.closest('[data-chip]');
@@ -520,6 +527,7 @@
         const a = e.target.closest && e.target.closest('#surprise');
         if (!a) return;
         e.preventDefault();
+        try { P.track('f.surprise'); } catch { /* optional */ }
         const pool = GAMES.filter(vis);
         const g = pool[Math.floor(Math.random() * pool.length)];
         if (g) location.href = `games/${g.id}/` + (kidMode() ? '?kids' : '');

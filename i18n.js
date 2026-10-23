@@ -55,6 +55,7 @@
 
   L.set = c => {
     if (!LANGS.some(l => l.code === c)) return;
+    try { window.MGProgress && MGProgress.track('f.lang.' + c); } catch (e) { /* optional */ }
     try { localStorage.setItem('mg-lang', c); } catch (e) { /* the choice just will not be remembered */ }
     location.reload();
   };

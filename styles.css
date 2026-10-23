@@ -1428,3 +1428,7 @@ body.focus .howto, body.focus .more, body.focus .history, body.focus .kidbar { o
 :root[data-lang="hi"] .tab { font-size: .78rem; line-height: 1.3; }
 :root[data-lang="hi"] .cat, :root[data-lang="hi"] .chip, :root[data-lang="hi"] .seg button, :root[data-lang="hi"] .btn { line-height: 1.5; }
 :root[data-lang="hi"] .howto p, :root[data-lang="hi"] .howto li, :root[data-lang="hi"] .history p, :root[data-lang="hi"] .about p { line-height: 1.8; }
+
+.usage-row { display: flex; align-items: center; gap: 10px; min-height: 48px; margin-top: 12px; font-weight: 600; }
+.usage-row input { width: 22px; height: 22px; accent-color: var(--lagoon); }
+.usage-note { margin-top: 0; font-size: .85rem; }

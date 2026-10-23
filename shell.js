@@ -5,7 +5,7 @@
   if (!window.MGProgress) {
     window.MGProgress = {
       _stub: true,
-      mirror() {}, recordPlay() {}, toggleFav: () => false, onChange() {}, setSyncEnabled() {}, refresh() {},
+      mirror() {}, recordPlay() {}, track() {}, trackGame() {}, toggleFav: () => false, onChange() {}, setSyncEnabled() {}, refresh() {},
       isFav: () => false, favs: () => [], configured: () => false, syncEnabled: () => false, exportCode: () => '',
       lists: () => [], collections: () => [], createList: () => null, renameList: () => false, deleteList() {}, inList: () => false, setInList: () => false,
       summary: () => ({ streak: 0, plays: 0, favourites: 0, days: 0 }),
@@ -158,11 +158,12 @@
     }
     try { const m = document.querySelector('meta[name="theme-color"]'); if (m) m.setAttribute('content', dark ? '#12161E' : '#F6F4EF'); } catch { /* optional */ }
   }
-  if (themeBtn) themeBtn.addEventListener('click', () => { store.set('mg-theme', themeNow() === 'dark' ? 'light' : 'dark'); applyTheme(); });
+  if (themeBtn) themeBtn.addEventListener('click', () => { try { MGProgress.track('f.theme'); } catch { /* optional */ } store.set('mg-theme', themeNow() === 'dark' ? 'light' : 'dark'); applyTheme(); });
   applyTheme();
 
   // Kid mode switch: reloads a game (so it starts on its easiest setting); the home page redraws itself.
   function setKidMode(on) {
+    if (on) { try { MGProgress.track('f.kid'); } catch { /* optional */ } }
     store.set('mg-kidmode', on ? 'on' : 'off');
     if (game) { location.reload(); return; }
     document.body.classList.toggle('kidmode', on);
@@ -274,6 +275,7 @@
     clearTimeout(focusTimer);
     focusing = on;
     if (on) {
+      try { MGProgress.track('f.focus'); } catch { /* optional */ }
       document.body.classList.add('focus-in');
       dock.hidden = false;
       focusTimer = setTimeout(() => { if (focusing) document.body.classList.add('focus'); }, 1150);
@@ -510,7 +512,7 @@
 
   // Gesture tutorial: loaded on demand, and shown until a level of this game has been won (never blocks the game).
   function loadTutorial(force) {
-    const go = () => { try { MGTutorial.start({ force }); } catch (err) { console.error(err); } };
+    const go = () => { try { MGProgress.track('f.demo'); } catch { /* optional */ } try { MGTutorial.start({ force }); } catch (err) { console.error(err); } };
     if (window.MGTutorial) return go();
     const s = document.createElement('script');
     s.src = `${root}shared/tutorial.js`;
@@ -604,6 +606,7 @@
       next.hidden = true;
       nextBtn = null;
       if (celebrate) {
+        try { MGProgress.trackGame('w'); } catch { /* optional */ }
         nextBtn = noteWin();
         const streak = (() => { try { return MGProgress.summary().streak; } catch { return 0; } })();
         const bits = [];
