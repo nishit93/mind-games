@@ -140,6 +140,9 @@
   if (code !== 'en') {
     document.documentElement.setAttribute('lang', code);
     document.documentElement.setAttribute('data-lang', code);
+    // the page is already in the chosen language, so the browser should not offer to translate it
+    document.documentElement.setAttribute('translate', 'no');
+    try { const m = document.createElement('meta'); m.name = 'google'; m.content = 'notranslate'; document.head.appendChild(m); } catch (e) { /* optional */ }
     // Load the language files in order, right now (the next scripts on the page then see the translated lists).
     (FILES[code] || []).forEach(f => document.write('<script src="' + base + 'lang/' + f + '"><\/script>'));
     // If the content file could not be loaded, still translate what did load once the page is ready.
