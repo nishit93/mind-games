@@ -338,6 +338,7 @@
       <button class="switch" role="switch" data-sw="kid" aria-checked="${km}"><span>Kid mode<small>Only games for children up to 11</small></span><i class="knob" aria-hidden="true"></i></button>
       ${game ? `<button class="switch" role="switch" data-sw="focus" aria-checked="${focusOn()}"><span>Focus while playing<small>Hide everything else once you start</small></span><i class="knob" aria-hidden="true"></i></button>` : ''}
     </div>
+    ${window.MGLang ? `<div class="lang-row"><span class="lang-label">Language</span><div class="seg" role="group" aria-label="Language" data-no-i18n>${MGLang.langs.map(l => `<button type="button" data-lang="${l.code}" aria-pressed="${l.code === MGLang.code}">${l.label}</button>`).join('')}</div></div>` : ''}
     <input class="search drawer-search" type="search" placeholder="Find a game" aria-label="Find a game">
     ${(() => { try { const p = dailyPick(km); const g = GAMES.find(x => x.id === p.id); return `<a class="drawer-kids drawer-daily" href="${root}games/${p.id}/?daily=${p.date}">☀ Puzzle of the day <small>${g.name}${dailyDone().includes(p.date) ? ' · done' : ''}</small></a>`; } catch { return ''; } })()}
     ${km ? '' : `<a class="drawer-kids" href="${root}#kids">${FACE} Great for kids</a>`}
@@ -374,6 +375,7 @@
       drawer.querySelector('.drawer-empty').hidden = !!drawer.querySelector('.drawer-item:not([hidden])');
     });
     drawer.querySelector('[data-sw="kid"]').addEventListener('click', () => setKidMode(!isKidMode()));
+    drawer.querySelectorAll('[data-lang]').forEach(b => b.addEventListener('click', () => { if (window.MGLang && b.dataset.lang !== MGLang.code) MGLang.set(b.dataset.lang); }));
     const focusSwitch = drawer.querySelector('[data-sw="focus"]');
     if (focusSwitch) focusSwitch.addEventListener('click', () => {
       const on = !focusOn();
@@ -434,7 +436,7 @@
     const label = lvSel && document.querySelector(lvSel + ' button[data-value="' + daily.level + '"], ' + lvSel + ' button[data-size="' + daily.level + '"]');
     const bar = document.createElement('div');
     bar.className = 'dailybar';
-    bar.innerHTML = `<p><b>Puzzle of the day</b> · ${new Date().toLocaleDateString([], { weekday: 'long', day: 'numeric', month: 'long' })}${label ? ' · ' + esc(label.textContent.trim()) : ''}</p>`;
+    bar.innerHTML = `<p><b>Puzzle of the day</b> · ${new Date().toLocaleDateString(window.MGLang ? MGLang.code : [], { weekday: 'long', day: 'numeric', month: 'long' })}${label ? ' · ' + esc(label.textContent.trim()) : ''}</p>`;
     header.after(bar);
     const leave = () => {
       const wrap = document.createElement('div');

@@ -8,7 +8,7 @@
 (async () => {
   const base = new URL('../', location.href).href;
   const params = new URLSearchParams(location.search);
-  const run = (params.get('run') || 'games,flows,states,tutorial,layout').split(',');
+  const run = (params.get('run') || 'games,flows,states,tutorial,layout,hindi').split(',');
   const from = +params.get('from') || 0, to = +params.get('to') || GAMES.length;
   const taps = +params.get('taps') || 60;
   const ids = params.get('ids');   // ?ids=maze,word-search tests just those games
@@ -390,6 +390,76 @@ const KIDS = GAMES.filter(g => g.kids).length, ALL = GAMES.length, third = x => 
           p.close();
         }
         check('Layout', `the home page and its lists fit every screen width for ${label}`, !problems.length, problems.join(' || '));
+      }
+    }
+
+    // ===== 6. Hindi: every page fits a narrow phone, every demo step is in Hindi, no errors =====
+    if (run.includes('hindi')) {
+      const DEV = /[ऀ-ॿ]/;
+      for (const width of [320, 375]) {
+        const problems = [];
+        for (const g of games) {
+          seed({ 'mg-lang': 'hi', 'tut-done-x': '1' });
+          const e0 = window.__errs.length;
+          const p = await open(`games/${g.id}/`, { width, height: 760, wait: 300 });
+          const issues = [];
+          const ov = wide(p.d, p.w); if (ov.length) issues.push('overflow ' + ov.join(' '));
+          if (p.d.documentElement.scrollWidth > width + 1) issues.push(`page is ${p.d.documentElement.scrollWidth}px wide`);
+          const un = unnamed(p.d); if (un.length) issues.push('unnamed ' + un.join(' '));
+          if (p.d.documentElement.lang !== 'hi') issues.push('lang is ' + p.d.documentElement.lang);
+          if (/\b(?:NaN|undefined)\b/.test(p.d.body.innerText)) issues.push('NaN or undefined on screen');
+          const errs = errsSince(e0); if (errs.length) issues.push([...new Set(errs)].slice(0, 2).join(' | '));
+          if (issues.length) problems.push(`${g.name}: ${issues.join('; ')}`);
+          p.close();
+        }
+        check('Hindi', `all ${games.length} game pages fit at ${width}px wide in Hindi, with no errors`, !problems.length, problems.join(' || '));
+      }
+      {
+        const problems = [];
+        for (const width of [320, 375, 768]) {
+          seed({ 'mg-lang': 'hi' });
+          const e0 = window.__errs.length;
+          const p = await open('', { width, wait: 800 });
+          const issues = [];
+          for (const hash of ['', '#lists', '#favs', '#kids', '#logic', '#foryou', '#stats', '#about']) {
+            p.w.location.hash = hash; await sleep(hash === '#stats' ? 900 : 300);
+            const ov = wide(p.d, p.w); if (ov.length) issues.push(hash + ' overflow ' + ov.join(' '));
+            if (p.d.documentElement.scrollWidth > width + 1) issues.push(`${hash} page is ${p.d.documentElement.scrollWidth}px wide`);
+            const un = unnamed(p.d); if (un.length) issues.push(hash + ' unnamed ' + un.join(' '));
+            if (!DEV.test((p.d.querySelector('#view') || p.d.body).textContent)) issues.push(hash + ' has no Hindi');
+          }
+          const errs = errsSince(e0); if (errs.length) issues.push([...new Set(errs)].slice(0, 2).join(' | '));
+          if (issues.length) problems.push(`${width}px: ${issues.join('; ')}`);
+          p.close();
+        }
+        check('Hindi', 'the Hindi home page, lists, For you, Progress and About fit every width', !problems.length, problems.join(' || '));
+      }
+      {
+        const problems = [];
+        for (const g of games) {
+          seed({ 'mg-lang': 'hi' });
+          const e0 = window.__errs.length;
+          const p = await open(`games/${g.id}/`, { wait: 300 });
+          const issues = [];
+          try {
+            if (!p.w.MGTutorial) { const demoBtn = p.d.querySelector('.demo-btn'); if (demoBtn) demoBtn.click(); await sleep(900); }
+            if (!p.w.MGTutorial) issues.push('tutorial script did not load');
+            else {
+              p.w.MGTutorial.start({ force: true }); await sleep(250);
+              const total = p.d.querySelectorAll('.coach-steps b').length;
+              for (let s = 0; s < total; s++) {
+                await sleep(150);
+                const text = (p.d.querySelector('.coach-text') || {}).textContent || '';
+                if (!DEV.test(text)) issues.push(`step ${s + 1} is not in Hindi: ${text.slice(0, 40)}`);
+                p.d.querySelector('.coach-next').click(); await sleep(100);
+              }
+            }
+          } catch (err) { issues.push('threw: ' + err.message); }
+          const errs = errsSince(e0); if (errs.length) issues.push([...new Set(errs)].slice(0, 2).join(' | '));
+          if (issues.length) problems.push(`${g.name}: ${issues.join('; ')}`);
+          p.close();
+        }
+        check('Hindi', `every demo step is in Hindi (${games.length} games)`, !problems.length, problems.join(' || '));
       }
     }
   } catch (err) {

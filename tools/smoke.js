@@ -245,6 +245,67 @@
       sp.close();
     }
 
+    // 3g. Languages: English is the default, the choice is remembered, game names and game art stay as they are,
+    // and every game's rules, tips and history exist in Hindi (a new game without Hindi text fails here).
+    if (!lenient) {
+      const DEV = /[ऀ-ॿ]/;
+      seed({});
+      const en = await open('', 600);
+      check('Languages', 'a new visitor gets English (no language set on the page)', !en.d.documentElement.hasAttribute('data-lang') && !DEV.test(en.d.body.textContent.replace(/हिन्दी/g, '')), en.d.documentElement.getAttribute('data-lang'));
+      en.w.document.querySelector('.menu-btn, #menuBtn, [aria-label="Open games menu"]').click(); await sleep(400);
+      const row = en.d.querySelector('.lang-row');
+      check('Languages', 'the menu has a Language row with English selected', !!row && row.querySelector('[data-lang="en"][aria-pressed="true"]') && !!row.querySelector('[data-lang="hi"]'));
+      if (row) row.querySelector('[data-lang="hi"]').click();
+      await sleep(900);
+      check('Languages', 'choosing हिन्दी is remembered on this device', en.w.localStorage.getItem('mg-lang') === 'hi');
+      en.close();
+
+      seed({ 'mg-lang': 'hi' });
+      const hi = await open('', 900);
+      check('Languages', 'the saved choice is used on the next visit', hi.d.documentElement.getAttribute('lang') === 'hi' && hi.d.documentElement.getAttribute('data-lang') === 'hi');
+      const tabs = [...hi.d.querySelectorAll('.tabbar a, .tabbar button, nav a')].map(e => e.textContent.trim()).join(' ');
+      check('Languages', 'the tab bar and headings are in Hindi', DEV.test(tabs) && DEV.test(hi.d.querySelector('header.top').textContent), tabs);
+      const names = [...hi.d.querySelectorAll('.gname')].map(e => e.textContent.trim());
+      check('Languages', 'game names stay in English', names.length > 5 && names.every(n => !DEV.test(n)), names.filter(n => DEV.test(n)).join());
+      const reachableHi = new Set([...hi.d.querySelectorAll('main a[href*="games/"]')].map(a => (a.getAttribute('href').match(/games\/([a-z0-9-]+)\//) || [])[1]).filter(Boolean));
+      check('Languages', `Hindi home page still shows all ${GAMES.length} games`, reachableHi.size === GAMES.length, `${reachableHi.size} shown`);
+      check('Languages', 'Hindi home page has no sideways overflow at phone width', hi.d.documentElement.scrollWidth <= 376, hi.d.documentElement.scrollWidth);
+      const pk = hi.w.MGLang && hi.w.MGLang.pack;
+      check('Languages', 'the Hindi pack covers every game and section', !!pk && GAMES.every(g => pk.games[g.id] && pk.games[g.id].how && pk.games[g.id].history && pk.games[g.id].origin) && SECTIONS.every(s => pk.sections[s.id]), pk ? GAMES.filter(g => !pk.games[g.id]).map(g => g.id).join() : 'no pack');
+      hi.close();
+
+      seed({ 'mg-lang': 'zz' });
+      const bad = await open('', 500);
+      check('Languages', 'an unknown saved language falls back to English', !bad.d.documentElement.hasAttribute('data-lang'));
+      bad.close();
+
+      const missing = [];
+      for (const g of GAMES) {
+        seed({ 'mg-lang': 'hi', ['seen-' + g.id]: '9' });
+        const p = await open(`games/${g.id}/`, 350);
+        const how = p.d.querySelector('details.howto');
+        const all = how ? [...how.querySelectorAll('h3, p, li')].filter(e => !e.closest('.demo-btn') && !e.querySelector('.demo-btn')) : [];
+        const els = all.filter(e => !all.some(o => o !== e && o.contains(e)));
+        const want = p.w.MGLang && p.w.MGLang.pack.games[g.id] && p.w.MGLang.pack.games[g.id].how.length;
+        const plain = els.filter(e => !DEV.test(e.textContent));
+        const hist = p.d.querySelector('#history p');
+        const title = (p.d.querySelector('h1') || {}).textContent || '';
+        if (!how || els.length !== want || plain.length || !hist || !DEV.test(hist.textContent) || !title.includes(g.name) || DEV.test(title)) missing.push(`${g.id} (${els.length}/${want}${plain.length ? ', English left: ' + plain[0].textContent.slice(0, 30) : ''})`);
+        p.close();
+      }
+      check('Languages', `every game's rules, tips and history are in Hindi, and the name stays English (${GAMES.length} games)`, !missing.length, missing.join('; '));
+
+      seed({ 'mg-lang': 'hi' });
+      const cw = await open('games/colour-word/', 600);
+      const inkNames = [...cw.d.querySelectorAll('#keys button')].map(b => b.textContent.trim());
+      check('Languages', 'Colour Word keeps its English colour names (they are what the game tests)', inkNames.length >= 3 && inkNames.every(n => ['Red', 'Blue', 'Green', 'Yellow'].includes(n)), inkNames.join());
+      cw.close();
+      const ws = await open('games/word-search/', 600);
+      const letters = [...ws.d.querySelectorAll('#grid > *')].map(e => e.textContent.trim()).join('');
+      check('Languages', 'Word Search letters and words stay in English', letters.length > 20 && !DEV.test(letters) && !DEV.test([...ws.d.querySelectorAll('#words .ww')].map(e => e.textContent).join('')));
+      ws.close();
+    }
+
     // 4. Every game page, from a new visitor and from a returning player.
     for (const label of ['new visitor', 'returning player']) {
       seed(label === 'new visitor' ? {} : LEGACY);

@@ -1414,3 +1414,18 @@ body.focus .howto, body.focus .more, body.focus .history, body.focus .kidbar { o
 .about { padding-bottom: 24px; }
 .about h3 { margin: 22px 0 6px; font-family: var(--font-voice); font-weight: 600; font-size: 1.1rem; letter-spacing: -.01em; }
 .about p { margin: 0 0 4px; color: var(--ink-2); line-height: 1.6; }
+
+/* Language row in the menu */
+.lang-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 8px 4px 6px; }
+.lang-label { font-weight: 600; font-size: .9rem; color: var(--ink-2); }
+.lang-row .seg { flex: none; }
+.lang-row .seg button { min-height: 36px; padding: 4px 12px; }
+
+/* Hindi: Devanagari needs its own font, a little more size and air, and no tight letter-spacing (it breaks the joined letters) */
+:root[data-lang="hi"] { --font-ui: "Atkinson Hyperlegible Next", "Noto Sans Devanagari", "Nirmala UI", system-ui, sans-serif; --font-voice: "Fraunces", "Noto Serif Devanagari", "Noto Sans Devanagari", Georgia, serif; }
+:root[data-lang="hi"] body { font-size: 16px; line-height: 1.7; }
+:root[data-lang="hi"] h1, :root[data-lang="hi"] h2, :root[data-lang="hi"] h3, :root[data-lang="hi"] .view-title, :root[data-lang="hi"] .shelf-head h2, :root[data-lang="hi"] .hero-text b, :root[data-lang="hi"] .daily-text b, :root[data-lang="hi"] .stats b { letter-spacing: 0; line-height: 1.4; }
+:root[data-lang="hi"] .hero-label, :root[data-lang="hi"] .daily-text small, :root[data-lang="hi"] .st-sec, :root[data-lang="hi"] .stats span { letter-spacing: 0; text-transform: none; }
+:root[data-lang="hi"] .tab { font-size: .78rem; line-height: 1.3; }
+:root[data-lang="hi"] .cat, :root[data-lang="hi"] .chip, :root[data-lang="hi"] .seg button, :root[data-lang="hi"] .btn { line-height: 1.5; }
+:root[data-lang="hi"] .howto p, :root[data-lang="hi"] .howto li, :root[data-lang="hi"] .history p, :root[data-lang="hi"] .about p { line-height: 1.8; }
