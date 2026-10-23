@@ -7,7 +7,6 @@ var SECTIONS = [
   { id: 'math', name: 'Math & numbers', blurb: 'Sums, targets and number tricks' },
   { id: 'moves', name: 'Sliding & shapes', blurb: 'Move pieces into place' },
   { id: 'memory', name: 'Memory & focus', blurb: 'Train recall and attention' },
-  { id: 'seek', name: 'Find it', blurb: 'Spot the hidden friends' },
   { id: 'cards', name: 'Solitaire & tiles', blurb: 'Classic patience games' },
 ];
 
@@ -70,9 +69,6 @@ var GAMES = [
   { id: 'tripeaks', sec: 'cards', name: 'Tri Peaks', origin: 'Patience classic', icon: '♠', blurb: 'Clear three peaks, one up or down.' },
   { id: 'calculation', sec: 'cards', name: 'Calculation', origin: 'Britain, 1800s', icon: '♥', blurb: 'Build four rows by ones, twos, threes and fours.' },
   { id: 'monte-carlo', sec: 'cards', name: 'Monte Carlo', origin: 'Patience classic', icon: '♣', blurb: 'Pair up touching cards of the same number.' },
-  { id: 'find-the-cat', sec: 'seek', kids: true, name: 'Find the Cat', origin: 'Picture-book classic', icon: '🐱', blurb: 'Spot the cat hiding among the animals.' },
-  { id: 'find-them-all', sec: 'seek', kids: true, name: 'Find Them All', origin: 'Picture-book classic', icon: '⭐', blurb: 'Collect every star, butterfly or apple in the scene.' },
-  { id: 'hide-and-seek', sec: 'seek', kids: true, name: 'Hide and Seek', origin: 'Children\'s game, worldwide', icon: '🌳', blurb: 'A friend is hiding. Peek behind things to find them.' },
 ];
 
 // Games with a level or size choice, so they can open one step above the highest level the player has won.
@@ -119,7 +115,7 @@ var AGES = {
   'bulls-and-cows': [8, 11], 'magic-square': [8, 11], 'make-24': [8, 11], 'number-pyramid': [7, 11], 'water-jugs': [9, 11],
   '15-puzzle': [6, 11], 'hanoi': [6, 11], 'huarong-dao': [8, 11], 'traffic-jam': [6, 11],
   'memory': [4, 8], 'recall': [5, 9], 'schulte-table': [7, 11], 'grid-recall': [6, 10], 'digit-span': [8, 11],
-  'pyramid': [7, 11], 'golf': [6, 11], 'find-the-cat': [4, 8], 'find-them-all': [4, 8], 'hide-and-seek': [3, 7],
+  'pyramid': [7, 11], 'golf': [6, 11],
   'one-stroke': [7, 11], 'next-in-line': [8, 11], 'maze': [6, 11], 'odd-one-out': [5, 9], 'colour-word': [8, 11], 'word-search': [7, 11],
 };
 GAMES.forEach(function (g) { if (g.kids) g.ages = AGES[g.id] || [6, 11]; });

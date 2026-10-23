@@ -1,6 +1,6 @@
 # The Quiet Board
 
-> A calm collection of 52 free single-player puzzle and mind games from around the world. No sign-up; each game has a How to play guide and a short history of where it comes from. Works in any browser on phones and computers.
+> A calm collection of 49 free single-player puzzle and mind games from around the world. No sign-up; each game has a How to play guide and a short history of where it comes from. Works in any browser on phones and computers.
 
 ## Logic
 
@@ -53,12 +53,6 @@
 - [Odd One Out](https://nishit93.github.io/quiet-board/games/odd-one-out/): Find the square with a slightly different shade. Origin: Japan & USA, 1900s. Seeing small differences in colour is a real skill that doctors and designers test.
 - [Colour Word](https://nishit93.github.io/quiet-board/games/colour-word/): Name the ink, not the word. Origin: USA, 1935. In 1935 the American psychologist John Ridley Stroop showed that people name the ink colour of a word more slowly when the word spells a different colour.
 - [Word Search](https://nishit93.github.io/quiet-board/games/word-search/): Find the hidden words in the grid. Origin: USA, 1968. The first word search is credited to Norman E.
-
-## Find it
-
-- [Find the Cat](https://nishit93.github.io/quiet-board/games/find-the-cat/): Spot the cat hiding among the animals. Origin: Picture-book classic. Search-and-find pictures have delighted children for generations, from the crowded scenes of picture books to the "Where is…?" books of the late twentieth century.
-- [Find Them All](https://nishit93.github.io/quiet-board/games/find-them-all/): Collect every star, butterfly or apple in the scene. Origin: Picture-book classic. Games of finding every hidden object in a crowded picture have been a favourite of children and puzzle books for a long time.
-- [Hide and Seek](https://nishit93.github.io/quiet-board/games/hide-and-seek/): A friend is hiding. Peek behind things to find them. Origin: Children's game, worldwide. Hide and seek is one of the oldest children's games and is played all over the world, with names like "peekaboo" for the youngest players.
 
 ## Solitaire & tiles
 

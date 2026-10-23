@@ -53,7 +53,7 @@
     'word-search': { prefix: 'wordsearch-best-', kind: 'moves', lv: grid },
   };
   // Games that only count wins.
-  const COUNTS = { 'klondike': 'klondike-wins', 'pyramid': 'pyramid-wins', 'number-pyramid': 'pyramid-solved', 'pentominoes': 'pento-solved', 'target-number': 'target-solved', 'tchoukaillon': 'tchouk-solved', 'free-cells': 'freecells-wins', 'find-the-cat': 'findcat-wins', 'find-them-all': 'findall-wins', 'hide-and-seek': 'hideseek-wins' };
+  const COUNTS = { 'klondike': 'klondike-wins', 'pyramid': 'pyramid-wins', 'number-pyramid': 'pyramid-solved', 'pentominoes': 'pento-solved', 'target-number': 'target-solved', 'tchoukaillon': 'tchouk-solved', 'free-cells': 'freecells-wins' };
 
   const show = (kind, v) => {
     switch (kind) {

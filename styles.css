@@ -1369,7 +1369,6 @@ h1 { font-size: 1.4rem; }
 /* the same, when the player chose dark with the toggle */
 :root[data-theme="dark"] .plate { filter: brightness(.66) saturate(.8); }
 
-.sec-seek { --ic-bg: #6FA3A0; --ic-fg: #FFFFFF; }
 
 /* Puzzle of the day and Continue playing sit side by side */
 .duo { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 12px; }
