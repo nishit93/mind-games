@@ -10,7 +10,7 @@
 import { readFileSync, writeFileSync } from 'node:fs';
 import vm from 'node:vm';
 
-const SITE = 'https://nishit93.github.io/quiet-board/';
+const SITE = 'https://quietboard.org/';
 const root = new URL('../', import.meta.url);
 const read = p => readFileSync(new URL(p, root), 'utf8').replace(/\r\n/g, '\n');
 const write = (p, s) => writeFileSync(new URL(p, root), s);

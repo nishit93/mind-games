@@ -4,9 +4,9 @@
 # It only reads public addresses and never creates or changes anything on the server.
 set -u
 
-SITE="${SITE_URL:-https://nishit93.github.io/quiet-board/}"
+SITE="${SITE_URL:-https://quietboard.org/}"
 API="${API_URL:-https://mindgames-api.duckdns.org}"
-ORIGIN="${SITE_ORIGIN:-https://nishit93.github.io}"
+ORIGIN="${SITE_ORIGIN:-https://quietboard.org}"
 TMP="$(mktemp -d)"
 trap 'rm -rf "$TMP"' EXIT
 failed=0

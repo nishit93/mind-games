@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://nishit93.github.io/quiet-board/sitemap.xml
+Sitemap: https://quietboard.org/sitemap.xml

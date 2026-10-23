@@ -22,7 +22,7 @@
   const restore = () => { try { sessionStorage.clear(); } catch {} localStorage.clear(); for (const [k, v] of Object.entries(snapshot)) localStorage.setItem(k, v); };
   const until = async (fn, ms = 15000) => { const t0 = Date.now(); while (Date.now() - t0 < ms) { if (fn()) return true; await sleep(200); } return false; };
   // Real syncing is tested only against a server we are allowed to talk to: the one named in ?api=, or the live site's own.
-  const apiUnderTest = params.has('nosync') ? '' : (params.get('api') || (location.origin === 'https://nishit93.github.io' ? MG_CONFIG.api : ''));   // ?nosync=1 skips the real-server checks (the server allows only 10 new players an hour from one place)
+  const apiUnderTest = params.has('nosync') ? '' : (params.get('api') || (location.origin === 'https://quietboard.org' ? MG_CONFIG.api : ''));   // ?nosync=1 skips the real-server checks (the server allows only 10 new players an hour from one place)
   let testCode = '';
 
   // Saved data as it looked before progress tracking existed, and with damaged records.
